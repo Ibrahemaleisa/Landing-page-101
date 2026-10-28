@@ -1,0 +1,151 @@
+---
+/**
+ * A tiny picture of one studio option, drawn with the option's real values so the choice cards show
+ * what they do instead of describing it. Decorative: the card's text label carries the meaning.
+ */
+import { BUTTONS, DENSITIES, ELEVATIONS, HEROES, MOTIONS, PAGES, SCALES, SHAPES, TYPOGRAPHY, type ElementKey } from "../studio/options";
+import { PALETTES } from "../studio/palettes";
+import { cssVar } from "../studio/fonts";
+
+interface Props {
+  element: ElementKey;
+  id: string;
+  locale: "ar" | "en";
+}
+const { element, id, locale } = Astro.props;
+const find = <T extends { id: string }>(list: readonly T[]) => list.find((o) => o.id === id)!;
+const ar = locale === "ar";
+
+const swatches = (pid: string) => {
+  const t = PALETTES.find((p) => p.id === pid)!.tones;
+  return [t.base.bg, t.base.accent, t.inverse.bg, t.brand.bg];
+};
+
+let style: Record<string, string> = {};
+let parts: Record<string, string>[] = [];
+switch (element) {
+  case "palette":
+    parts = swatches(id).map((c) => ({ background: c }));
+    break;
+  case "type": {
+    const t = find(TYPOGRAPHY).value;
+    parts = [
+      { "font-family": `var(${cssVar(t.latin.display)}), ${t.generic ?? "sans-serif"}`, "font-weight": String(t.display.weight) },
+      { "font-family": `var(${cssVar(t.arabic.display)}), sans-serif`, "font-weight": String(Math.min(t.display.weight, 700)) },
+    ];
+    break;
+  }
+  case "scale": {
+    const s = find(SCALES).value;
+    style = { "--size": `${(0.9 + (s.maxRatio ** s.displayStep - 3) * 0.25).toFixed(2)}rem` };
+    break;
+  }
+  case "buttons": {
+    const b = find(BUTTONS).value;
+    const family = { mono: "var(--font-jetbrains), monospace", display: "var(--font-display)", body: "inherit" }[b.control.family ?? "body"];
+    style = {
+      "border-radius": `${Math.min(b.radius, 999) * 0.75}px`,
+      "min-block-size": `${Math.round(b.control.height * 0.62)}px`,
+      "font-weight": String(b.control.weight),
+      "text-transform": b.control.transform ?? "none",
+      // Arabic is joined script: tracking would break the letters apart (the kit zeroes it too)
+      "letter-spacing": ar ? "0" : (b.control.tracking ?? "0"),
+      "font-family": family,
+    };
+    break;
+  }
+  case "shape": {
+    const s = find(SHAPES).value;
+    style = { "border-radius": `${s.card * 0.6}px`, "border-width": `${s.border}px`, "--media": `${s.media * 0.45}px` };
+    break;
+  }
+  case "elevation": {
+    const e = find(ELEVATIONS).value;
+    const shadow =
+      e === "tinted"
+        ? "0 6px 14px -5px color-mix(in srgb, var(--tone-accent) 70%, transparent)"
+        : e.style === "soft"
+          ? "0 6px 14px -5px rgb(0 0 0 / 0.35)"
+          : e.style === "hard"
+            ? `${e.offset ?? 4}px ${e.offset ?? 4}px 0 var(--tone-fg)`
+            : "none";
+    style = { "box-shadow": shadow, ...(e !== "tinted" && e.style === "hard" ? { "border-color": "var(--tone-fg)" } : {}) };
+    break;
+  }
+  case "density": {
+    const d = find(DENSITIES).value;
+    style = { gap: { compact: "2px", comfortable: "5px", airy: "9px" }[d] };
+    break;
+  }
+  case "motion": {
+    const m = find(MOTIONS).value;
+    style = { "--dur": `${Math.max(m.duration.slow * 1.6, 1)}ms`, "--ease": m.ease };
+    break;
+  }
+}
+const pageBlocks = element === "page" ? find(PAGES).value : [];
+const hero = element === "hero" ? find(HEROES).value : undefined;
+const still = element === "motion" && find(MOTIONS).value.reveal === "none";
+---
+
+<span class="art" data-art={element} aria-hidden="true">
+  {element === "palette" && parts.map((p) => <span class="art__sw" style={p} />)}
+  {element === "type" && (
+    <>
+      <span class="art__glyph" style={parts[0]}>
+        Aa
+      </span>
+      <span class="art__glyph" style={parts[1]}>
+        أب
+      </span>
+    </>
+  )}
+  {element === "scale" && (
+    <>
+      <span class="art__big" style={style}>
+        {ar ? "أ" : "A"}
+      </span>
+      <span class="art__lines">
+        <span />
+        <span />
+      </span>
+    </>
+  )}
+  {element === "buttons" && (
+    <span class="art__btn" style={style}>
+      {ar ? "ابدأ" : "Start"}
+    </span>
+  )}
+  {element === "shape" && (
+    <span class="art__card" style={style}>
+      <span class="art__media" />
+    </span>
+  )}
+  {element === "elevation" && <span class="art__lift" style={style} />}
+  {element === "density" && (
+    <span class="art__stack" style={style}>
+      <span />
+      <span />
+      <span />
+    </span>
+  )}
+  {element === "motion" && (
+    <span class="art__track" style={style} data-still={still || undefined}>
+      <span class="art__dot" />
+    </span>
+  )}
+  {hero && (
+    <span class="art__hero" data-hero={hero}>
+      <span class="art__h1" />
+      <span class="art__h2" />
+      <span class="art__fig" />
+    </span>
+  )}
+  {element === "page" && (
+    <span class="art__page">
+      {pageBlocks.map(([, , tone]) => (
+        <span data-t={tone} />
+      ))}
+    </span>
+  )}
+</span>

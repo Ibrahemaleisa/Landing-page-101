@@ -16,9 +16,10 @@ The system makes the quality repeatable without making the sites look alike:
 
 ## Style Studio (private)
 
-`sites/studio` is a private playground: **10 ready-made styles**, and a dropdown for every element (colours,
-typography, type scale, buttons, corners and borders, shadows, spacing, motion, hero template, page template). The
-preview updates live in Arabic or English at phone, tablet or desktop size, and any mix exports as a `brand.ts`.
+`sites/studio` is a private playground: **14 ready-made styles**, picture cards for every element (colours,
+typography, type scale, buttons, corners and borders, shadows, spacing, motion, hero template, page template), sliders
+and a colour picker for fine-tuning, and a plain-language hint on every choice. The preview updates live in Arabic or
+English at phone, tablet or desktop size, and any mix exports as a `brand.ts`.
 Run it with `pnpm --dir sites/studio dev` → http://localhost:4324/. Guide: [docs/guides/studio.md](docs/guides/studio.md).
 
 ## Quick start
@@ -60,7 +61,7 @@ pnpm perf      # Lighthouse (lab)
 | [Opera audit](docs/research/opera-audit.md)                                                                                                                                        | Phase 1 research: what was kept, generalised, left behind, and fixed        |
 | [Design principles and tokens](docs/design/principles-and-tokens.md)                                                                                                               | The token reference                                                         |
 | [Components and sections](docs/components.md)                                                                                                                                      | Every component and section, with props and behaviour                       |
-| [Style Studio](docs/guides/studio.md)                                                                                                                                              | Mix 10 styles element by element, preview live, export                      |
+| [Style Studio](docs/guides/studio.md)                                                                                                                                              | Mix styles element by element, fine-tune, preview live, export              |
 | [Brand customization](docs/guides/brand-customization.md)                                                                                                                          | Making a brand feel like itself                                             |
 | [New project](docs/guides/new-project.md)                                                                                                                                          | Scaffold, customise, verify, deploy                                         |
 | [Testing and quality](docs/quality.md)                                                                                                                                             | Gates and definition of done                                                |
@@ -74,7 +75,7 @@ packages/kit             @landing/kit — brand compiler, i18n, components, sect
 packages/create-landing  `pnpm new-site` scaffolder
 templates/starter        what new sites start from
 sites/{opera,qitah,kitebase}   reference implementations
-sites/studio             private style studio (10 styles, live preview)
+sites/studio             private style studio (14 styles, fine-tuning, live preview)
 tests/{unit,e2e}         contrast gates, Playwright + axe
 scripts/                 Lighthouse and screenshot tooling
 docs/                    ADRs, guides, reports

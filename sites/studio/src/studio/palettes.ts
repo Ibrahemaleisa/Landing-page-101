@@ -1,5 +1,5 @@
 /**
- * Ten colour palettes. Each defines the four tones the page templates use — `base` (the page),
+ * Twelve colour palettes. Each defines the four tones the page templates use — `base` (the page),
  * `muted` (an alternate light or dark band), `inverse` (the contrasting band) and `brand` (the
  * accent band). Every required pair is gated by WCAG contrast in test/studio.test.ts.
  */
@@ -8,6 +8,8 @@ import type { Tone } from "@landing/kit/brand";
 export interface Palette {
   id: string;
   label: { ar: string; en: string };
+  /** One plain sentence: what this palette feels like. */
+  hint: { ar: string; en: string };
   tones: { base: Tone; muted: Tone; inverse: Tone; brand: Tone };
 }
 
@@ -15,6 +17,7 @@ export const PALETTES: Palette[] = [
   {
     id: "ink",
     label: { ar: "حبر وورق", en: "Ink & Paper" },
+    hint: { ar: "فاتح ومحايد بلون أزرق واضح للأزرار", en: "Light and neutral with a clear blue for actions" },
     tones: {
       base: {
         scheme: "light",
@@ -80,6 +83,7 @@ export const PALETTES: Palette[] = [
   {
     id: "midnight",
     label: { ar: "ليل وذهب", en: "Midnight Gold" },
+    hint: { ar: "خلفية داكنة مع لمسات ذهبية فخمة", en: "Dark background with luxurious gold accents" },
     tones: {
       base: {
         scheme: "dark",
@@ -144,6 +148,7 @@ export const PALETTES: Palette[] = [
   {
     id: "ocean",
     label: { ar: "المحيط", en: "Ocean" },
+    hint: { ar: "أزرق وتركوازي منعش", en: "Fresh blues and turquoise" },
     tones: {
       base: {
         scheme: "light",
@@ -208,6 +213,7 @@ export const PALETTES: Palette[] = [
   {
     id: "forest",
     label: { ar: "غابة وطين", en: "Forest & Clay" },
+    hint: { ar: "أخضر عميق مع لون الطين الدافئ", en: "Deep green with warm clay" },
     tones: {
       base: {
         scheme: "light",
@@ -272,6 +278,7 @@ export const PALETTES: Palette[] = [
   {
     id: "sunset",
     label: { ar: "الغروب", en: "Sunset" },
+    hint: { ar: "برتقالي ووردي دافئ وحيوي", en: "Warm, lively orange and pink" },
     tones: {
       base: {
         scheme: "light",
@@ -336,6 +343,7 @@ export const PALETTES: Palette[] = [
   {
     id: "neon",
     label: { ar: "نيون الليل", en: "Neon Night" },
+    hint: { ar: "داكن مع أخضر نيون لامع", en: "Dark with a bright neon green" },
     tones: {
       base: {
         scheme: "dark",
@@ -401,6 +409,7 @@ export const PALETTES: Palette[] = [
   {
     id: "desert",
     label: { ar: "صحراء نجد", en: "Najd Desert" },
+    hint: { ar: "ألوان الرمل والأرض", en: "Sand and earth tones" },
     tones: {
       base: {
         scheme: "light",
@@ -465,6 +474,7 @@ export const PALETTES: Palette[] = [
   {
     id: "royal",
     label: { ar: "أزرق ملكي", en: "Royal Blue" },
+    hint: { ar: "أزرق قوي يوحي بالثقة", en: "A strong blue that says trust" },
     tones: {
       base: {
         scheme: "light",
@@ -532,6 +542,7 @@ export const PALETTES: Palette[] = [
   {
     id: "mono",
     label: { ar: "أبيض وأسود", en: "Monochrome" },
+    hint: { ar: "أبيض وأسود فقط، بلا ألوان", en: "Only black and white, no colour" },
     tones: {
       base: {
         scheme: "light",
@@ -597,6 +608,7 @@ export const PALETTES: Palette[] = [
   {
     id: "pastel",
     label: { ar: "هادئ ناعم", en: "Pastel Calm" },
+    hint: { ar: "ألوان فاتحة ناعمة ومريحة للعين", en: "Soft, light colours that are easy on the eyes" },
     tones: {
       base: {
         scheme: "light",
@@ -654,6 +666,137 @@ export const PALETTES: Palette[] = [
         surface: "#ffffff",
         highlight: "#fbd5e5",
         onHighlight: "#22213a",
+      },
+    },
+  },
+  {
+    id: "rose",
+    label: { ar: "وردي توتي", en: "Berry Rose" },
+    hint: { ar: "وردي دافئ مع لون توتي أنيق", en: "Warm blush with an elegant berry" },
+    tones: {
+      base: {
+        scheme: "light",
+        bg: "#fbf6f4",
+        fg: "#2a1720",
+        fgMuted: "#6b5560",
+        line: "#ecdcd8",
+        accent: "#b0265a",
+        onAccent: "#ffffff",
+        accentHover: "#8c1d47",
+        ring: "#b0265a",
+        surface: "#ffffff",
+        highlight: "#ffd3e0",
+        onHighlight: "#2a1720",
+      },
+      muted: {
+        scheme: "light",
+        bg: "#f4e9e6",
+        fg: "#2a1720",
+        fgMuted: "#634d58",
+        line: "#e3d0cb",
+        accent: "#b0265a",
+        onAccent: "#ffffff",
+        accentHover: "#8c1d47",
+        ring: "#b0265a",
+        surface: "#fbf6f4",
+        highlight: "#ffd3e0",
+        onHighlight: "#2a1720",
+      },
+      inverse: {
+        scheme: "dark",
+        bg: "#2a1720",
+        fg: "#fbf6f4",
+        fgMuted: "#c9b3bc",
+        line: "#45303a",
+        accent: "#fbf6f4",
+        onAccent: "#2a1720",
+        accentHover: "#ecdcd8",
+        accentText: "#ff9cc0",
+        ring: "#ff9cc0",
+        surface: "#351f2a",
+        highlight: "#ffd3e0",
+        onHighlight: "#2a1720",
+      },
+      brand: {
+        scheme: "dark",
+        bg: "#b0265a",
+        fg: "#ffffff",
+        fgMuted: "#ffe6ee",
+        line: "#c4527d",
+        accent: "#ffffff",
+        onAccent: "#8c1d47",
+        accentHover: "#ffe8ef",
+        accentText: "#ffffff",
+        ring: "#ffffff",
+        surface: "#8c1d47",
+        surfaceFgMuted: "#ffe6ee",
+        highlight: "#ffd3e0",
+        onHighlight: "#2a1720",
+      },
+    },
+  },
+  {
+    id: "graphite",
+    label: { ar: "جرافيت وتركواز", en: "Graphite Teal" },
+    hint: { ar: "رمادي داكن هادئ مع تركواز حديث", en: "Calm dark grey with a modern teal" },
+    tones: {
+      base: {
+        scheme: "dark",
+        bg: "#111417",
+        fg: "#e8edf0",
+        fgMuted: "#9aa5ad",
+        line: "#262c31",
+        accent: "#2ec4b6",
+        onAccent: "#06201d",
+        accentHover: "#5fd6cb",
+        ring: "#2ec4b6",
+        surface: "#181c20",
+        highlight: "#2ec4b6",
+        onHighlight: "#06201d",
+      },
+      muted: {
+        scheme: "dark",
+        bg: "#171b1f",
+        fg: "#e8edf0",
+        fgMuted: "#9ea9b1",
+        line: "#2a3036",
+        accent: "#2ec4b6",
+        onAccent: "#06201d",
+        accentHover: "#5fd6cb",
+        ring: "#2ec4b6",
+        surface: "#1e2328",
+        highlight: "#2ec4b6",
+        onHighlight: "#06201d",
+      },
+      inverse: {
+        scheme: "light",
+        bg: "#e8edf0",
+        fg: "#111417",
+        fgMuted: "#4c565e",
+        line: "#cbd3d8",
+        accent: "#111417",
+        onAccent: "#e8edf0",
+        accentHover: "#2a3036",
+        accentText: "#0b6b62",
+        ring: "#0b6b62",
+        surface: "#f5f8f9",
+        highlight: "#2ec4b6",
+        onHighlight: "#06201d",
+      },
+      brand: {
+        scheme: "light",
+        bg: "#2ec4b6",
+        fg: "#06201d",
+        fgMuted: "#0b332f",
+        line: "#25a093",
+        accent: "#06201d",
+        onAccent: "#e8edf0",
+        accentHover: "#123a35",
+        accentText: "#06201d",
+        ring: "#06201d",
+        surface: "#e8edf0",
+        highlight: "#06201d",
+        onHighlight: "#2ec4b6",
       },
     },
   },

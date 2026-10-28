@@ -1,7 +1,8 @@
 ---
 /**
  * The style studio: pick a ready-made style or mix every element yourself, and watch the preview
- * update live. Private tool — not indexed.
+ * update live. Choices are visual cards (radio groups), fine-tuning is sliders and a colour picker,
+ * and every element and option carries a one-line plain-language hint. Private tool — not indexed.
  */
 import BaseLayout from "@landing/kit/layouts/BaseLayout.astro";
 import Dialog from "@landing/kit/components/Dialog.astro";
@@ -10,8 +11,10 @@ import Icon from "@landing/kit/primitives/Icon.astro";
 import LocaleSwitch from "@landing/kit/components/LocaleSwitch.astro";
 import { localeHref, localePaths } from "@landing/kit/i18n";
 import { site, type Locale } from "../site";
-import { DEFAULT_SELECTION, ELEMENTS, ELEMENT_LABELS, PRESETS, buildBrand, type ElementKey } from "../studio/options";
+import { DEFAULT_SELECTION, ELEMENTS, ELEMENT_INFO, PRESETS, TWEAKS, buildBrand, type ElementKey } from "../studio/options";
+import { PALETTES } from "../studio/palettes";
 import { FONT_FAMILIES, cssVar } from "../studio/fonts";
+import ChoiceArt from "../components/ChoiceArt.astro";
 import "../styles/shell.css";
 
 export const getStaticPaths = () => localePaths(site);
@@ -22,9 +25,16 @@ const t = ar
   ? {
       title: "استوديو الأنماط",
       tagline: "اختر نمطاً جاهزاً أو اخلط كل عنصر بنفسك، وشاهد النتيجة مباشرة.",
-      preset: "النمط الجاهز",
-      custom: "مخصص (من اختيارك)",
-      elements: "العناصر",
+      presets: "ابدأ بنمط جاهز",
+      presetsHint: "كل نمط يختار لك كل العناصر دفعة واحدة. بعدها عدّل ما تريد تحت.",
+      custom: "مخصص: مزيجك الخاص (لا يطابق نمطاً جاهزاً)",
+      elements: "أو عدّل كل عنصر بنفسك",
+      elementsHint: "افتح أي عنصر، اختر الشكل الذي يعجبك، ثم عدّله بدقة من «تعديل دقيق».",
+      now: "اختيارك الآن:",
+      tune: "تعديل دقيق",
+      tuneReset: "رجّع الافتراضي",
+      off: "متوقف لأن الحركة مطفأة",
+      adjusted: "عدّلنا درجته قليلاً حتى يبقى النص مقروءاً",
       random: "اقتراح عشوائي",
       reset: "إعادة الضبط",
       device: "حجم المعاينة",
@@ -38,8 +48,8 @@ const t = ar
       copy: "نسخ",
       copied: "تم النسخ",
       close: "إغلاق",
-      contrast: "فحص التباين (WCAG AA)",
-      contrastOk: "كل الأزواج المطلوبة ناجحة ({m})",
+      contrast: "فحص وضوح الألوان (WCAG AA)",
+      contrastOk: "كل النصوص مقروءة ({m} فحصاً ناجحاً)",
       contrastBad: "{n} من {m} أزواج لا تحقق الحد الأدنى",
       frame: "معاينة النمط",
       language: "اللغة",
@@ -49,9 +59,16 @@ const t = ar
   : {
       title: "Style Studio",
       tagline: "Pick a ready-made style or mix every element yourself, and see the result live.",
-      preset: "Ready-made style",
-      custom: "Custom (your mix)",
-      elements: "Elements",
+      presets: "Start from a ready-made style",
+      presetsHint: "Each style sets every element at once. Then change anything below.",
+      custom: "Custom: your own mix (matches no ready-made style)",
+      elements: "Or adjust each element yourself",
+      elementsHint: "Open any element, pick the look you like, then refine it under “Fine-tune”.",
+      now: "Your choice:",
+      tune: "Fine-tune",
+      tuneReset: "Back to default",
+      off: "Off because motion is turned off",
+      adjusted: "We adjusted its shade slightly so text stays readable",
       random: "Surprise me",
       reset: "Reset",
       device: "Preview size",
@@ -65,8 +82,8 @@ const t = ar
       copy: "Copy",
       copied: "Copied",
       close: "Close",
-      contrast: "Contrast check (WCAG AA)",
-      contrastOk: "All required pairs pass ({m})",
+      contrast: "Colour readability (WCAG AA)",
+      contrastOk: "All text is readable ({m} checks pass)",
       contrastBad: "{n} of {m} pairs below the minimum",
       frame: "Style preview",
       language: "Language",
@@ -76,6 +93,11 @@ const t = ar
 const keys = Object.keys(ELEMENTS) as ElementKey[];
 const lbl = (l: { ar: string; en: string }) => l[locale];
 const previewPath = (l: Locale) => localeHref(site, l, "/preview/");
+const current = (k: ElementKey) => ELEMENTS[k].find((o) => o.id === DEFAULT_SELECTION[k])!;
+const swatches = (pid: string) => {
+  const tn = PALETTES.find((p) => p.id === pid)!.tones;
+  return [tn.base.bg, tn.base.accent, tn.inverse.bg, tn.brand.bg];
+};
 ---
 
 <BaseLayout
@@ -87,7 +109,7 @@ const previewPath = (l: Locale) => localeHref(site, l, "/preview/");
   siteName={t.title}
   skipLabel={t.skip}
   noindex
-  fonts={FONT_FAMILIES.filter((ff) => ["inter", "plex-ar"].includes(ff.id)).map((ff) => ({ cssVariable: cssVar(ff.id), preload: true }))}
+  fonts={FONT_FAMILIES.map((ff) => ({ cssVariable: cssVar(ff.id), preload: ["inter", "plex-ar"].includes(ff.id) }))}
 >
   <main id="main" class="studio" data-studio data-preview-ar={previewPath("ar")} data-preview-en={previewPath("en")}>
     <section class="studio__panel" aria-labelledby="studio-title">
@@ -100,36 +122,97 @@ const previewPath = (l: Locale) => localeHref(site, l, "/preview/");
       <p class="studio__tagline">{t.tagline}</p>
 
       <div class="studio__controls">
-        <div class="studio__field studio__field--preset">
-          <label for="s-preset">{t.preset}</label>
-          <select id="s-preset" data-preset>
-            {PRESETS.map((p) => (
-              <option value={p.id}>{lbl(p.label)}</option>
-            ))}
-            <option value="custom" data-custom hidden>
-              {t.custom}
-            </option>
-          </select>
-          <p class="studio__desc" data-preset-desc aria-live="polite">
-            {lbl(PRESETS[0]!.description)}
+        <fieldset class="studio__presets" aria-describedby="presets-hint">
+          <legend class="studio__step">{t.presets}</legend>
+          <p class="studio__desc" id="presets-hint">
+            {t.presetsHint}
           </p>
-        </div>
-
-        <fieldset class="studio__group">
-          <legend>{t.elements}</legend>
-          {keys.map((k) => (
-            <div class="studio__field">
-              <label for={`s-${k}`}>{lbl(ELEMENT_LABELS[k])}</label>
-              <select id={`s-${k}`} data-el={k}>
-                {ELEMENTS[k].map((o) => (
-                  <option value={o.id} selected={DEFAULT_SELECTION[k] === o.id}>
-                    {lbl(o.label)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
+          <div class="presets">
+            {PRESETS.map((p, i) => (
+              <label class="preset">
+                <input type="radio" name="preset" value={p.id} checked={i === 0} aria-describedby={`pd-${p.id}`} />
+                <span class="preset__sw" aria-hidden="true">
+                  {swatches(p.selection.palette).map((c) => (
+                    <span style={{ background: c }} />
+                  ))}
+                </span>
+                <span class="preset__name">{lbl(p.label)}</span>
+                <span class="preset__desc" id={`pd-${p.id}`}>
+                  {lbl(p.description)}
+                </span>
+              </label>
+            ))}
+          </div>
+          <p class="studio__custom" data-custom hidden>
+            {t.custom}
+          </p>
         </fieldset>
+
+        <section class="studio__elements" aria-labelledby="elements-title">
+          <h2 id="elements-title" class="studio__step">
+            {t.elements}
+          </h2>
+          <p class="studio__desc">{t.elementsHint}</p>
+          {keys.map((k, i) => {
+            const tweaks = TWEAKS.filter((tw) => tw.group === k);
+            return (
+              <details class="opt" data-group={k} open={i === 0}>
+                <summary>
+                  <span class="opt__title">{lbl(ELEMENT_INFO[k].label)}</span>
+                  <span class="opt__current" data-current>
+                    {lbl(current(k).label)}
+                  </span>
+                  <Icon name="chevron-down" class="opt__chev" />
+                </summary>
+                <div class="opt__body">
+                  <p class="opt__hint" id={`h-${k}`}>
+                    {lbl(ELEMENT_INFO[k].hint)}
+                  </p>
+                  <fieldset class="choices" data-el={k} data-cols={k === "palette" || k === "type" || k === "page" ? "2" : "3"} aria-describedby={`h-${k}`}>
+                    <legend class="lk-visually-hidden">{lbl(ELEMENT_INFO[k].label)}</legend>
+                    {ELEMENTS[k].map((o) => (
+                      <label class="choice">
+                        <input type="radio" name={`el-${k}`} value={o.id} checked={DEFAULT_SELECTION[k] === o.id} />
+                        <ChoiceArt element={k} id={o.id} locale={locale} />
+                        <span class="choice__name">{lbl(o.label)}</span>
+                      </label>
+                    ))}
+                  </fieldset>
+                  <p class="opt__now" data-now>
+                    <strong>{t.now}</strong> <span data-now-text>{lbl(current(k).hint)}</span>
+                  </p>
+                  {tweaks.length > 0 && (
+                    <div class="tune" role="group" aria-labelledby={`tune-${k}`}>
+                      <div class="tune__head">
+                        <h3 id={`tune-${k}`}>{t.tune}</h3>
+                        <button type="button" class="tune__reset" data-tune-reset={k} hidden>
+                          {t.tuneReset}
+                        </button>
+                      </div>
+                      {tweaks.map((tw) => (
+                        <div class="tune__row" data-tweak={tw.id}>
+                          <div class="tune__label">
+                            <label for={`tw-${tw.id}`}>{lbl(tw.label)}</label>
+                            <output for={`tw-${tw.id}`} data-out />
+                          </div>
+                          {tw.kind === "color" ? (
+                            <input type="color" id={`tw-${tw.id}`} aria-describedby={`twh-${tw.id}`} data-adjusted={t.adjusted} />
+                          ) : (
+                            <input type="range" id={`tw-${tw.id}`} min={tw.min} max={tw.max} step={tw.step} aria-describedby={`twh-${tw.id}`} />
+                          )}
+                          <p class="tune__hint" id={`twh-${tw.id}`}>
+                            <span data-hint>{lbl(tw.hint)}</span>
+                            <span data-note data-off={t.off} />
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </details>
+            );
+          })}
+        </section>
 
         <div class="studio__actions">
           <Button variant="secondary" size="sm" icon="zap" iconStart data-random>
@@ -166,17 +249,17 @@ const previewPath = (l: Locale) => localeHref(site, l, "/preview/");
           <input type="radio" name="device" id="d-desktop" value="100%" checked />
           <label for="d-desktop">{t.desktop}</label>
         </fieldset>
-        <div class="studio__field studio__field--inline">
-          <label for="s-plang">{t.previewLang}</label>
-          <select id="s-plang" data-plang>
-            <option value="ar" selected={ar}>
-              العربية
-            </option>
-            <option value="en" selected={!ar}>
-              English
-            </option>
-          </select>
-        </div>
+        <fieldset class="studio__seg">
+          <legend class="lk-visually-hidden">{t.previewLang}</legend>
+          <input type="radio" name="plang" id="pl-ar" value="ar" checked={ar} />
+          <label for="pl-ar" lang="ar">
+            العربية
+          </label>
+          <input type="radio" name="plang" id="pl-en" value="en" checked={!ar} />
+          <label for="pl-en" lang="en">
+            English
+          </label>
+        </fieldset>
         <a class="studio__open" href={previewPath(locale)} target="_blank" rel="noopener" data-open>
           {t.open}
           <Icon name="external-link" />
@@ -191,85 +274,168 @@ const previewPath = (l: Locale) => localeHref(site, l, "/preview/");
 
 <script>
   import { checkBrandContrast } from "@landing/kit/brand";
-  import { DEFAULT_SELECTION, ELEMENTS, PRESETS, buildBrand, exportBrand, matchPreset, type ElementKey, type Selection } from "../studio/options";
-  import { decodeSelection, encodeSelection, hasSelection } from "../studio/state";
+  import {
+    DEFAULT_SELECTION,
+    ELEMENTS,
+    PRESETS,
+    TWEAKS,
+    buildBrand,
+    cleanTweaks,
+    exportBrand,
+    matchPreset,
+    type ElementKey,
+    type Selection,
+    type Tweaks,
+  } from "../studio/options";
+  import { decodeState, encodeSelection, hasSelection, type StudioState } from "../studio/state";
 
   const root = document.querySelector<HTMLElement>("[data-studio]")!;
   const frame = root.querySelector<HTMLIFrameElement>("[data-frame]")!;
   const wrap = root.querySelector<HTMLElement>("[data-frame-wrap]")!;
-  const presetSel = root.querySelector<HTMLSelectElement>("[data-preset]")!;
-  const customOpt = presetSel.querySelector<HTMLOptionElement>("[data-custom]")!;
-  const desc = root.querySelector<HTMLElement>("[data-preset-desc]")!;
-  const selects = Array.from(root.querySelectorAll<HTMLSelectElement>("[data-el]"));
+  const customNote = root.querySelector<HTMLElement>("[data-custom]")!;
+  const presetRadios = Array.from(root.querySelectorAll<HTMLInputElement>('input[name="preset"]'));
+  const groups = Array.from(root.querySelectorAll<HTMLElement>("details[data-group]"));
   const contrastEl = root.querySelector<HTMLElement>("[data-contrast]")!;
   const openLink = root.querySelector<HTMLAnchorElement>("[data-open]")!;
-  const plang = root.querySelector<HTMLSelectElement>("[data-plang]")!;
   const lang = document.documentElement.lang.startsWith("ar") ? "ar" : "en";
   const STORE = "lk-studio";
 
-  let sel: Selection = hasSelection(location.search) ? decodeSelection(location.search) : load();
+  const keys = Object.keys(ELEMENTS) as ElementKey[];
+  const initial: StudioState = hasSelection(location.search) ? decodeState(location.search) : load();
+  let sel: Selection = initial.selection;
+  let tweaks: Tweaks = initial.tweaks;
 
-  function load(): Selection {
+  function load(): StudioState {
     try {
       const raw = localStorage.getItem(STORE);
-      if (raw) return decodeSelection(raw);
+      if (raw) return decodeState(raw);
     } catch {
       /* storage unavailable: use the default */
     }
-    return { ...DEFAULT_SELECTION };
+    return { selection: { ...DEFAULT_SELECTION }, tweaks: {} };
   }
 
-  const previewUrl = () => (plang.value === "ar" ? root.dataset.previewAr : root.dataset.previewEn)!;
+  const plang = () => root.querySelector<HTMLInputElement>('input[name="plang"]:checked')!.value;
+  const previewUrl = () => (plang() === "ar" ? root.dataset.previewAr : root.dataset.previewEn)!;
+
+  // URL and storage writes are debounced: sliders fire many input events per second
+  let persistTimer: number | undefined;
+  function persist() {
+    clearTimeout(persistTimer);
+    persistTimer = window.setTimeout(() => {
+      const q = encodeSelection(sel, tweaks);
+      history.replaceState(null, "", q);
+      try {
+        localStorage.setItem(STORE, q);
+      } catch {
+        /* not persisted */
+      }
+    }, 250);
+  }
 
   function sync() {
-    selects.forEach((s) => (s.value = sel[s.dataset.el as ElementKey]));
-    const preset = matchPreset(sel);
-    customOpt.hidden = !!preset;
-    presetSel.value = preset?.id ?? "custom";
-    desc.textContent = preset ? preset.description[lang] : "";
+    const brand = buildBrand(sel, "Studio", tweaks);
 
-    const checks = checkBrandContrast(buildBrand(sel)).filter((c) => c.level === "required");
+    for (const g of groups) {
+      const k = g.dataset.group as ElementKey;
+      const opt = ELEMENTS[k].find((o) => o.id === sel[k])!;
+      g.querySelectorAll<HTMLInputElement>(`input[name="el-${k}"]`).forEach((r) => (r.checked = r.value === sel[k]));
+      g.querySelector("[data-current]")!.textContent = opt.label[lang];
+      g.querySelector("[data-now-text]")!.textContent = opt.hint[lang];
+      const reset = g.querySelector<HTMLButtonElement>("[data-tune-reset]");
+      if (reset) reset.hidden = !TWEAKS.some((tw) => tw.group === k && tw.id in tweaks);
+    }
+
+    for (const tw of TWEAKS) {
+      const row = root.querySelector<HTMLElement>(`[data-tweak="${tw.id}"]`)!;
+      const input = row.querySelector<HTMLInputElement>("input")!;
+      const out = row.querySelector<HTMLOutputElement>("[data-out]")!;
+      const note = row.querySelector<HTMLElement>("[data-note]")!;
+      row.dataset.changed = String(tw.id in tweaks);
+      if (tw.kind === "color") {
+        const picked = (tweaks.accent as string | undefined) ?? tw.read(sel);
+        if (document.activeElement !== input) input.value = picked;
+        const used = brand.color.tones.base.accent;
+        out.textContent = used.toUpperCase();
+        note.textContent = used.toLowerCase() !== picked.toLowerCase() ? input.dataset.adjusted! : "";
+      } else {
+        const v = (tweaks[tw.id] as number | undefined) ?? tw.read(sel);
+        input.value = String(v);
+        out.textContent = tw.format(v, sel, lang);
+        const on = tw.enabled?.(sel) ?? true;
+        input.disabled = !on;
+        note.textContent = on ? "" : note.dataset.off!;
+      }
+    }
+
+    const preset = matchPreset(sel, tweaks);
+    presetRadios.forEach((r) => (r.checked = r.value === preset?.id));
+    customNote.hidden = !!preset;
+
+    const checks = checkBrandContrast(brand).filter((c) => c.level === "required");
     const failed = checks.filter((c) => !c.pass).length;
     contrastEl.textContent = (failed ? contrastEl.dataset.badTemplate! : contrastEl.dataset.okTemplate!)
       .replace("{n}", String(failed))
       .replace("{m}", String(checks.length));
     contrastEl.dataset.state = failed ? "bad" : "ok";
 
-    const q = encodeSelection(sel);
-    openLink.href = previewUrl() + q;
-    history.replaceState(null, "", q);
-    try {
-      localStorage.setItem(STORE, q);
-    } catch {
-      /* not persisted */
-    }
-    frame.contentWindow?.postMessage({ type: "studio:apply", selection: sel }, location.origin);
+    openLink.href = previewUrl() + encodeSelection(sel, tweaks);
+    persist();
+    frame.contentWindow?.postMessage({ type: "studio:apply", selection: sel, tweaks }, location.origin);
   }
 
-  selects.forEach((s) =>
-    s.addEventListener("change", () => {
-      sel = { ...sel, [s.dataset.el as ElementKey]: s.value };
-      sync();
-    }),
-  );
-  presetSel.addEventListener("change", () => {
-    const p = PRESETS.find((x) => x.id === presetSel.value);
-    if (p) {
-      sel = { ...p.selection };
+  /** Choosing a new option for an element drops that element's fine-tuning. */
+  function dropTweaks(k: ElementKey) {
+    tweaks = Object.fromEntries(Object.entries(tweaks).filter(([id]) => TWEAKS.find((tw) => tw.id === id)?.group !== k));
+  }
+
+  root.addEventListener("change", (e) => {
+    const input = e.target as HTMLInputElement;
+    if (input.name === "preset") {
+      const p = PRESETS.find((x) => x.id === input.value);
+      if (p) {
+        sel = { ...p.selection };
+        tweaks = {};
+        sync();
+      }
+    } else if (input.name.startsWith("el-")) {
+      const k = input.name.slice(3) as ElementKey;
+      sel = { ...sel, [k]: input.value };
+      dropTweaks(k);
       sync();
     }
   });
+
+  for (const tw of TWEAKS) {
+    const input = root.querySelector<HTMLInputElement>(`#tw-${tw.id}`)!;
+    input.addEventListener("input", () => {
+      tweaks = cleanTweaks({ ...tweaks, [tw.id]: tw.kind === "color" ? input.value : Number(input.value) });
+      // back at the option's own value: no longer a tweak
+      if (String(tweaks[tw.id]).toLowerCase() === String(tw.read(sel)).toLowerCase()) delete tweaks[tw.id];
+      sync();
+    });
+  }
+  root.querySelectorAll<HTMLButtonElement>("[data-tune-reset]").forEach((b) =>
+    b.addEventListener("click", () => {
+      dropTweaks(b.dataset.tuneReset as ElementKey);
+      sync();
+      b.closest(".tune")?.querySelector<HTMLInputElement>("input")?.focus();
+    }),
+  );
+
   root.querySelector("[data-random]")!.addEventListener("click", () => {
     const next = { ...sel };
-    for (const k of Object.keys(ELEMENTS) as ElementKey[]) {
+    for (const k of keys) {
       const list = ELEMENTS[k];
       next[k] = list[Math.floor(Math.random() * list.length)]!.id;
     }
     sel = next;
+    tweaks = {};
     sync();
   });
   root.querySelector("[data-reset]")!.addEventListener("click", () => {
     sel = { ...DEFAULT_SELECTION };
+    tweaks = {};
     sync();
   });
 
@@ -284,14 +450,16 @@ const previewPath = (l: Locale) => localeHref(site, l, "/preview/");
       wrap.dataset.device = r.id;
     }),
   );
-  plang.addEventListener("change", () => {
-    frame.src = previewUrl() + encodeSelection(sel);
-  });
+  root.querySelectorAll<HTMLInputElement>('input[name="plang"]').forEach((r) =>
+    r.addEventListener("change", () => {
+      frame.src = previewUrl() + encodeSelection(sel, tweaks);
+    }),
+  );
 
   // export
   const code = root.querySelector<HTMLElement>("[data-export]")!;
   document.querySelector("[data-lk-dialog-open='export']")?.addEventListener("click", () => {
-    code.textContent = exportBrand(sel);
+    code.textContent = exportBrand(sel, "My Brand", tweaks);
   });
   const copyBtn = root.querySelector<HTMLButtonElement>("[data-copy]")!;
   copyBtn.addEventListener("click", async () => {
@@ -306,6 +474,6 @@ const previewPath = (l: Locale) => localeHref(site, l, "/preview/");
     }
   });
 
-  frame.src = previewUrl() + encodeSelection(sel);
+  frame.src = previewUrl() + encodeSelection(sel, tweaks);
   sync();
 </script>

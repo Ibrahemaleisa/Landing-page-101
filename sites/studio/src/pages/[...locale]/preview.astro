@@ -276,16 +276,16 @@ const f = t.contact.form;
 
 <script>
   import { compileBrand } from "@landing/kit/brand";
-  import { PAGES, buildBrand, type Selection } from "../../studio/options";
-  import { decodeSelection, encodeSelection } from "../../studio/state";
+  import { PAGES, buildBrand, type Selection, type Tweaks } from "../../studio/options";
+  import { decodeState, encodeSelection } from "../../studio/state";
 
   const main = document.querySelector<HTMLElement>("[data-studio-main]")!;
   const tokens = Array.from(document.querySelectorAll("style")).find((s) => s.textContent?.startsWith("@layer tokens"))!;
   const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
   links.forEach((a) => (a.dataset.href = a.getAttribute("href")!));
 
-  function apply(sel: Selection) {
-    tokens.textContent = compileBrand(buildBrand(sel), { locales: ["ar", "en"] });
+  function apply(sel: Selection, tweaks: Tweaks) {
+    tokens.textContent = compileBrand(buildBrand(sel, "Studio", tweaks), { locales: ["ar", "en"] });
 
     const blocks = Array.from(main.querySelectorAll<HTMLElement>("[data-block]"));
     blocks.forEach((b) => {
@@ -313,12 +313,14 @@ const f = t.contact.form;
     document.documentElement.dataset.studio = sel.page;
   }
 
-  apply(decodeSelection(location.search));
+  const initial = decodeState(location.search);
+  apply(initial.selection, initial.tweaks);
 
   window.addEventListener("message", (e) => {
     if (e.origin !== location.origin || e.data?.type !== "studio:apply") return;
-    apply(e.data.selection as Selection);
-    history.replaceState(null, "", encodeSelection(e.data.selection) + location.hash);
+    const { selection, tweaks = {} } = e.data as { selection: Selection; tweaks?: Tweaks };
+    apply(selection, tweaks);
+    history.replaceState(null, "", encodeSelection(selection, tweaks) + location.hash);
   });
   if (window.parent !== window) window.parent.postMessage({ type: "studio:ready" }, location.origin);
 </script>
