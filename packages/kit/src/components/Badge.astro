@@ -1,0 +1,42 @@
+---
+export interface Props {
+  variant?: "outline" | "solid" | "highlight";
+  class?: string;
+}
+const { variant = "outline", class: cls } = Astro.props;
+---
+
+<span class:list={["lk-badge", cls]} data-variant={variant}>
+  <slot />
+</span>
+
+<style>
+  @layer components {
+    .lk-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35em;
+      padding: 0.3em 0.75em;
+      border: var(--border-width) solid var(--tone-line);
+      border-radius: var(--radius-badge);
+      font-family: var(--font-label);
+      font-size: var(--step--2);
+      font-weight: var(--weight-label);
+      line-height: 1.2;
+      letter-spacing: var(--tracking-label);
+      text-transform: var(--transform-label);
+      color: var(--tone-fg-muted);
+      white-space: nowrap;
+    }
+    .lk-badge[data-variant="solid"] {
+      background: var(--tone-accent);
+      border-color: var(--tone-accent);
+      color: var(--tone-on-accent);
+    }
+    .lk-badge[data-variant="highlight"] {
+      background: var(--tone-highlight);
+      border-color: var(--tone-highlight);
+      color: var(--tone-on-highlight);
+    }
+  }
+</style>

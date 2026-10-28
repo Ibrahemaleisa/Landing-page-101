@@ -1,0 +1,299 @@
+---
+/**
+ * Qitah signature figure: offer comparison for one part, built in HTML (crisp, translatable, no
+ * image bytes). Three merchant offers with price, delivery and seller rating; badges carry an icon
+ * and a word (never colour alone). The selected offer gets the guideline treatment (p.14, p.21): a
+ * blue border plus the orange piece marker in the top corner, and a written "selected" label.
+ * It is a static picture: nothing in it is interactive, and its text is read by assistive tech.
+ */
+import Icon from "@landing/kit/primitives/Icon.astro";
+import { formatNumber } from "@landing/kit/i18n";
+import BrandSymbol from "../components/BrandSymbol.astro";
+import Price from "../components/Price.astro";
+import type { Content, OfferBadge } from "../content/types";
+
+export interface Props {
+  c: Content["offers"];
+  locale: string;
+  currency: string;
+  sample: string;
+}
+
+const { c, locale, currency, sample } = Astro.props;
+const badgeIcon: Record<OfferBadge, "circle-check" | "zap" | "star"> = { cheapest: "circle-check", fastest: "zap", topRated: "star" };
+const n1 = (x: number) => formatNumber(locale, x, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const n0 = (x: number) => formatNumber(locale, x);
+---
+
+<figure class="q-offers" aria-label={c.label}>
+  <div class="q-offers__head">
+    <span class="q-offers__thumb" aria-hidden="true">
+      <svg viewBox="0 0 48 48" width="40" height="40">
+        <rect x="6" y="14" width="36" height="20" rx="8" fill="#5d6577"></rect>
+        <rect x="9" y="17" width="30" height="14" rx="6" fill="#8a94a8"></rect>
+        <rect x="21" y="10" width="6" height="6" rx="2" fill="#0b3a94"></rect>
+      </svg>
+    </span>
+    <div class="q-offers__part">
+      <p class="q-offers__name">{c.part}</p>
+      <p class="q-offers__meta">
+        <span>{c.partNumberLabel} <code dir="ltr">{c.partNumber}</code></span>
+        <span aria-hidden="true">·</span>
+        <span>{c.vehicle}</span>
+      </p>
+    </div>
+    <span class="q-offers__sample">{sample}</span>
+  </div>
+
+  <div class="q-offers__bar">
+    <span class="q-offers__count">{c.count}</span>
+    <span>{c.sortLabel}: <strong>{c.sort}</strong></span>
+  </div>
+
+  <ul role="list" class="q-offers__list">
+    {
+      c.items.map((o) => (
+        <li class="q-offer" data-selected={o.selected ? "" : undefined}>
+          {o.selected && <BrandSymbol variant="piece" width="2.25rem" class="q-offer__marker" />}
+          <div class="q-offer__seller">
+            <p class="q-offer__name">{o.seller}</p>
+            <p class="q-offer__meta">
+              {o.city} · {o.condition}
+            </p>
+          </div>
+          <Price amount={o.price} locale={locale} currency={currency} class="q-offer__price" />
+          <ul role="list" class="q-offer__tags">
+            {o.badges.map((b) => (
+              <li class="q-tag" data-kind={b}>
+                <Icon name={badgeIcon[b]} size="1em" strokeWidth={2} />
+                {c.badges[b]}
+              </li>
+            ))}
+            {o.selected && (
+              <li class="q-tag" data-kind="selected">
+                <Icon name="check" size="1em" strokeWidth={2.25} />
+                {c.selected}
+              </li>
+            )}
+          </ul>
+          <dl class="q-offer__facts">
+            <div>
+              <dt>{c.ratingLabel}</dt>
+              <dd>
+                <Icon name="star" size="1em" class="q-offer__star" />
+                <bdi class="q-num">{n1(o.rating)}</bdi>
+                <span class="q-offer__muted">
+                  (<bdi class="q-num">{n0(o.reviews)}</bdi> {c.reviews})
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>{c.deliveryLabel}</dt>
+              <dd>
+                <Icon name="truck" size="1em" />
+                {o.delivery}
+              </dd>
+            </div>
+          </dl>
+        </li>
+      ))
+    }
+  </ul>
+  <figcaption class="q-offers__foot">
+    <Icon name="info" size="1em" />
+    {c.vat} · {sample}
+  </figcaption>
+</figure>
+
+<style>
+  @layer site {
+    .q-offers {
+      display: grid;
+      gap: var(--space-xs);
+      padding: var(--space-s);
+      border-radius: calc(var(--radius-card) + 4px);
+      background: #ffffff;
+      color: #0a1633;
+      border: 1px solid #e3e8f0;
+      box-shadow:
+        0 1px 2px rgb(10 22 51 / 0.04),
+        0 20px 40px -24px rgb(2 43 116 / 0.3);
+      font-size: var(--step--1);
+      --q-text-muted: #566179;
+    }
+    .q-offers__head {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .q-offers__thumb {
+      display: grid;
+      place-items: center;
+      flex: none;
+      inline-size: 3.5rem;
+      block-size: 3.5rem;
+      border-radius: var(--radius-control);
+      background: #eceae6;
+    }
+    .q-offers__part {
+      flex: 1;
+      min-inline-size: 0;
+    }
+    .q-offers__name {
+      font-weight: 700;
+      font-size: var(--step-1);
+      color: #022b74;
+      line-height: 1.3;
+    }
+    .q-offers__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 0.4em;
+      color: #566179;
+    }
+    .q-offers__meta code {
+      font-size: 0.95em;
+      color: #0a1633;
+    }
+    .q-offers__sample,
+    .q-offers__count {
+      padding: 0.2em 0.6em;
+      border-radius: var(--radius-badge);
+      background: #f5f7fa;
+      border: 1px solid #e3e8f0;
+      color: #566179;
+      font-size: var(--step--2);
+      font-weight: 600;
+      white-space: nowrap;
+      align-self: start;
+    }
+    .q-offers__bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3xs) var(--space-xs);
+      padding-block: var(--space-2xs);
+      border-block: 1px solid #e3e8f0;
+      color: #566179;
+    }
+    .q-offers__bar strong {
+      color: #0a1633;
+      font-weight: 600;
+    }
+    .q-offers__list {
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .q-offer {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-2xs) var(--space-s);
+      padding: var(--space-s);
+      border-radius: var(--radius-card);
+      border: 1px solid #e3e8f0;
+      background: #ffffff;
+    }
+    .q-offer[data-selected] {
+      border: 2px solid #022b74;
+      padding: calc(var(--space-s) - 1px);
+      background: #fbfcfe;
+      box-shadow: 0 8px 24px -16px rgb(2 43 116 / 0.45);
+    }
+    .q-offer :global(.q-offer__marker) {
+      position: absolute;
+      inset-block-start: -0.7rem;
+      inset-inline-end: 1rem;
+    }
+    .q-offer__name {
+      font-weight: 700;
+      font-size: var(--step-0);
+      line-height: 1.35;
+    }
+    .q-offer__meta,
+    .q-offer__muted {
+      color: #566179;
+    }
+    .q-offer :global(.q-offer__price) {
+      font-size: var(--step-1);
+      color: #0a1633;
+      align-self: start;
+    }
+    .q-offer__tags {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3xs);
+    }
+    .q-offer__tags:empty {
+      display: none;
+    }
+    .q-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35em;
+      padding: 0.2em 0.6em;
+      border-radius: var(--radius-badge);
+      font-size: var(--step--2);
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .q-tag[data-kind="cheapest"] {
+      background: #e6f2eb;
+      color: #1e7a46;
+    }
+    .q-tag[data-kind="fastest"] {
+      background: #e8eef8;
+      color: #0b3a94;
+    }
+    .q-tag[data-kind="topRated"] {
+      background: #ffefe4;
+      color: #c2410c;
+    }
+    .q-tag[data-kind="selected"] {
+      background: #022b74;
+      color: #ffffff;
+    }
+    .q-offer__facts {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3xs) var(--space-m);
+    }
+    .q-offer__facts > div {
+      display: flex;
+      align-items: center;
+      gap: 0.4em;
+    }
+    .q-offer__facts dt {
+      position: absolute;
+      clip-path: inset(50%);
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .q-offer__facts dd {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35em;
+    }
+    .q-offer :global(.q-offer__star) {
+      color: #c2410c;
+      fill: #fe680e;
+    }
+    .q-num {
+      font-family: var(--font-plex-sans), sans-serif;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    .q-offers__foot {
+      display: flex;
+      align-items: center;
+      gap: 0.4em;
+      color: #566179;
+      font-size: var(--step--2);
+    }
+  }
+</style>

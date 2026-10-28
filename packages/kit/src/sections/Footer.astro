@@ -1,0 +1,117 @@
+---
+/** Site footer: brand block, link groups, language switch and legal line. */
+import type { LinkGroup } from "../types";
+import type { SiteConfig } from "../i18n";
+import LocaleSwitch from "../components/LocaleSwitch.astro";
+
+export interface Props {
+  site: SiteConfig;
+  locale: string;
+  path?: string;
+  tone?: string;
+  tagline?: string;
+  groups?: LinkGroup[];
+  /** e.g. "© 2026 Opera. All rights reserved." */
+  legal: string;
+  /** Accessible names. */
+  labels: { nav: string; language: string };
+  class?: string;
+}
+
+const { site, locale, path = "/", tone, tagline, groups = [], legal, labels, class: cls } = Astro.props;
+---
+
+<footer class:list={["lk-footer", cls]} data-tone={tone}>
+  <div class="lk-container lk-footer__inner">
+    <div class="lk-footer__brand">
+      <slot name="logo" />
+      {tagline && <p class="lk-footer__tagline">{tagline}</p>}
+    </div>
+    {groups.length > 0 && (
+      <nav class="lk-footer__nav" aria-label={labels.nav}>
+        {groups.map((g) => (
+          <div class="lk-footer__group">
+            <h2 class="lk-eyebrow lk-footer__heading">{g.title}</h2>
+            <ul role="list">
+              {g.links.map((l) => (
+                <li>
+                  <a href={l.href}>{l.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    )}
+    <div class="lk-footer__base">
+      <p>{legal}</p>
+      <LocaleSwitch site={site} locale={locale} path={path} label={labels.language} />
+    </div>
+  </div>
+</footer>
+
+<style>
+  @layer sections {
+    .lk-footer {
+      padding-block: var(--space-xl) var(--space-m);
+      border-block-start: var(--border-width) solid var(--tone-line);
+      font-size: var(--step--1);
+    }
+    .lk-footer__inner {
+      display: grid;
+      gap: var(--space-l);
+    }
+    .lk-footer__brand {
+      display: grid;
+      gap: var(--space-s);
+      align-content: start;
+      /* logos are often dir="ltr"; don't let them stretch and align to the wrong edge in RTL */
+      justify-items: start;
+    }
+    .lk-footer__tagline {
+      max-inline-size: 36ch;
+      color: var(--tone-fg-muted);
+    }
+    .lk-footer__nav {
+      display: grid;
+      gap: var(--space-m);
+      grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    }
+    .lk-footer__heading {
+      font-family: var(--font-label);
+      margin-block-end: var(--space-xs);
+    }
+    .lk-footer__group ul {
+      display: grid;
+      gap: var(--space-3xs);
+    }
+    .lk-footer__group a {
+      display: inline-flex;
+      align-items: center;
+      min-block-size: 2rem;
+      color: var(--tone-fg);
+      text-decoration: none;
+    }
+    .lk-footer__group a:hover {
+      text-decoration: underline;
+    }
+    .lk-footer__base {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-s);
+      padding-block-start: var(--space-s);
+      border-block-start: var(--border-width) solid var(--tone-line);
+      color: var(--tone-fg-muted);
+    }
+    @media (min-width: 64rem) {
+      .lk-footer__inner {
+        grid-template-columns: 5fr 7fr;
+      }
+      .lk-footer__base {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,228 @@
+---
+/**
+ * Pricing plans with an optional billing-period switch that needs no JavaScript: two native
+ * radio buttons and `:has()` choose which price is shown. Without `:has()` support, both
+ * prices stay visible, each with its own period label.
+ */
+import type { Action } from "../types";
+import Section from "../primitives/Section.astro";
+import SectionHeader from "../primitives/SectionHeader.astro";
+import Button from "../components/Button.astro";
+import Badge from "../components/Badge.astro";
+import Icon from "../primitives/Icon.astro";
+
+export interface Plan {
+  name: string;
+  description: string;
+  /** Preformatted prices (currency formatting is the site's job). `custom` replaces both. */
+  price: { monthly: string; yearly: string } | { custom: string };
+  features: string[];
+  cta: Action;
+  featured?: boolean;
+  badge?: string;
+}
+
+export interface Props {
+  id: string;
+  tone?: string;
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  plans: Plan[];
+  /** Enables the period switch. */
+  billing?: { legend: string; monthly: string; yearly: string; perMonth: string; perYear: string; note?: string };
+  footnote?: string;
+  headerLayout?: "stack" | "split" | "center";
+  class?: string;
+}
+
+const { id, tone, eyebrow, title, lead, plans, billing, footnote, headerLayout = "center", class: cls } = Astro.props;
+const headingId = `${id}-title`;
+---
+
+<Section id={id} tone={tone} labelledby={headingId} class:list={["lk-pricing", cls]} data-billing={billing ? "" : undefined}>
+  <SectionHeader id={headingId} title={title} eyebrow={eyebrow} lead={lead} layout={headerLayout} />
+  {billing && (
+    <fieldset class="lk-pricing__switch">
+      <legend class="lk-visually-hidden">{billing.legend}</legend>
+      <input type="radio" id={`${id}-m`} name={`${id}-period`} value="monthly" class="lk-pricing__radio" data-period="monthly" checked />
+      <label for={`${id}-m`}>{billing.monthly}</label>
+      <input type="radio" id={`${id}-y`} name={`${id}-period`} value="yearly" class="lk-pricing__radio" data-period="yearly" />
+      <label for={`${id}-y`}>
+        {billing.yearly}
+        {billing.note && <span class="lk-pricing__save">{billing.note}</span>}
+      </label>
+    </fieldset>
+  )}
+  <ul role="list" class="lk-pricing__plans" style={`--n:${plans.length}`}>
+    {plans.map((p) => (
+      <li class="lk-pricing__plan lk-reveal" data-featured={p.featured ? "" : undefined}>
+        <div class="lk-pricing__head">
+          <h3 class="lk-text-h4">{p.name}</h3>
+          {p.badge && <Badge variant={p.featured ? "highlight" : "outline"}>{p.badge}</Badge>}
+        </div>
+        <p class="lk-pricing__desc">{p.description}</p>
+        <p class="lk-pricing__price">
+          {"custom" in p.price ? (
+            <span class="lk-pricing__amount">{p.price.custom}</span>
+          ) : billing ? (
+            <>
+              <span class="lk-pricing__amount lk-tabular" data-show="monthly">
+                {p.price.monthly}
+                <span class="lk-pricing__per">{billing.perMonth}</span>
+              </span>
+              <span class="lk-pricing__amount lk-tabular" data-show="yearly">
+                {p.price.yearly}
+                <span class="lk-pricing__per">{billing.perYear}</span>
+              </span>
+            </>
+          ) : (
+            <span class="lk-pricing__amount lk-tabular">{p.price.monthly}</span>
+          )}
+        </p>
+        <Button href={p.cta.href} variant={p.cta.variant ?? (p.featured ? "primary" : "secondary")} block>
+          {p.cta.label}
+        </Button>
+        <ul role="list" class="lk-pricing__features">
+          {p.features.map((f) => (
+            <li>
+              <Icon name="check" />
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+      </li>
+    ))}
+  </ul>
+  {footnote && <p class="lk-pricing__foot lk-text-small lk-text-muted">{footnote}</p>}
+</Section>
+
+<style>
+  @layer sections {
+    .lk-pricing__switch {
+      display: flex;
+      justify-content: center;
+      gap: 0.25rem;
+      inline-size: fit-content;
+      margin: 0 auto var(--space-l);
+      padding: 0.25rem;
+      border: var(--border-width) solid var(--tone-line);
+      border-radius: var(--radius-control);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+    }
+    .lk-pricing__radio {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .lk-pricing__switch label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5em;
+      min-block-size: 2.75rem;
+      padding-inline: 1em;
+      border-radius: calc(var(--radius-control) - 0.25rem);
+      font-family: var(--font-control);
+      font-weight: var(--control-weight);
+      letter-spacing: var(--control-tracking);
+      text-transform: var(--control-transform);
+      cursor: pointer;
+    }
+    .lk-pricing__radio:checked + label {
+      background: var(--tone-accent);
+      color: var(--tone-on-accent);
+    }
+    .lk-pricing__radio:focus-visible + label {
+      outline: 2px solid var(--tone-ring);
+      outline-offset: 2px;
+    }
+    .lk-pricing__save {
+      font-size: var(--step--2);
+      padding: 0.15em 0.5em;
+      border-radius: var(--radius-badge);
+      background: var(--tone-highlight);
+      color: var(--tone-on-highlight);
+    }
+    /* the zero-JS switch: hide the price for the unchecked period */
+    .lk-pricing:has(.lk-pricing__radio[data-period="monthly"]:checked) [data-show="yearly"],
+    .lk-pricing:has(.lk-pricing__radio[data-period="yearly"]:checked) [data-show="monthly"] {
+      display: none;
+    }
+
+    .lk-pricing__plans {
+      display: grid;
+      gap: var(--space-s);
+      grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+      align-items: stretch;
+    }
+    @media (min-width: 64rem) {
+      .lk-pricing__plans {
+        grid-template-columns: repeat(var(--n), 1fr);
+      }
+    }
+    .lk-pricing__plan {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-s);
+      padding: var(--space-m);
+      border-radius: var(--radius-card);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      border: var(--card-border-width) solid var(--tone-surface-line);
+      box-shadow: var(--shadow-card);
+    }
+    .lk-pricing__plan[data-featured] {
+      border-color: var(--tone-accent);
+      border-width: max(2px, var(--card-border-width));
+      box-shadow: var(--shadow-raised);
+    }
+    .lk-pricing__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-xs);
+    }
+    .lk-pricing__desc {
+      color: var(--tone-surface-fg-muted);
+      min-block-size: 3lh;
+    }
+    .lk-pricing__amount {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35em;
+      font-family: var(--font-display);
+      font-size: var(--step-4);
+      font-weight: var(--weight-display);
+      letter-spacing: var(--tracking-display);
+      line-height: 1;
+    }
+    .lk-pricing__per {
+      font-family: var(--font-body);
+      font-size: var(--step--1);
+      font-weight: var(--weight-body);
+      letter-spacing: 0;
+      color: var(--tone-surface-fg-muted);
+    }
+    .lk-pricing__features {
+      display: grid;
+      gap: var(--space-2xs);
+      padding-block-start: var(--space-s);
+      border-block-start: 1px solid var(--tone-surface-line);
+      font-size: var(--step--1);
+    }
+    .lk-pricing__features li {
+      display: flex;
+      gap: 0.6em;
+      align-items: start;
+    }
+    .lk-pricing__features :global(.lk-icon) {
+      margin-block-start: 0.15em;
+      color: var(--tone-accent-text);
+    }
+    .lk-pricing__foot {
+      margin-block-start: var(--space-m);
+      text-align: center;
+    }
+  }
+</style>

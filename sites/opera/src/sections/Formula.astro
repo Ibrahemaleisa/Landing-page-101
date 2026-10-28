@@ -1,0 +1,238 @@
+---
+/**
+ * Opera signature: the brand ring split into five arcs, one per principle; only all five
+ * together draw the symbol. Rebuilt from Opera's original with corrected semantics (audit D14):
+ * pointer hover and focus only *preview* a principle visually; selection (`aria-pressed`) changes
+ * only on activation. Without JavaScript the list and ring render statically, nothing is lost.
+ */
+import Section from "@landing/kit/primitives/Section.astro";
+import SectionHeader from "@landing/kit/primitives/SectionHeader.astro";
+
+export interface Props {
+  id: string;
+  index: string;
+  label: string;
+  title: string;
+  intro: string;
+  hint: string;
+  all: string;
+  principles: { name: string; body: string }[];
+}
+
+const { id, index, label, title, intro, hint, all, principles } = Astro.props;
+
+// ring geometry (Brand Guidelines p.7): thickness x = 10.7, 45° gap at 11 o'clock
+const R = 44.65,
+  X = 10.7,
+  START = 107.5,
+  SPAN = 315,
+  GAP = 2.4,
+  DOT = 130;
+const pt = (deg: number, r = R) => [50 + r * Math.cos((deg * Math.PI) / 180), 50 - r * Math.sin((deg * Math.PI) / 180)] as const;
+const SEG = SPAN / 5;
+const arcs = principles.map((_, i) => {
+  const from = START - i * SEG - (i === 0 ? 0 : GAP / 2);
+  const sweep = SEG - (i === 0 || i === 4 ? GAP / 2 : GAP);
+  const [x1, y1] = pt(from),
+    [x2, y2] = pt(from - sweep),
+    mid = from - sweep / 2;
+  return { d: `M${x1.toFixed(2)} ${y1.toFixed(2)}A${R} ${R} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`, label: pt(mid, R + 13) };
+});
+const [dx, dy] = pt(DOT);
+const pad = (n: number) => String(n + 1).padStart(2, "0");
+const headingId = `${id}-title`;
+---
+
+<Section id={id} tone="base" labelledby={headingId} class="op-formula" data-op-formula>
+  <div class="op-formula__grid">
+    <div>
+      <SectionHeader id={headingId} index={index} eyebrow={label} title={title} lead={intro} rule />
+      <p class="lk-text-small lk-text-muted" id={`${id}-hint`}>
+        {hint}
+      </p>
+      <ul role="list" class="op-formula__list" aria-describedby={`${id}-hint`}>
+        {principles.map((p, i) => (
+          <li>
+            <button type="button" class="op-formula__item" aria-pressed="false" data-i={i}>
+              <span class="op-formula__num lk-tabular">{pad(i)}</span>
+              <span class="op-formula__name">{p.name}</span>
+              <span class="op-formula__body">{p.body}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="op-formula__figure lk-reveal">
+      <svg viewBox="-10 -10 120 120" role="img" aria-label={all} style="direction: ltr">
+        {arcs.map((a, i) => (
+          <g data-arc={i}>
+            <path d={a.d} fill="none" stroke-width={X} class="op-formula__arc" />
+            <text x={a.label[0]} y={a.label[1]} text-anchor="middle" dominant-baseline="central" class="op-formula__label">
+              {pad(i)}
+            </text>
+          </g>
+        ))}
+        <circle cx={dx} cy={dy} r={X} fill="var(--tone-accent)" />
+      </svg>
+      <div class="op-formula__centre" aria-live="polite">
+        <span class="op-formula__centre-num lk-tabular" dir="ltr" data-centre-num>
+          01—05
+        </span>
+        <span class="op-formula__centre-name" data-centre-name>
+          {all}
+        </span>
+      </div>
+    </div>
+  </div>
+</Section>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-op-formula]").forEach((root) => {
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>(".op-formula__item"));
+    const arcs = Array.from(root.querySelectorAll<SVGGElement>("[data-arc]"));
+    const num = root.querySelector<HTMLElement>("[data-centre-num]")!;
+    const name = root.querySelector<HTMLElement>("[data-centre-name]")!;
+    const allLabel = name.textContent ?? "";
+    let selected: number | null = null;
+
+    // visual focus: the previewed or selected arc; null shows all five
+    const paint = (i: number | null) => {
+      root.dataset.active = i === null ? "" : String(i);
+      buttons.forEach((b, j) => b.toggleAttribute("data-on", i === j));
+      arcs.forEach((a, j) => a.toggleAttribute("data-on", i === j));
+      if (i === null) root.removeAttribute("data-active");
+    };
+    // the live region announces only selections, not previews
+    const announce = (i: number | null) => {
+      num.textContent = i === null ? "01—05" : String(i + 1).padStart(2, "0");
+      name.textContent = i === null ? allLabel : buttons[i].querySelector(".op-formula__name")!.textContent;
+    };
+    const select = (i: number | null) => {
+      selected = i;
+      buttons.forEach((b, j) => b.setAttribute("aria-pressed", String(i === j)));
+      paint(i);
+      announce(i);
+    };
+
+    buttons.forEach((b, i) => {
+      b.addEventListener("click", () => select(selected === i ? null : i));
+      b.addEventListener("pointerenter", () => paint(i));
+      b.addEventListener("pointerleave", () => paint(selected));
+    });
+    arcs.forEach((a, i) => {
+      a.addEventListener("pointerenter", () => paint(i));
+      a.addEventListener("pointerleave", () => paint(selected));
+      a.addEventListener("click", () => select(selected === i ? null : i));
+    });
+  });
+</script>
+
+<style>
+  @layer site {
+    .op-formula__grid {
+      display: grid;
+      gap: var(--space-xl);
+      align-items: center;
+    }
+    @media (min-width: 64rem) {
+      .op-formula__grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .op-formula__list {
+      margin-block-start: var(--space-xs);
+      border-block-end: 1px solid var(--tone-line);
+    }
+    .op-formula__list li {
+      border-block-start: 1px solid var(--tone-line);
+    }
+    .op-formula__item {
+      display: grid;
+      grid-template-columns: 2.75rem 1fr;
+      column-gap: var(--space-2xs);
+      align-items: baseline;
+      inline-size: 100%;
+      padding-block: var(--space-s);
+      border: 0;
+      background: none;
+      text-align: start;
+      color: inherit;
+    }
+    .op-formula__item:focus-visible {
+      outline-offset: -2px;
+    }
+    .op-formula__num {
+      font-size: var(--step--1);
+      color: var(--tone-fg-muted);
+      transition: color var(--motion-base) var(--motion-ease);
+    }
+    .op-formula__name {
+      font-size: var(--step-2);
+      font-weight: 500;
+      transition: color var(--motion-base) var(--motion-ease);
+    }
+    .op-formula__body {
+      grid-column: 2;
+      margin-block-start: var(--space-3xs);
+      font-size: var(--step--1);
+      color: var(--tone-fg-muted);
+    }
+    /* dim the others only while something is focused, never below AA: the muted colour still passes */
+    [data-active] .op-formula__item:not([data-on]) .op-formula__name {
+      color: var(--tone-fg-muted);
+    }
+    .op-formula__item[data-on] .op-formula__num,
+    .op-formula__item[aria-pressed="true"] .op-formula__num {
+      color: var(--tone-accent-text);
+    }
+    .op-formula__item[aria-pressed="true"] .op-formula__name {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.3em;
+    }
+
+    .op-formula__figure {
+      position: relative;
+      inline-size: 100%;
+      max-inline-size: 32rem;
+      margin-inline: auto;
+    }
+    .op-formula__arc {
+      stroke: var(--tone-fg);
+      transition: stroke var(--motion-base) var(--motion-ease);
+      cursor: pointer;
+    }
+    [data-active] [data-arc]:not([data-on]) .op-formula__arc {
+      stroke: color-mix(in srgb, var(--tone-fg) 14%, transparent);
+    }
+    .op-formula__label {
+      font-size: 4px;
+      fill: var(--tone-fg-muted);
+      font-variant-numeric: tabular-nums;
+    }
+    [data-arc][data-on] .op-formula__label {
+      fill: var(--tone-accent-text);
+    }
+    .op-formula__centre {
+      position: absolute;
+      inset: 26%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      pointer-events: none;
+    }
+    .op-formula__centre-num {
+      font-size: var(--step--1);
+      color: var(--tone-fg-muted);
+    }
+    .op-formula__centre-name {
+      margin-block-start: var(--space-3xs);
+      font-size: var(--step-2);
+      font-weight: 500;
+      line-height: 1.25;
+      text-wrap: balance;
+    }
+  }
+</style>

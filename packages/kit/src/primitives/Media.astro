@@ -1,0 +1,68 @@
+---
+/**
+ * Responsive image: AVIF/WebP with a fallback, correct `sizes`, intrinsic dimensions (no CLS),
+ * and an explicit priority switch for the LCP image.
+ */
+import type { ImageMetadata } from "astro";
+import { Picture } from "astro:assets";
+
+export interface Props {
+  src: ImageMetadata;
+  /** Empty string only for purely decorative images. */
+  alt: string;
+  /** Rendered width hint, e.g. `(min-width: 64rem) 50vw, 100vw`. */
+  sizes: string;
+  /** Load eagerly with high fetch priority. Use for the one LCP image. */
+  priority?: boolean;
+  /** Fill the parent box (parent sets the size). */
+  fill?: boolean;
+  /** CSS aspect-ratio for the frame, e.g. `4 / 3`. */
+  aspect?: string;
+  /** object-position, e.g. `50% 30%`. */
+  focus?: string;
+  rounded?: boolean;
+  widths?: number[];
+  class?: string;
+}
+
+const { src, alt, sizes, priority = false, fill = false, aspect, focus, rounded = false, widths, class: cls } = Astro.props;
+const w = widths ?? [480, 768, 1080, 1440, 1920].filter((x) => x <= src.width * 1.01);
+if (w.length === 0) w.push(src.width);
+---
+
+<Picture
+  src={src}
+  alt={alt}
+  sizes={sizes}
+  widths={w}
+  formats={["avif", "webp"]}
+  loading={priority ? "eager" : "lazy"}
+  fetchpriority={priority ? "high" : "auto"}
+  decoding={priority ? "sync" : "async"}
+  class:list={["lk-media", cls]}
+  pictureAttributes={{ class: "lk-media__picture" }}
+  data-fill={fill ? "" : undefined}
+  data-rounded={rounded ? "" : undefined}
+  style={[aspect && `aspect-ratio: ${aspect}`, focus && `object-position: ${focus}`].filter(Boolean).join(";") || undefined}
+/>
+
+<style is:global>
+  @layer components {
+    .lk-media {
+      inline-size: 100%;
+      object-fit: cover;
+      background: var(--tone-surface);
+    }
+    .lk-media[data-rounded] {
+      border-radius: var(--radius-media);
+    }
+    .lk-media[data-fill] {
+      position: absolute;
+      inset: 0;
+      block-size: 100%;
+    }
+    .lk-media__picture {
+      display: contents;
+    }
+  }
+</style>

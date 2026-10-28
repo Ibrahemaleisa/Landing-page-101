@@ -1,0 +1,50 @@
+---
+/**
+ * A horizontal scroll-snap row. It is a labelled, focusable region so keyboard users can scroll
+ * it with arrow keys (fixes Opera audit D7 / axe `scrollable-region-focusable`).
+ * Children should be `<li>` elements.
+ */
+export interface Props {
+  label: string;
+  /** Item width, e.g. `min(80%, 26rem)`. */
+  itemWidth?: string;
+  /** Let the row run to the viewport edge while aligning with the container. */
+  bleed?: boolean;
+  class?: string;
+}
+
+const { label, itemWidth = "min(80%, 26rem)", bleed = true, class: cls } = Astro.props;
+---
+
+<div class:list={["lk-scroller", cls]} role="region" aria-label={label} tabindex="0" data-bleed={bleed ? "" : undefined} style={`--lk-item: ${itemWidth}`}>
+  <ul role="list" class="lk-scroller__list">
+    <slot />
+  </ul>
+</div>
+
+<style>
+  @layer components {
+    .lk-scroller {
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+      border-radius: var(--radius-card);
+    }
+    .lk-scroller[data-bleed] {
+      margin-inline: calc(var(--gutter) * -1);
+      padding-inline: var(--gutter);
+      scroll-padding-inline: var(--gutter);
+      border-radius: 0;
+    }
+    .lk-scroller__list {
+      display: flex;
+      gap: var(--space-s);
+      padding-block-end: var(--space-2xs);
+    }
+    .lk-scroller__list > :global(li) {
+      flex: 0 0 var(--lk-item);
+      scroll-snap-align: start;
+    }
+  }
+</style>

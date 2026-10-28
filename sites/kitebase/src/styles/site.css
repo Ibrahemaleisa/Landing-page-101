@@ -1,0 +1,28 @@
+/*
+ * Kitebase site layer: brand gestures the kit doesn't (and shouldn't) know about.
+ * Written in the `site` layer so it wins over kit styles without !important.
+ */
+@layer site {
+  /* the second hero line is set on a lime highlighter stripe */
+  .kb-hero .lk-text-accent {
+    display: inline;
+    padding-inline: 0.12em;
+    background: var(--tone-highlight);
+    color: var(--tone-on-highlight);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .kb-hero__note {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--tone-fg-muted);
+  }
+  /* section headings get a hard ink rule above, like a spec sheet */
+  .lk-sh {
+    padding-block-start: var(--space-s);
+    border-block-start: 2px solid var(--tone-fg);
+  }
+  .lk-sh[data-layout="center"] {
+    border-block-start: 0;
+  }
+}

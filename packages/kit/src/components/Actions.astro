@@ -1,0 +1,49 @@
+---
+/** A row of call-to-action buttons. The first defaults to primary, the rest to secondary. */
+import type { Action } from "../types";
+import Button from "./Button.astro";
+
+export interface Props {
+  actions?: Action[];
+  align?: "start" | "center" | "end";
+  size?: "md" | "lg";
+  externalLabel?: string;
+  class?: string;
+}
+
+const { actions = [], align = "start", size = "md", externalLabel, class: cls } = Astro.props;
+---
+
+{actions.length > 0 && (
+  <div class:list={["lk-actions", cls]} data-align={align}>
+    {actions.map((a, i) => (
+      <Button
+        href={a.href}
+        variant={a.variant ?? (i === 0 ? "primary" : "secondary")}
+        icon={a.icon}
+        size={size}
+        external={a.external}
+        externalLabel={externalLabel}
+      >
+        {a.label}
+      </Button>
+    ))}
+  </div>
+)}
+
+<style>
+  @layer components {
+    .lk-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      align-items: center;
+    }
+    .lk-actions[data-align="center"] {
+      justify-content: center;
+    }
+    .lk-actions[data-align="end"] {
+      justify-content: flex-end;
+    }
+  }
+</style>

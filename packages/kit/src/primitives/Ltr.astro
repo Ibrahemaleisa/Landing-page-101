@@ -1,0 +1,11 @@
+---
+/** Isolates left-to-right runs (phone numbers, codes, prices, Latin names) inside RTL text. */
+export interface Props {
+  class?: string;
+}
+const { class: cls } = Astro.props;
+---
+
+<span dir="ltr" class:list={["lk-ltr", cls]}>
+  <slot />
+</span>

@@ -1,0 +1,93 @@
+/*
+ * Opera site layer: the brand's editorial gestures on top of kit sections.
+ */
+@layer site {
+  /* hero: the photograph is held back in the night; the orbit floats at the far edge */
+  .op-hero .op-hero__photo {
+    opacity: 0.5;
+  }
+  .op-hero__orbit {
+    position: absolute;
+    inset-block-start: calc(var(--header-height) - 1rem);
+    inset-inline-end: -30%;
+    inline-size: 88%;
+    aspect-ratio: 1;
+    color: var(--tone-fg);
+  }
+  @media (min-width: 64rem) {
+    .op-hero__orbit {
+      inset-inline-end: 6%;
+      inline-size: min(68vh, 44vw);
+    }
+  }
+  .op-hero .lk-hero__eyebrow {
+    color: var(--tone-accent-text);
+  }
+  .op-scroll {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-block-size: 2.75rem;
+    color: inherit;
+    text-decoration: none;
+  }
+  .op-scroll span {
+    inline-size: 1px;
+    block-size: 2rem;
+    background: currentColor;
+  }
+
+  /* the build-to-day composition and the loop continue the About section on one ground */
+  .op-about {
+    padding-block-end: 0;
+  }
+  .op-loop {
+    padding-block-start: var(--space-xl);
+  }
+  /* flow-root contains the composition's margins so the night body never shows through */
+  .op-band {
+    display: flow-root;
+    overflow: clip;
+  }
+
+  .op-onrequest {
+    padding-block-end: var(--section-pad);
+  }
+  .op-onrequest__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-block-start: var(--space-m);
+    border-block-start: 1px solid var(--tone-line);
+  }
+  .op-onrequest__row p {
+    max-inline-size: 40rem;
+    color: var(--tone-fg-muted);
+  }
+  #work {
+    padding-block-end: var(--space-xl);
+  }
+
+  .op-close {
+    min-block-size: 80svh;
+    display: grid;
+    align-items: end;
+  }
+
+  .op-form-row {
+    display: grid;
+    gap: var(--space-s);
+  }
+  @media (min-width: 40rem) {
+    .op-form-row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .op-tech__grid > *,
+  .op-formula__grid > * {
+    min-inline-size: 0;
+  }
+}

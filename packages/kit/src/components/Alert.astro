@@ -1,0 +1,64 @@
+---
+/**
+ * Inline feedback. `polite` announces changes (status), `assertive` interrupts (alert) — use
+ * assertive only for errors that block the user.
+ */
+import Icon from "../primitives/Icon.astro";
+import type { IconName } from "../primitives/icons";
+
+export interface Props {
+  kind?: "info" | "success" | "warning" | "error";
+  title?: string;
+  live?: "off" | "polite" | "assertive";
+  hidden?: boolean;
+  id?: string;
+  class?: string;
+}
+
+const { kind = "info", title, live = "off", hidden = false, id, class: cls } = Astro.props;
+const icons: Record<NonNullable<Props["kind"]>, IconName> = { info: "info", success: "circle-check", warning: "circle-alert", error: "circle-alert" };
+const role = live === "assertive" ? "alert" : live === "polite" ? "status" : undefined;
+---
+
+<div id={id} class:list={["lk-alert", cls]} data-kind={kind} role={role} hidden={hidden}>
+  <Icon name={icons[kind]} size="1.25rem" />
+  <div class="lk-alert__body">
+    {title && <p class="lk-alert__title">{title}</p>}
+    <div class="lk-alert__text">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  @layer components {
+    .lk-alert {
+      display: flex;
+      gap: var(--space-xs);
+      align-items: start;
+      padding: var(--space-s);
+      border: var(--border-width) solid var(--tone-line);
+      border-inline-start-width: 4px;
+      border-radius: var(--radius-card);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+    }
+    .lk-alert[data-kind="success"],
+    .lk-alert[data-kind="info"] {
+      border-inline-start-color: var(--tone-accent);
+    }
+    .lk-alert[data-kind="error"],
+    .lk-alert[data-kind="warning"] {
+      border-inline-start-color: var(--tone-surface-fg);
+    }
+    .lk-alert[hidden] {
+      display: none;
+    }
+    .lk-alert__title {
+      font-weight: var(--control-weight);
+    }
+    .lk-alert__text {
+      color: var(--tone-surface-fg-muted);
+    }
+  }
+</style>

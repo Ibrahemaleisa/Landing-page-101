@@ -1,0 +1,95 @@
+---
+/**
+ * Interactive product showcase: a tab per use case, each panel pairing a short explanation with
+ * a visual (`media-<id>` slots). Built on the accessible Tabs component.
+ */
+import Section from "../primitives/Section.astro";
+import SectionHeader from "../primitives/SectionHeader.astro";
+import Tabs from "../components/Tabs.astro";
+import Icon from "../primitives/Icon.astro";
+
+export interface ShowcaseItem {
+  id: string;
+  label: string;
+  title: string;
+  body: string;
+  points?: string[];
+}
+
+export interface Props {
+  id: string;
+  tone?: string;
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  /** Accessible name of the tab list. */
+  tabsLabel: string;
+  items: ShowcaseItem[];
+  tabsVariant?: "underline" | "pill";
+  headerLayout?: "stack" | "split" | "center";
+  class?: string;
+}
+
+const { id, tone, eyebrow, title, lead, tabsLabel, items, tabsVariant = "pill", headerLayout = "stack", class: cls } = Astro.props;
+const headingId = `${id}-title`;
+const media = await Promise.all(items.map((it) => Astro.slots.render(`media-${it.id}`)));
+---
+
+<Section id={id} tone={tone} labelledby={headingId} class:list={["lk-showcase", cls]}>
+  <SectionHeader id={headingId} title={title} eyebrow={eyebrow} lead={lead} layout={headerLayout} />
+  <Tabs tabs={items.map(({ id, label }) => ({ id, label }))} label={tabsLabel} idPrefix={id} variant={tabsVariant}>
+    {items.map((it, i) => (
+      <div slot={`panel-${it.id}`} class="lk-showcase__panel">
+        <div class="lk-showcase__copy">
+          <h3 class="lk-text-h3">{it.title}</h3>
+          <p class="lk-text-muted">{it.body}</p>
+          {it.points && (
+            <ul role="list" class="lk-showcase__points">
+              {it.points.map((p) => (
+                <li>
+                  <Icon name="check" />
+                  <span>{p}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {media[i] && <div class="lk-showcase__media" set:html={media[i]} />}
+      </div>
+    ))}
+  </Tabs>
+</Section>
+
+<style>
+  @layer sections {
+    .lk-showcase__panel {
+      display: grid;
+      gap: var(--space-l);
+      align-items: center;
+    }
+    .lk-showcase__copy {
+      display: grid;
+      gap: var(--space-xs);
+      max-inline-size: 30rem;
+    }
+    .lk-showcase__points {
+      display: grid;
+      gap: var(--space-2xs);
+    }
+    .lk-showcase__points li {
+      display: flex;
+      gap: 0.6em;
+      align-items: start;
+    }
+    .lk-showcase__points :global(.lk-icon) {
+      margin-block-start: 0.2em;
+      color: var(--tone-accent-text);
+    }
+    @media (min-width: 56rem) {
+      .lk-showcase__panel {
+        grid-template-columns: 4fr 7fr;
+        column-gap: var(--space-xl);
+      }
+    }
+  }
+</style>

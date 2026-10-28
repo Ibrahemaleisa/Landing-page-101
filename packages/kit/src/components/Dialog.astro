@@ -1,0 +1,112 @@
+---
+/**
+ * Modal dialog on native `<dialog>` + `showModal()`: the page behind is inert, Esc closes, focus
+ * moves in and returns to the trigger. The trigger is a link to `#id` without JavaScript.
+ */
+export interface Props {
+  id: string;
+  title: string;
+  triggerLabel: string;
+  closeLabel: string;
+  triggerVariant?: "primary" | "secondary" | "ghost" | "link";
+  class?: string;
+}
+
+const { id, title, triggerLabel, closeLabel, triggerVariant = "secondary", class: cls } = Astro.props;
+import Button from "./Button.astro";
+import Icon from "../primitives/Icon.astro";
+---
+
+<Button href={`#${id}`} variant={triggerVariant} data-lk-dialog-open={id} aria-haspopup="dialog">
+  {triggerLabel}
+</Button>
+<dialog id={id} class:list={["lk-dialog", cls]} aria-labelledby={`${id}-title`} data-tone="base">
+  <div class="lk-dialog__inner">
+    <header class="lk-dialog__head">
+      <h2 id={`${id}-title`} class="lk-text-h3">
+        {title}
+      </h2>
+      <button type="button" class="lk-dialog__close" data-lk-dialog-close aria-label={closeLabel}>
+        <Icon name="x" />
+      </button>
+    </header>
+    <div class="lk-dialog__body">
+      <slot />
+    </div>
+  </div>
+</dialog>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-lk-dialog-open]").forEach((trigger) => {
+    const dialog = document.getElementById(trigger.dataset.lkDialogOpen!) as HTMLDialogElement | null;
+    if (!dialog || typeof dialog.showModal !== "function") return;
+    trigger.addEventListener("click", (e) => {
+      e.preventDefault();
+      dialog.showModal();
+    });
+    dialog.querySelector("[data-lk-dialog-close]")?.addEventListener("click", () => dialog.close());
+    // a click on the backdrop (the dialog element itself, outside the inner box) closes it
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("close", () => trigger.focus());
+  });
+</script>
+
+<style>
+  @layer components {
+    .lk-dialog {
+      inline-size: min(36rem, calc(100vw - 2 * var(--gutter)));
+      max-block-size: calc(100dvh - 2 * var(--gutter));
+      border-radius: var(--radius-card);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      box-shadow: var(--shadow-raised);
+      border: var(--card-border-width) solid var(--tone-surface-line);
+    }
+    .lk-dialog::backdrop {
+      background: rgb(0 0 0 / 0.55);
+    }
+    /* without JS, :target shows the dialog inline as a regular section */
+    .lk-dialog:target:not([open]) {
+      display: block;
+      position: static;
+      margin: var(--space-m) auto;
+    }
+    .lk-dialog__inner {
+      padding: var(--space-m);
+    }
+    .lk-dialog__head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: var(--space-s);
+      margin-block-end: var(--space-s);
+    }
+    .lk-dialog__close {
+      display: grid;
+      place-items: center;
+      inline-size: 2.75rem;
+      block-size: 2.75rem;
+      margin: -0.5rem;
+      border: 0;
+      border-radius: var(--radius-control);
+      background: none;
+      color: inherit;
+    }
+    .lk-dialog__close:hover {
+      background: var(--tone-bg);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .lk-dialog[open] {
+        animation: lk-dialog-in var(--motion-base) var(--motion-ease);
+      }
+    }
+    @keyframes lk-dialog-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+      }
+    }
+  }
+</style>

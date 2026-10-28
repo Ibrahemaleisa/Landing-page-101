@@ -1,0 +1,82 @@
+---
+/**
+ * A surface. With `href`, the whole card is clickable through a stretched link on its title
+ * (one tab stop, a sensible accessible name) rather than wrapping block content in `<a>`.
+ */
+export interface Props {
+  as?: "div" | "article" | "li";
+  variant?: "surface" | "outline" | "plain";
+  href?: string;
+  /** Accessible name of the stretched link when `href` is set (usually the card title). */
+  linkLabel?: string;
+  pad?: "s" | "m" | "l";
+  class?: string;
+}
+
+const { as: Tag = "div", variant = "surface", href, linkLabel, pad = "m", class: cls } = Astro.props;
+---
+
+<Tag class:list={["lk-card", cls]} data-variant={variant} data-pad={pad} data-link={href ? "" : undefined}>
+  <slot />
+  {href && (
+    <a class="lk-card__link" href={href}>
+      <span class="lk-visually-hidden">{linkLabel}</span>
+    </a>
+  )}
+</Tag>
+
+<style>
+  @layer components {
+    .lk-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      padding: var(--space-m);
+      border-radius: var(--radius-card);
+      color: var(--tone-surface-fg);
+      transition:
+        transform var(--motion-base) var(--motion-ease),
+        box-shadow var(--motion-base) var(--motion-ease),
+        border-color var(--motion-base) var(--motion-ease);
+    }
+    .lk-card[data-pad="s"] {
+      padding: var(--space-s);
+    }
+    .lk-card[data-pad="l"] {
+      padding: var(--space-l);
+    }
+    .lk-card[data-variant="surface"] {
+      background: var(--tone-surface);
+      border: var(--card-border-width) solid var(--tone-surface-line);
+      box-shadow: var(--shadow-card);
+    }
+    .lk-card[data-variant="outline"] {
+      border: var(--card-border-width) solid var(--tone-line);
+      color: var(--tone-fg);
+    }
+    .lk-card[data-variant="plain"] {
+      padding: 0;
+      color: var(--tone-fg);
+    }
+    .lk-card[data-link]:hover {
+      box-shadow: var(--shadow-raised);
+      border-color: var(--tone-fg-muted);
+    }
+    .lk-card__link {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+    }
+    .lk-card__link:focus-visible {
+      outline-offset: 3px;
+    }
+    .lk-card :global(:is(p, li)) {
+      color: var(--tone-surface-fg-muted);
+    }
+    .lk-card[data-variant="outline"] :global(:is(p, li)),
+    .lk-card[data-variant="plain"] :global(:is(p, li)) {
+      color: var(--tone-fg-muted);
+    }
+  }
+</style>

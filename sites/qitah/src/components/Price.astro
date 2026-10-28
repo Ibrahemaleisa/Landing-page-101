@@ -1,0 +1,42 @@
+---
+/**
+ * A price as the guidelines set it (p.13, p.30): Western digits, two decimals, IBM Plex Sans Bold
+ * with tabular figures, and a smaller grey currency label after the amount. The amount is isolated
+ * LTR so it never reorders inside Arabic text: «245.00 ر.س».
+ */
+import { formatNumber } from "@landing/kit/i18n";
+
+export interface Props {
+  amount: number;
+  locale: string;
+  currency: string;
+  class?: string;
+}
+
+const { amount, locale, currency, class: cls } = Astro.props;
+const value = formatNumber(locale, amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+---
+
+<span class:list={["q-price", cls]}><bdi class="q-price__amount" dir="ltr">{value}</bdi> <span class="q-price__cur">{currency}</span></span>
+
+<style>
+  @layer site {
+    .q-price {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.3em;
+      white-space: nowrap;
+    }
+    .q-price__amount {
+      font-family: var(--font-plex-sans), sans-serif;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      unicode-bidi: isolate;
+    }
+    .q-price__cur {
+      font-size: 0.72em;
+      font-weight: 600;
+      color: var(--q-text-muted, var(--tone-surface-fg-muted));
+    }
+  }
+</style>

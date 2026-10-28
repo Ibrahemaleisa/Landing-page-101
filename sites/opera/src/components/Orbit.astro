@@ -1,0 +1,45 @@
+---
+/**
+ * The orbit (Brand Guidelines p.14): the symbol's open ring as one thin line, its dot the current
+ * moment. Decorative. Plays the logo reveal order — the dot appears, then the ring draws.
+ */
+import { SYMBOL } from "./logo-paths";
+
+export interface Props {
+  class?: string;
+}
+const { class: cls } = Astro.props;
+---
+
+<svg viewBox="-4 -4 108 108" class:list={["op-orbit", cls]} aria-hidden="true" style="direction: ltr">
+  <path class="op-orbit__ring" d={SYMBOL.ring} pathLength="1" fill="none" stroke="currentColor" stroke-opacity="0.7" stroke-width="0.18"></path>
+  <circle class="op-orbit__dot" cx={SYMBOL.dot.cx} cy={SYMBOL.dot.cy} r="2.4" fill="#64228a"></circle>
+</svg>
+
+<style>
+  @layer site {
+    .op-orbit {
+      pointer-events: none;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .op-orbit__dot {
+        animation: op-fade 250ms var(--motion-ease) both;
+      }
+      .op-orbit__ring {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: op-draw 1000ms var(--motion-ease) 100ms forwards;
+      }
+    }
+    @keyframes op-fade {
+      from {
+        opacity: 0;
+      }
+    }
+    @keyframes op-draw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+  }
+</style>

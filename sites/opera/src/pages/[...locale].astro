@@ -1,0 +1,219 @@
+---
+/**
+ * Opera home. An editorial narrative in alternating grounds: Night (the promise), Mist (who we
+ * are, shown), Plum (what we do, as an index), Night (proof from the field), Mist (how we think),
+ * Night (the technology), Night (the close), Mist (the brief).
+ */
+import BaseLayout from "@landing/kit/layouts/BaseLayout.astro";
+import SiteHeader from "@landing/kit/components/SiteHeader.astro";
+import Hero from "@landing/kit/sections/Hero.astro";
+import Statement from "@landing/kit/sections/Statement.astro";
+import Steps from "@landing/kit/sections/Steps.astro";
+import Features from "@landing/kit/sections/Features.astro";
+import MediaMosaic from "@landing/kit/sections/MediaMosaic.astro";
+import CTA from "@landing/kit/sections/CTA.astro";
+import Contact from "@landing/kit/sections/Contact.astro";
+import Footer from "@landing/kit/sections/Footer.astro";
+import Media from "@landing/kit/primitives/Media.astro";
+import Form from "@landing/kit/components/Form.astro";
+import Field from "@landing/kit/components/Field.astro";
+import Button from "@landing/kit/components/Button.astro";
+import { localeHref, localePaths } from "@landing/kit/i18n";
+import { brand } from "../brand";
+import { company, site, type Locale } from "../site";
+import { content } from "../content";
+import Logo from "../components/Logo.astro";
+import Orbit from "../components/Orbit.astro";
+import BuildToDay from "../sections/BuildToDay.astro";
+import Formula from "../sections/Formula.astro";
+import Technologies from "../sections/Technologies.astro";
+import "../styles/site.css";
+
+import heroImg from "../assets/field/exhibition-floor.jpg";
+import buildImg from "../assets/field/stage-build.jpg";
+import dayImg from "../assets/field/event-day.jpg";
+import stageImg from "../assets/field/stage-production.jpg";
+import receptionImg from "../assets/field/reception.jpg";
+import logisticsImg from "../assets/field/logistics.jpg";
+import teamImg from "../assets/field/team.jpg";
+
+export const getStaticPaths = () => localePaths(site);
+
+const { locale } = Astro.props as { locale: Locale };
+const t = content[locale];
+const home = localeHref(site, locale);
+const name = company.name[locale];
+
+const links = [
+  { href: "#about", label: t.nav.about },
+  { href: "#capabilities", label: t.nav.capabilities },
+  { href: "#work", label: t.nav.work },
+  { href: "#technologies", label: t.nav.technologies },
+  { href: "#contact", label: t.nav.contact },
+];
+
+// only verified facts go into structured data
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: company.name.en,
+  alternateName: company.name.ar,
+  url: site.url,
+  slogan: `${content.en.hero.line1} ${content.en.hero.line2}`,
+  ...(company.email ? { email: company.email } : {}),
+};
+
+const f = t.brief.form;
+const workPhotos = [stageImg, receptionImg, logisticsImg].map((src, i) => ({ src, ...t.work.photos[i], focus: ["50% 45%", "50% 55%", "50% 70%"][i] }));
+---
+
+<BaseLayout
+  site={site}
+  brand={brand}
+  locale={locale}
+  title={t.meta.title}
+  description={t.meta.description}
+  siteName={name}
+  skipLabel={t.ui.skip}
+  jsonLd={jsonLd}
+  tone="night"
+  fonts={
+    locale === "ar"
+      ? [
+          { cssVariable: "--font-plex-ar", preload: true },
+          { cssVariable: "--font-jost", preload: true },
+        ]
+      : [{ cssVariable: "--font-jost", preload: true }, { cssVariable: "--font-plex-ar" }]
+  }
+>
+  <SiteHeader
+    site={site}
+    locale={locale}
+    homeHref={home}
+    homeLabel={t.ui.home}
+    links={links}
+    secondary={{ label: t.nav.signIn, href: company.workspaceUrl, variant: "secondary" }}
+    mode="overlay"
+    tone="night"
+    labels={{ nav: t.ui.nav, menu: t.ui.menu, close: t.ui.close, language: t.ui.language }}
+  >
+    <Logo slot="logo" />
+  </SiteHeader>
+
+  <main id="main">
+    <Hero
+      variant="display"
+      id="top"
+      tone="night"
+      underHeader
+      class="op-hero"
+      eyebrow={t.hero.eyebrow}
+      title={[t.hero.line1, t.hero.line2]}
+      accentLine={1}
+      lead={t.hero.body}
+      actions={[
+        { label: t.hero.primary, href: "#about" },
+        { label: t.hero.secondary, href: "#capabilities", variant: "secondary" },
+      ]}
+    >
+      <Fragment slot="media">
+        <Media src={heroImg} alt="" priority fill sizes="(min-width: 64rem) 64vw, 100vw" focus="50% 64%" class="op-hero__photo" />
+        <Orbit class="op-hero__orbit" />
+      </Fragment>
+      <Fragment slot="meta">
+        <span>{company.country[locale]}</span>
+        <a href="#about" class="op-scroll">
+          {t.ui.scroll}
+          <span aria-hidden="true"></span>
+        </a>
+      </Fragment>
+    </Hero>
+
+    <Statement id="about" tone="base" index="01" eyebrow={t.about.label} statement={t.about.statement} lead={t.about.body} class="op-about" />
+    <div data-tone="base" class="op-band">
+      <BuildToDay title={t.about.buildTitle} body={t.about.buildBody} before={{ src: buildImg, ...t.about.before }} after={{ src: dayImg, ...t.about.after }} />
+    </div>
+    <Steps id="loop" tone="base" title={t.about.loopTitle} titleSize="h3" items={t.about.stages} current={2} currentLabel={t.about.now} class="op-loop" />
+
+    <Features
+      id="capabilities"
+      tone="plum"
+      variant="index"
+      index="02"
+      eyebrow={t.capabilities.label}
+      title={t.capabilities.title}
+      lead={t.capabilities.intro}
+      headerLayout="split"
+      items={t.capabilities.items}
+    />
+
+    <MediaMosaic id="work" tone="night" index="03" eyebrow={t.work.label} title={t.work.title} lead={t.work.intro} items={workPhotos} />
+    <div data-tone="night" class="op-band op-onrequest">
+      <div class="lk-container op-onrequest__row">
+        <p>{t.work.onRequest}</p>
+        <Button href="#contact" variant="secondary">
+          {t.work.ask}
+        </Button>
+      </div>
+    </div>
+
+    <Formula id="formula" index="04" {...t.formula} />
+
+    <Technologies id="technologies" index="05" t={t.technologies} />
+
+    <CTA
+      id="contact"
+      tone="night"
+      variant="split"
+      eyebrow={t.contact.label}
+      title={[t.contact.line1, t.contact.line2]}
+      lead={t.contact.body}
+      size="display"
+      actions={[{ label: t.contact.cta, href: "#brief", icon: "arrow-right" }]}
+      class="op-close"
+    >
+      <Media slot="media" src={teamImg} alt="" fill sizes="100vw" focus="50% 45%" />
+    </CTA>
+
+    <Contact id="brief" tone="base" index="06" eyebrow={t.brief.label} title={t.brief.title} lead={t.brief.lead}>
+      <Form action="#brief" label={f.label} successMessage={f.success} errorSummary={f.errors} demo>
+        <p class="lk-text-small lk-text-muted">{t.brief.demoNote}</p>
+        <div class="op-form-row">
+          <Field name="name" label={f.name} required requiredLabel={f.required} autocomplete="name" requiredMessage={f.requiredMsg} />
+          <Field name="organization" label={f.org} autocomplete="organization" />
+        </div>
+        <div class="op-form-row">
+          <Field
+            name="email"
+            type="email"
+            label={f.email}
+            required
+            requiredLabel={f.required}
+            autocomplete="email"
+            dir="ltr"
+            requiredMessage={f.requiredMsg}
+            invalidMessage={f.emailMsg}
+          />
+          <Field name="phone" type="tel" label={f.phone} autocomplete="tel" dir="ltr" inputmode="tel" />
+        </div>
+        <Field name="type" type="select" label={f.type} options={f.typeOptions} />
+        <Field name="message" type="textarea" label={f.message} hint={f.messageHint} required requiredLabel={f.required} requiredMessage={f.requiredMsg} />
+        <Button type="submit" variant="primary" icon="arrow-right">
+          {f.submit}
+        </Button>
+      </Form>
+    </Contact>
+  </main>
+
+  <Footer
+    site={site}
+    locale={locale}
+    tone="night"
+    tagline={t.footer.promise}
+    groups={t.footer.groups}
+    legal={`© ${new Date().getFullYear()} ${name}. ${t.footer.rights}`}
+    labels={{ nav: t.ui.footerNav, language: t.ui.language }}
+  >
+    <Logo slot="logo" label={name} />
+  </Footer>
+</BaseLayout>

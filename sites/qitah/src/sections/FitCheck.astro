@@ -1,0 +1,103 @@
+---
+/**
+ * Fitment states as the guidelines define them (p.21, p.31): "Fits your car" shows the full symbol
+ * and text on a solid card; "Needs confirmation" shows the car alone on a dashed card. The state is
+ * always written out — never colour alone. Static illustration.
+ */
+import Icon from "@landing/kit/primitives/Icon.astro";
+import BrandSymbol from "../components/BrandSymbol.astro";
+import type { Content } from "../content/types";
+
+export interface Props {
+  c: Content["fit"];
+  sample: string;
+}
+
+const { c, sample } = Astro.props;
+---
+
+<figure class="q-fit" aria-label={c.label}>
+  <p class="q-fit__vehicle" data-tone="inverse">
+    <Icon name="car" size="1.25rem" />
+    <span>{c.vehicle}</span>
+  </p>
+  <ul role="list" class="q-fit__list">
+    {
+      c.items.map((it) => (
+        <li class="q-fit__card" data-state={it.state}>
+          <BrandSymbol variant={it.state === "fits" ? "full" : "car"} width="3rem" />
+          <div class="q-fit__body">
+            <p class="q-fit__status">{it.status}</p>
+            <p class="q-fit__part">
+              {it.part} · <code dir="ltr">{it.partNumber}</code>
+            </p>
+            <p class="q-fit__detail">{it.detail}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+  <figcaption class="q-fit__foot">{sample}</figcaption>
+</figure>
+
+<style>
+  @layer site {
+    .q-fit {
+      display: grid;
+      gap: var(--space-xs);
+      padding: var(--space-s);
+      border-radius: calc(var(--radius-card) + 4px);
+      background: #ffffff;
+      color: #0a1633;
+      border: 1px solid #e3e8f0;
+      box-shadow: 0 20px 40px -24px rgb(2 43 116 / 0.3);
+      font-size: var(--step--1);
+    }
+    .q-fit__vehicle {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      padding: 0.65rem 0.9rem;
+      border-radius: var(--radius-control);
+      font-weight: 600;
+    }
+    .q-fit__list {
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .q-fit__card {
+      display: flex;
+      gap: var(--space-s);
+      align-items: start;
+      padding: var(--space-s);
+      border-radius: var(--radius-card);
+      border: 1px solid #cbd3e1;
+      background: #ffffff;
+    }
+    .q-fit__card :global(.q-symbol) {
+      margin-block-start: 0.35rem;
+    }
+    .q-fit__card[data-state="confirm"] {
+      border: 2px dashed #8a94a8;
+      background: #f5f7fa;
+    }
+    .q-fit__status {
+      font-weight: 700;
+      font-size: var(--step-0);
+      color: #022b74;
+    }
+    .q-fit__card[data-state="confirm"] .q-fit__status {
+      color: #0a1633;
+    }
+    .q-fit__part code {
+      color: #0a1633;
+    }
+    .q-fit__detail,
+    .q-fit__foot {
+      color: #566179;
+    }
+    .q-fit__foot {
+      font-size: var(--step--2);
+    }
+  }
+</style>

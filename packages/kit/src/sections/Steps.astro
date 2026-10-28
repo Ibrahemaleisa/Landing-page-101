@@ -1,0 +1,198 @@
+---
+/**
+ * A process. `timeline` draws a connected path (vertical on phones, horizontal on wide screens)
+ * and can mark the current step (`aria-current="step"`); `cards` numbers each step on a surface.
+ */
+import type { StepItem } from "../types";
+import Section from "../primitives/Section.astro";
+import SectionHeader from "../primitives/SectionHeader.astro";
+
+export interface Props {
+  id: string;
+  tone?: string;
+  eyebrow?: string;
+  index?: string;
+  title: string;
+  lead?: string;
+  items: StepItem[];
+  variant?: "timeline" | "cards";
+  /** Zero-based index of the current step (timeline only). */
+  current?: number;
+  /** Visible label for the current marker, e.g. "Now". */
+  currentLabel?: string;
+  headerLayout?: "stack" | "split" | "center";
+  /** Smaller heading when the steps continue a preceding section. */
+  titleSize?: "h2" | "h3";
+  class?: string;
+}
+
+const {
+  id,
+  tone,
+  eyebrow,
+  index,
+  title,
+  lead,
+  items,
+  variant = "timeline",
+  current,
+  currentLabel,
+  headerLayout = "stack",
+  titleSize = "h2",
+  class: cls,
+} = Astro.props;
+const headingId = `${id}-title`;
+const pad = (n: number) => String(n + 1).padStart(2, "0");
+const state = (i: number) => (current === undefined ? "todo" : i < current ? "done" : i === current ? "now" : "todo");
+---
+
+<Section id={id} tone={tone} labelledby={headingId} class:list={["lk-steps", cls]} data-variant={variant}>
+  <SectionHeader id={headingId} title={title} eyebrow={eyebrow} index={index} lead={lead} layout={headerLayout} size={titleSize} />
+  <ol role="list" class="lk-steps__list" style={`--n:${items.length}`}>
+    {items.map((s, i) => (
+      <li class="lk-steps__item lk-reveal" data-state={state(i)} aria-current={state(i) === "now" ? "step" : undefined}>
+        <span class="lk-steps__marker" aria-hidden="true">
+          {variant === "cards" ? pad(i) : null}
+        </span>
+        <div class="lk-steps__body">
+          <p class="lk-steps__head">
+            {variant === "timeline" && <span class="lk-steps__num lk-tabular">{pad(i)}</span>}
+            <span class="lk-steps__title">{s.title}</span>
+            {state(i) === "now" && currentLabel && <span class="lk-steps__now">{currentLabel}</span>}
+          </p>
+          <p class="lk-steps__text">{s.body}</p>
+        </div>
+      </li>
+    ))}
+  </ol>
+</Section>
+
+<style>
+  @layer sections {
+    .lk-steps__list {
+      display: grid;
+      gap: var(--space-m);
+    }
+    .lk-steps__head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--space-2xs) var(--space-xs);
+      margin-block-end: var(--space-3xs);
+    }
+    .lk-steps__title {
+      font-size: var(--step-1);
+      font-weight: var(--weight-heading);
+      font-family: var(--font-display);
+      letter-spacing: var(--tracking-heading);
+      color: var(--tone-heading);
+    }
+    .lk-steps__num {
+      font-size: var(--step--1);
+      color: var(--tone-fg-muted);
+    }
+    .lk-steps__text {
+      color: var(--tone-fg-muted);
+      max-inline-size: 32ch;
+    }
+    .lk-steps__now {
+      padding: 0.15em 0.6em;
+      border-radius: var(--radius-badge);
+      background: var(--tone-accent);
+      color: var(--tone-on-accent);
+      font-size: var(--step--2);
+      font-weight: var(--control-weight);
+    }
+
+    /* timeline: a rail with a dot per step */
+    .lk-steps[data-variant="timeline"] .lk-steps__item {
+      position: relative;
+      padding-inline-start: 2.5rem;
+    }
+    .lk-steps[data-variant="timeline"] .lk-steps__marker {
+      position: absolute;
+      inset-inline-start: 0;
+      inset-block-start: 0.3em;
+      inline-size: 1rem;
+      block-size: 1rem;
+      border-radius: 50%;
+      border: 2px solid var(--tone-fg);
+      background: var(--tone-bg);
+    }
+    .lk-steps[data-variant="timeline"] [data-state="done"] .lk-steps__marker {
+      background: var(--tone-fg);
+    }
+    .lk-steps[data-variant="timeline"] [data-state="now"] .lk-steps__marker {
+      inline-size: 1.25rem;
+      block-size: 1.25rem;
+      margin-inline-start: -0.125rem;
+      border-color: var(--tone-accent);
+      background: var(--tone-accent);
+      box-shadow: 0 0 0 4px var(--tone-bg);
+    }
+    .lk-steps[data-variant="timeline"] .lk-steps__item:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      inset-inline-start: calc(0.5rem - 1px);
+      inset-block: 1.6em calc(var(--space-m) * -1 - 0.3em);
+      inline-size: 2px;
+      background: var(--tone-line);
+    }
+    .lk-steps[data-variant="timeline"] [data-state="done"]:not(:last-child)::before {
+      background: var(--tone-fg);
+    }
+    @media (min-width: 64rem) {
+      .lk-steps[data-variant="timeline"] .lk-steps__list {
+        grid-template-columns: repeat(var(--n), 1fr);
+        gap: var(--space-m);
+      }
+      .lk-steps[data-variant="timeline"] .lk-steps__item {
+        padding-inline-start: 0;
+        padding-block-start: 2.5rem;
+      }
+      .lk-steps[data-variant="timeline"] .lk-steps__marker {
+        inset-block-start: 0;
+      }
+      .lk-steps[data-variant="timeline"] [data-state="now"] .lk-steps__marker {
+        margin-block-start: -0.125rem;
+      }
+      .lk-steps[data-variant="timeline"] .lk-steps__item:not(:last-child)::before {
+        inset-block: calc(0.5rem - 1px) auto;
+        inset-inline: 1.5rem calc(var(--space-m) * -1 + 0.25rem);
+        inline-size: auto;
+        block-size: 2px;
+      }
+    }
+
+    /* cards: numbered surfaces */
+    .lk-steps[data-variant="cards"] .lk-steps__list {
+      grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+      gap: var(--space-s);
+      counter-reset: step;
+    }
+    .lk-steps[data-variant="cards"] .lk-steps__item {
+      display: grid;
+      gap: var(--space-s);
+      padding: var(--space-m);
+      border-radius: var(--radius-card);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      border: var(--card-border-width) solid var(--tone-surface-line);
+      box-shadow: var(--shadow-card);
+    }
+    .lk-steps[data-variant="cards"] .lk-steps__marker {
+      display: inline-grid;
+      place-items: center;
+      inline-size: 2.5rem;
+      block-size: 2.5rem;
+      border-radius: var(--radius-badge);
+      background: var(--tone-accent);
+      color: var(--tone-on-accent);
+      font-weight: var(--control-weight);
+      font-variant-numeric: tabular-nums;
+    }
+    .lk-steps[data-variant="cards"] .lk-steps__text {
+      color: var(--tone-surface-fg-muted);
+    }
+  }
+</style>

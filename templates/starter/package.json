@@ -1,0 +1,22 @@
+{
+  "name": "__NAME__-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --port __PORT__",
+    "build": "astro build",
+    "preview": "astro preview --port __PORT__",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "5.3.0",
+    "@fontsource/ibm-plex-sans-arabic": "5.3.0",
+    "@landing/kit": "workspace:*",
+    "astro": "7.4.2",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "typescript": "~6.0.3"
+  }
+}

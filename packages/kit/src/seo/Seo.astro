@@ -1,0 +1,76 @@
+---
+/**
+ * Document metadata: title, description, self-canonical, hreflang alternates, Open Graph,
+ * Twitter card and JSON-LD. Only verified facts belong in structured data.
+ */
+export interface SeoImage {
+  /** Absolute URL. */
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+}
+
+export interface Props {
+  title: string;
+  description: string;
+  /** Absolute canonical URL of this page in this locale. */
+  canonical: string;
+  alternates?: { hreflang: string; href: string }[];
+  siteName: string;
+  ogLocale?: string;
+  ogLocaleAlternates?: string[];
+  image?: SeoImage;
+  type?: "website" | "article";
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  alternates = [],
+  siteName,
+  ogLocale,
+  ogLocaleAlternates = [],
+  image,
+  type = "website",
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+
+// JSON-LD is inlined, so escape "<" to keep a string value from closing the script element
+const ld = jsonLd ? JSON.stringify(jsonLd).replace(/</g, "\\u003c") : null;
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{alternates.map((a) => (
+  <link rel="alternate" hreflang={a.hreflang} href={a.href} />
+))}
+<meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+{ogLocale && <meta property="og:locale" content={ogLocale} />}
+{ogLocaleAlternates.map((l) => (
+  <meta property="og:locale:alternate" content={l} />
+))}
+{image && (
+  <>
+    <meta property="og:image" content={image.src} />
+    <meta property="og:image:width" content={String(image.width)} />
+    <meta property="og:image:height" content={String(image.height)} />
+    <meta property="og:image:alt" content={image.alt} />
+  </>
+)}
+<meta name="twitter:card" content={image && image.width >= 600 ? "summary_large_image" : "summary"} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{image && <meta name="twitter:image" content={image.src} />}
+{ld && <script type="application/ld+json" set:html={ld} />}

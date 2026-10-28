@@ -1,0 +1,181 @@
+---
+/**
+ * Opera Technologies: copy and capability list beside a "product truth" panel — one illustrative
+ * project, one moment, each status ring always paired with text (Brand Guidelines p.31).
+ */
+import Section from "@landing/kit/primitives/Section.astro";
+import SectionHeader from "@landing/kit/primitives/SectionHeader.astro";
+import Badge from "@landing/kit/components/Badge.astro";
+import type { Content } from "../content/types";
+
+export interface Props {
+  id: string;
+  index: string;
+  t: Content["technologies"];
+}
+
+const { id, index, t } = Astro.props;
+const headingId = `${id}-title`;
+// each ring, number and line of copy states the same thing (invitations: exactly 340 of 500)
+const STATES = [
+  { state: "complete", value: 1 },
+  { state: "awaiting", value: 1 },
+  { state: "progress", value: 340 / 500 },
+  { state: "pending", value: 0 },
+  { state: "pending", value: 0 },
+] as const;
+const C = 2 * Math.PI * 10;
+---
+
+<Section id={id} tone="night" labelledby={headingId} class="op-tech">
+  <div class="op-tech__grid">
+    <div>
+      <SectionHeader id={headingId} index={index} eyebrow={t.label} title={t.title} lead={t.body} rule />
+      <ol role="list" class="op-tech__items lk-reveal">
+        {t.items.map((it, i) => (
+          <li>
+            <span class="lk-tabular">{String(i + 1).padStart(2, "0")}</span>
+            {it}
+          </li>
+        ))}
+      </ol>
+    </div>
+    <figure class="op-tech__panel lk-reveal">
+      <figcaption class="op-tech__head">
+        <span>
+          <span class="op-tech__title">{t.panel.title}</span>
+          <span class="op-tech__when">{t.panel.when}</span>
+        </span>
+        <Badge>{t.panel.note}</Badge>
+      </figcaption>
+      <ul role="list" class="op-tech__rows">
+        {t.panel.rows.map((r, i) => (
+          <li data-state={STATES[i].state}>
+            <svg viewBox="0 0 28 28" width="28" height="28" aria-hidden="true" class="op-ring">
+              <circle cx="14" cy="14" r="10" class="op-ring__track" />
+              {STATES[i].value > 0 && (
+                <circle cx="14" cy="14" r="10" class="op-ring__value" stroke-dasharray={`${(C * STATES[i].value).toFixed(2)} ${C.toFixed(2)}`} />
+              )}
+              {STATES[i].state === "complete" && <circle cx="14" cy="14" r="3.4" class="op-ring__dot" />}
+            </svg>
+            <span>
+              <span class="op-tech__name">{r.name}</span>
+              <span class="op-tech__state">{r.state}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p class="op-tech__proof">{t.proof}</p>
+    </figure>
+  </div>
+</Section>
+
+<style>
+  @layer site {
+    .op-tech__grid {
+      display: grid;
+      gap: var(--space-xl);
+    }
+    @media (min-width: 64rem) {
+      .op-tech__grid {
+        grid-template-columns: 6fr 5fr;
+        align-items: center;
+      }
+    }
+    .op-tech__items {
+      border-block-end: 1px solid var(--tone-line);
+    }
+    .op-tech__items li {
+      display: flex;
+      gap: var(--space-s);
+      align-items: baseline;
+      padding-block: var(--space-xs);
+      border-block-start: 1px solid var(--tone-line);
+      font-size: var(--step-1);
+    }
+    .op-tech__items span {
+      font-size: var(--step--1);
+      color: var(--tone-accent-text);
+    }
+    .op-tech__panel {
+      padding: var(--space-m);
+      border: 1px solid var(--tone-surface-line);
+      border-radius: var(--radius-card);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+    }
+    .op-tech__head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: start;
+      gap: var(--space-s);
+    }
+    .op-tech__title {
+      display: block;
+      font-size: var(--step-1);
+      font-weight: 500;
+    }
+    .op-tech__when {
+      display: block;
+      font-size: var(--step--1);
+      color: var(--tone-surface-fg-muted);
+    }
+    .op-tech__rows {
+      margin-block-start: var(--space-s);
+    }
+    .op-tech__rows li {
+      display: flex;
+      gap: var(--space-s);
+      align-items: center;
+      padding-block: var(--space-xs);
+      border-block-start: 1px solid var(--tone-surface-line);
+    }
+    .op-tech__name {
+      display: block;
+      font-weight: 500;
+    }
+    .op-tech__state {
+      display: block;
+      font-size: var(--step--1);
+      color: var(--tone-surface-fg-muted);
+    }
+    [data-state="awaiting"] .op-tech__state {
+      color: #e0a848;
+    }
+    [data-state="progress"] .op-tech__state {
+      color: var(--tone-accent-text);
+    }
+    .op-ring {
+      flex: none;
+      transform: rotate(-90deg);
+    }
+    .op-ring__track {
+      fill: none;
+      stroke: rgb(245 242 248 / 0.16);
+      stroke-width: 2.5;
+    }
+    .op-ring__value {
+      fill: none;
+      stroke: var(--tone-accent-text);
+      stroke-width: 2.5;
+    }
+    [data-state="complete"] .op-ring__value {
+      stroke: #f5f2f8;
+    }
+    [data-state="awaiting"] .op-ring__value {
+      stroke: #e0a848;
+      stroke-dasharray: 4 2.3 !important;
+    }
+    .op-ring__dot {
+      fill: #f5f2f8;
+    }
+    .op-tech__proof {
+      margin-block-start: var(--space-s);
+      padding-block-start: var(--space-s);
+      border-block-start: 1px solid var(--tone-surface-line);
+      font-size: var(--step--1);
+      color: var(--tone-surface-fg-muted);
+    }
+  }
+</style>

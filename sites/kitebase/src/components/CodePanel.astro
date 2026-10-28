@@ -1,0 +1,36 @@
+---
+/** A code sample in a terminal frame. Code is always left-to-right, also on Arabic pages. */
+export interface Props {
+  code: string;
+  label: string;
+}
+const { code, label } = Astro.props;
+---
+
+<figure class="kb-code" aria-label={label}>
+  <pre dir="ltr" tabindex="0"><code>{code}</code></pre>
+</figure>
+
+<style>
+  @layer site {
+    .kb-code {
+      background: #151412;
+      color: #f4f0e6;
+      border: 2px solid var(--tone-fg);
+      box-shadow: 8px 8px 0 0 var(--tone-highlight);
+    }
+    pre {
+      margin: 0;
+      padding: var(--space-m);
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: var(--step--1);
+      line-height: 1.7;
+      text-align: left;
+    }
+    pre:focus-visible {
+      outline: 2px solid #d4f53c;
+      outline-offset: -4px;
+    }
+  }
+</style>

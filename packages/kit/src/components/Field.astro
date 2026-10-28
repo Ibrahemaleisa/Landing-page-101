@@ -1,0 +1,189 @@
+---
+/**
+ * A labelled form control with hint and error slots wired through `aria-describedby`.
+ * Validation messages are supplied in the page language and shown by the Form script.
+ */
+export interface FieldOption {
+  value: string;
+  label: string;
+}
+
+export interface Props {
+  name: string;
+  label: string;
+  type?: "text" | "email" | "tel" | "url" | "number" | "search" | "textarea" | "select";
+  required?: boolean;
+  /** Visible marker after the label for required fields, e.g. "(required)". */
+  requiredLabel?: string;
+  autocomplete?: string;
+  inputmode?: "text" | "email" | "tel" | "url" | "numeric" | "search";
+  hint?: string;
+  placeholder?: string;
+  /** Options for `select`; an entry with `options` renders as an `<optgroup>`. */
+  options?: (FieldOption | { label: string; options: FieldOption[] })[];
+  /** Message when a required field is empty. */
+  requiredMessage?: string;
+  /** Message when the value doesn't match its type or pattern. */
+  invalidMessage?: string;
+  pattern?: string;
+  minlength?: number;
+  /** Force direction for values that are always LTR (email, phone) inside RTL pages. */
+  dir?: "ltr" | "rtl" | "auto";
+  rows?: number;
+  value?: string;
+  class?: string;
+}
+
+const {
+  name,
+  label,
+  type = "text",
+  required = false,
+  requiredLabel,
+  autocomplete,
+  inputmode,
+  hint,
+  placeholder,
+  options = [],
+  requiredMessage,
+  invalidMessage,
+  pattern,
+  minlength,
+  dir,
+  rows = 4,
+  value,
+  class: cls,
+} = Astro.props;
+
+const id = `f-${name}`;
+const hintId = hint ? `${id}-hint` : undefined;
+const errId = `${id}-error`;
+const describedby = [hintId, errId].filter(Boolean).join(" ");
+const common = {
+  id,
+  name,
+  required,
+  autocomplete,
+  "aria-describedby": describedby,
+  "data-msg-required": requiredMessage,
+  "data-msg-invalid": invalidMessage,
+  class: "lk-field__control",
+  dir,
+};
+---
+
+<div class:list={["lk-field", cls]}>
+  <label for={id} class="lk-field__label">
+    {label}
+    {required && requiredLabel && <span class="lk-field__req">{requiredLabel}</span>}
+  </label>
+  {hint && (
+    <p id={hintId} class="lk-field__hint">
+      {hint}
+    </p>
+  )}
+  {type === "textarea" ? (
+    <textarea {...common} rows={rows} placeholder={placeholder} minlength={minlength} set:text={value ?? ""} />
+  ) : type === "select" ? (
+    <select {...common}>
+      {options.map((o) =>
+        "options" in o ? (
+          <optgroup label={o.label}>
+            {o.options.map((g) => (
+              <option value={g.value} selected={g.value === value}>
+                {g.label}
+              </option>
+            ))}
+          </optgroup>
+        ) : (
+          <option value={o.value} selected={o.value === value}>
+            {o.label}
+          </option>
+        ),
+      )}
+    </select>
+  ) : (
+    <input {...common} type={type} inputmode={inputmode} placeholder={placeholder} pattern={pattern} minlength={minlength} value={value} />
+  )}
+  <p id={errId} class="lk-field__error" data-lk-error hidden></p>
+</div>
+
+<style>
+  @layer components {
+    .lk-field {
+      display: grid;
+      gap: var(--space-3xs);
+    }
+    .lk-field__label {
+      font-weight: var(--control-weight);
+      font-size: var(--step--1);
+    }
+    .lk-field__req {
+      margin-inline-start: 0.35em;
+      font-weight: var(--weight-body);
+      color: var(--tone-fg-muted);
+    }
+    .lk-field__hint {
+      font-size: var(--step--1);
+      color: var(--tone-fg-muted);
+    }
+    .lk-field__control {
+      inline-size: 100%;
+      min-block-size: var(--control-height);
+      padding: 0.6em 0.85em;
+      border: max(1px, var(--border-width)) solid var(--tone-fg-muted);
+      border-radius: var(--radius-control);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      transition:
+        border-color var(--motion-fast) var(--motion-ease),
+        box-shadow var(--motion-fast) var(--motion-ease);
+    }
+    /* never fully round a multi-line box, even for pill brands */
+    textarea.lk-field__control {
+      border-radius: min(var(--radius-control), var(--radius-card));
+      resize: vertical;
+    }
+    select.lk-field__control {
+      border-radius: min(var(--radius-control), var(--radius-card));
+    }
+    .lk-field__control::placeholder {
+      color: var(--tone-surface-fg-muted);
+      opacity: 1;
+    }
+    .lk-field__control:focus-visible {
+      outline: 2px solid var(--tone-ring);
+      outline-offset: 1px;
+      border-color: var(--tone-ring);
+    }
+    .lk-field__control[aria-invalid="true"] {
+      border-color: currentColor;
+      border-width: 2px;
+    }
+    .lk-field__error {
+      display: flex;
+      gap: 0.4em;
+      align-items: start;
+      font-size: var(--step--1);
+      font-weight: var(--control-weight);
+    }
+    .lk-field__error[hidden] {
+      display: none;
+    }
+    /* the error is marked by an icon and text, never colour alone */
+    .lk-field__error::before {
+      content: "!";
+      display: inline-grid;
+      place-items: center;
+      flex: none;
+      inline-size: 1.25em;
+      block-size: 1.25em;
+      margin-block-start: 0.1em;
+      border-radius: 50%;
+      background: var(--tone-fg);
+      color: var(--tone-bg);
+      font-size: 0.85em;
+      line-height: 1;
+    }
+  }
+</style>

@@ -1,0 +1,158 @@
+---
+/**
+ * The closing call to action, in three compositions:
+ *  - `band`: full-width tone band, headline and actions.
+ *  - `panel`: an inset surface inside the section (works on any ground).
+ *  - `split`: headline on the start side, lead and actions on the end side.
+ * A `media` slot paints a background image under a scrim (contrast is kept by the tone's ground).
+ * An `aside` slot holds contact details or a form.
+ * Every CTA requires at least one action — a closing section must never be a dead end.
+ */
+import type { Action } from "../types";
+import Actions from "../components/Actions.astro";
+
+export interface Props {
+  id: string;
+  tone?: string;
+  variant?: "band" | "panel" | "split";
+  eyebrow?: string;
+  /** One string, or two lines (the second in the accent text colour). */
+  title: string | [string, string];
+  lead?: string;
+  actions: [Action, ...Action[]];
+  size?: "h2" | "display";
+  class?: string;
+}
+
+const { id, tone, variant = "band", eyebrow, title, lead, actions, size = "h2", class: cls } = Astro.props;
+const headingId = `${id}-title`;
+const lines = Array.isArray(title) ? title : [title];
+---
+
+<section id={id} class:list={["lk-cta", cls]} data-variant={variant} data-tone={variant === "panel" ? undefined : tone} aria-labelledby={headingId}>
+  {Astro.slots.has("media") && (
+    <div class="lk-cta__media" aria-hidden="true">
+      <slot name="media" />
+    </div>
+  )}
+  <div class="lk-container">
+    <div class="lk-cta__box" data-tone={variant === "panel" ? tone : undefined}>
+      <div class="lk-cta__copy lk-reveal">
+        {eyebrow && <p class="lk-eyebrow">{eyebrow}</p>}
+        <h2 id={headingId} class:list={[`lk-text-${size}`, "lk-cta__title"]}>
+          {lines.map((l, i) => (
+            <span class:list={["lk-cta__line", i === 1 && "lk-text-accent"]}>{l}</span>
+          ))}
+        </h2>
+      </div>
+      <div class="lk-cta__end lk-reveal">
+        {lead && <p class="lk-text-lead">{lead}</p>}
+        <Actions actions={actions} size="lg" align={variant === "band" ? "center" : "start"} />
+      </div>
+      <slot name="aside" />
+    </div>
+  </div>
+</section>
+
+<style>
+  @layer sections {
+    .lk-cta {
+      position: relative;
+      isolation: isolate;
+      overflow: clip;
+      padding-block: var(--section-pad);
+    }
+    .lk-cta__line {
+      display: block;
+    }
+    .lk-cta__box {
+      display: grid;
+      gap: var(--space-m);
+      position: relative;
+    }
+    .lk-cta__copy {
+      display: grid;
+      gap: var(--space-s);
+    }
+    .lk-cta__end {
+      display: grid;
+      gap: var(--space-m);
+      align-content: start;
+    }
+    .lk-cta[data-variant="band"] .lk-cta__box {
+      justify-items: center;
+      text-align: center;
+    }
+    .lk-cta[data-variant="band"] .lk-cta__title {
+      max-inline-size: 20ch;
+    }
+    .lk-cta[data-variant="band"] .lk-text-lead {
+      margin-inline: auto;
+    }
+    .lk-cta[data-variant="panel"] .lk-cta__box {
+      padding: var(--space-xl) var(--space-l);
+      border-radius: var(--radius-card);
+      border: var(--card-border-width) solid var(--tone-line);
+      box-shadow: var(--shadow-raised);
+    }
+    @media (min-width: 64rem) {
+      .lk-cta[data-variant="panel"] .lk-cta__box,
+      .lk-cta[data-variant="split"] .lk-cta__box {
+        grid-template-columns: 7fr 5fr;
+        column-gap: var(--space-xl);
+        align-items: end;
+      }
+      .lk-cta[data-variant="panel"] .lk-cta__box > :global(:not(.lk-cta__copy, .lk-cta__end)),
+      .lk-cta[data-variant="split"] .lk-cta__box > :global(:not(.lk-cta__copy, .lk-cta__end)) {
+        grid-column: 1 / -1;
+      }
+    }
+    .lk-cta__media {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+    }
+    .lk-cta__media :global(img) {
+      position: absolute;
+      inset: 0;
+      inline-size: 100%;
+      block-size: 100%;
+      object-fit: cover;
+      opacity: 0.4;
+    }
+    /* the scrim is the tone's own ground, deepest behind the words */
+    .lk-cta__media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          to top,
+          var(--tone-bg) 0%,
+          color-mix(in srgb, var(--tone-bg) 55%, transparent) 50%,
+          color-mix(in srgb, var(--tone-bg) 30%, transparent) 100%
+        ),
+        linear-gradient(
+          to right,
+          color-mix(in srgb, var(--tone-bg) 85%, transparent) 0%,
+          color-mix(in srgb, var(--tone-bg) 40%, transparent) 60%,
+          transparent 100%
+        );
+    }
+    :global(:dir(rtl)) .lk-cta__media::after {
+      background:
+        linear-gradient(
+          to top,
+          var(--tone-bg) 0%,
+          color-mix(in srgb, var(--tone-bg) 55%, transparent) 50%,
+          color-mix(in srgb, var(--tone-bg) 30%, transparent) 100%
+        ),
+        linear-gradient(
+          to left,
+          color-mix(in srgb, var(--tone-bg) 85%, transparent) 0%,
+          color-mix(in srgb, var(--tone-bg) 40%, transparent) 60%,
+          transparent 100%
+        );
+    }
+  }
+</style>

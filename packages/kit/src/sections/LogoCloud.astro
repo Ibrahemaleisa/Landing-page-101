@@ -1,0 +1,94 @@
+---
+/**
+ * Social proof by association. Logos are inline SVG markup (trusted, authored by the site) or,
+ * without artwork, the organisation's name set as a wordmark. Names are always available to
+ * assistive technology.
+ */
+import Section from "../primitives/Section.astro";
+
+export interface LogoItem {
+  name: string;
+  /** Inline SVG markup using `currentColor`, so logos follow the tone. */
+  svg?: string;
+}
+
+export interface Props {
+  id: string;
+  tone?: string;
+  title: string;
+  logos: LogoItem[];
+  variant?: "row" | "grid";
+  /** Small print, e.g. "Fictional companies for demonstration". */
+  note?: string;
+  class?: string;
+}
+
+const { id, tone, title, logos, variant = "row", note, class: cls } = Astro.props;
+const headingId = `${id}-title`;
+---
+
+<Section id={id} tone={tone} labelledby={headingId} pad="tight" class:list={["lk-logos", cls]} data-variant={variant}>
+  <h2 id={headingId} class="lk-eyebrow lk-logos__title">
+    {title}
+  </h2>
+  <ul role="list" class="lk-logos__list">
+    {logos.map((l) => (
+      <li class="lk-logos__item">
+        {l.svg ? <span class="lk-logos__svg" role="img" aria-label={l.name} set:html={l.svg} /> : <span class="lk-logos__word">{l.name}</span>}
+      </li>
+    ))}
+  </ul>
+  {note && <p class="lk-logos__note lk-text-small lk-text-muted">{note}</p>}
+</Section>
+
+<style>
+  @layer sections {
+    .lk-logos__title {
+      text-align: center;
+      margin-block-end: var(--space-m);
+    }
+    .lk-logos__list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: var(--space-m) var(--space-xl);
+    }
+    .lk-logos[data-variant="grid"] .lk-logos__list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+      gap: 0;
+      border-block-start: var(--border-width) solid var(--tone-line);
+      border-inline-start: var(--border-width) solid var(--tone-line);
+    }
+    .lk-logos[data-variant="grid"] .lk-logos__item {
+      display: grid;
+      place-items: center;
+      min-block-size: 6rem;
+      border-block-end: var(--border-width) solid var(--tone-line);
+      border-inline-end: var(--border-width) solid var(--tone-line);
+    }
+    .lk-logos__item {
+      color: var(--tone-fg-muted);
+    }
+    .lk-logos__svg {
+      display: block;
+      block-size: 1.75rem;
+    }
+    .lk-logos__svg :global(svg) {
+      block-size: 100%;
+      inline-size: auto;
+    }
+    .lk-logos__word {
+      font-family: var(--font-display);
+      font-size: var(--step-1);
+      font-weight: var(--weight-display);
+      letter-spacing: var(--tracking-heading);
+      white-space: nowrap;
+    }
+    .lk-logos__note {
+      margin-block-start: var(--space-s);
+      text-align: center;
+    }
+  }
+</style>

@@ -1,0 +1,172 @@
+---
+/**
+ * The one button. Renders `<a>` when given `href`, otherwise `<button>`. Its look comes entirely
+ * from tokens: shape, weight, casing and depth differ per brand without changing this markup.
+ */
+import type { HTMLAttributes } from "astro/types";
+import Icon from "../primitives/Icon.astro";
+import type { IconName } from "../primitives/icons";
+
+type Common = {
+  variant?: "primary" | "secondary" | "ghost" | "link";
+  size?: "sm" | "md" | "lg";
+  icon?: IconName;
+  /** Put the icon before the label instead of after. */
+  iconStart?: boolean;
+  block?: boolean;
+  /** For links: open in a new tab. Adds a visually hidden "(opens in a new tab)" note. */
+  external?: boolean;
+  /** Text appended for screen readers when `external`, in the page's language. */
+  externalLabel?: string;
+};
+
+export type Props = Common & (({ href: string } & Omit<HTMLAttributes<"a">, "href">) | ({ href?: undefined } & HTMLAttributes<"button">));
+
+const {
+  variant = "primary",
+  size = "md",
+  icon,
+  iconStart = false,
+  block = false,
+  external = false,
+  externalLabel = "(opens in a new tab)",
+  class: cls,
+  href,
+  type = "button",
+  ...rest
+} = Astro.props as Common & {
+  href?: string;
+  class?: string;
+  type?: "button" | "submit" | "reset";
+} & Record<string, unknown>;
+
+const classes = ["lk-btn", cls];
+const data = { "data-variant": variant, "data-size": size, "data-block": block ? "" : undefined };
+---
+
+{href ? (
+  <a href={href} class:list={classes} {...data} {...(external ? { target: "_blank", rel: "noopener" } : {})} {...rest}>
+    {icon && iconStart && <Icon name={icon} />}
+    <span class="lk-btn__label">
+      <slot />
+    </span>
+    {icon && !iconStart && <Icon name={icon} />}
+    {external && <span class="lk-visually-hidden">{externalLabel}</span>}
+  </a>
+) : (
+  <button type={type} class:list={classes} {...data} {...rest}>
+    {icon && iconStart && <Icon name={icon} />}
+    <span class="lk-btn__label">
+      <slot />
+    </span>
+    {icon && !iconStart && <Icon name={icon} />}
+  </button>
+)}
+
+<style>
+  @layer components {
+    .lk-btn {
+      --_h: var(--control-height);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5em;
+      min-block-size: var(--_h);
+      padding-inline: calc(var(--_h) * 0.5);
+      border: var(--border-width) solid transparent;
+      border-radius: var(--radius-control);
+      font-family: var(--font-control);
+      font-size: var(--step-0);
+      font-weight: var(--control-weight);
+      line-height: 1.1;
+      letter-spacing: var(--control-tracking);
+      text-transform: var(--control-transform);
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+      transition:
+        background-color var(--motion-fast) var(--motion-ease),
+        border-color var(--motion-fast) var(--motion-ease),
+        color var(--motion-fast) var(--motion-ease),
+        box-shadow var(--motion-fast) var(--motion-ease),
+        transform var(--motion-fast) var(--motion-ease);
+    }
+    .lk-btn[data-size="sm"] {
+      --_h: calc(var(--control-height) * 0.8);
+      font-size: var(--step--1);
+    }
+    .lk-btn[data-size="lg"] {
+      --_h: calc(var(--control-height) * 1.15);
+      font-size: var(--step-1);
+    }
+    .lk-btn[data-block] {
+      display: flex;
+      inline-size: 100%;
+    }
+
+    .lk-btn[data-variant="primary"] {
+      background: var(--tone-accent);
+      color: var(--tone-on-accent);
+      box-shadow: var(--shadow-card);
+    }
+    .lk-btn[data-variant="primary"]:hover {
+      background: var(--tone-accent-hover);
+    }
+
+    .lk-btn[data-variant="secondary"] {
+      background: transparent;
+      color: var(--tone-fg);
+      border-color: currentColor;
+      box-shadow: var(--shadow-card);
+    }
+    .lk-btn[data-variant="secondary"]:hover {
+      background: var(--tone-fg);
+      color: var(--tone-bg);
+    }
+
+    .lk-btn[data-variant="ghost"] {
+      background: transparent;
+      color: var(--tone-fg);
+    }
+    .lk-btn[data-variant="ghost"]:hover {
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+    }
+
+    .lk-btn[data-variant="link"] {
+      min-block-size: auto;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--tone-accent-text);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.25em;
+    }
+    .lk-btn[data-variant="link"]:hover {
+      text-decoration-thickness: 2px;
+    }
+
+    /* hard-shadow brands press the button into its shadow */
+    .lk-btn:active:not([data-variant="link"], [data-variant="ghost"]) {
+      box-shadow: var(--shadow-press);
+      transform: translate(1px, 1px);
+    }
+    .lk-btn :global(.lk-icon) {
+      transition: transform var(--motion-fast) var(--motion-ease);
+    }
+    @media (hover: hover) {
+      .lk-btn:hover :global(.lk-icon[data-flip]) {
+        translate: 0.15em 0;
+      }
+      :global(:dir(rtl)) .lk-btn:hover :global(.lk-icon[data-flip]) {
+        translate: -0.15em 0;
+      }
+    }
+    @media (forced-colors: active) {
+      .lk-btn {
+        border-color: ButtonText;
+      }
+    }
+  }
+</style>

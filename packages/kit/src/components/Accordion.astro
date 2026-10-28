@@ -1,0 +1,116 @@
+---
+/**
+ * Disclosure list on native `<details>`/`<summary>`: keyboard, screen-reader and find-in-page
+ * support with zero JavaScript. `exclusive` makes it a one-open-at-a-time group (`name`).
+ */
+export interface AccordionItem {
+  title: string;
+  /** One string per paragraph. */
+  body: string | string[];
+  open?: boolean;
+}
+
+export interface Props {
+  items: AccordionItem[];
+  /** Group name; items close each other when set. */
+  exclusive?: string;
+  /** Heading level wrapping each summary label, for document outline. */
+  headingLevel?: 2 | 3 | 4;
+  class?: string;
+}
+
+const { items, exclusive, headingLevel = 3, class: cls } = Astro.props;
+const H = `h${headingLevel}` as "h2" | "h3" | "h4";
+---
+
+<div class:list={["lk-accordion", cls]}>
+  {items.map((item) => (
+    <details class="lk-accordion__item" name={exclusive} open={item.open}>
+      <summary class="lk-accordion__summary">
+        <H class="lk-accordion__title">{item.title}</H>
+        <span class="lk-accordion__icon" aria-hidden="true" />
+      </summary>
+      <div class="lk-accordion__body">
+        {(Array.isArray(item.body) ? item.body : [item.body]).map((p) => (
+          <p>{p}</p>
+        ))}
+      </div>
+    </details>
+  ))}
+</div>
+
+<style>
+  @layer components {
+    .lk-accordion {
+      border-block-end: var(--border-width) solid var(--tone-line);
+    }
+    .lk-accordion__item {
+      border-block-start: var(--border-width) solid var(--tone-line);
+    }
+    .lk-accordion__summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-s);
+      padding-block: var(--space-s);
+      cursor: pointer;
+      list-style: none;
+    }
+    .lk-accordion__summary::-webkit-details-marker {
+      display: none;
+    }
+    .lk-accordion__summary:focus-visible {
+      outline-offset: 4px;
+    }
+    .lk-accordion__title {
+      font-family: var(--font-body);
+      font-size: var(--step-1);
+      font-weight: var(--weight-heading);
+      letter-spacing: 0;
+      line-height: var(--leading-heading);
+      text-transform: none;
+    }
+    /* a plus that becomes a minus: drawn with borders so it inherits colour and mirrors nothing */
+    .lk-accordion__icon {
+      position: relative;
+      flex: none;
+      inline-size: 1rem;
+      block-size: 1rem;
+    }
+    .lk-accordion__icon::before,
+    .lk-accordion__icon::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      inset-block-start: 50%;
+      block-size: 2px;
+      margin-block-start: -1px;
+      background: currentColor;
+      transition: transform var(--motion-base) var(--motion-ease);
+    }
+    .lk-accordion__icon::after {
+      transform: rotate(90deg);
+    }
+    details[open] > .lk-accordion__summary .lk-accordion__icon::after {
+      transform: rotate(0deg);
+    }
+    .lk-accordion__body {
+      display: grid;
+      gap: var(--space-xs);
+      padding-block-end: var(--space-m);
+      max-inline-size: 65ch;
+      color: var(--tone-fg-muted);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .lk-accordion__item::details-content {
+        transition:
+          content-visibility var(--motion-base) allow-discrete,
+          opacity var(--motion-base) var(--motion-ease);
+        opacity: 0;
+      }
+      .lk-accordion__item[open]::details-content {
+        opacity: 1;
+      }
+    }
+  }
+</style>

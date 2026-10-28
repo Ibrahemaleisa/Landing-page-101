@@ -1,0 +1,11 @@
+packages:
+  - "packages/*"
+  - "sites/*"
+
+# @napi-rs/wasm-runtime imports @emnapi/* as peers; under pnpm's strict layout they must be
+# declared or the WASM fallback of @astrojs/check's compiler fails to load.
+packageExtensions:
+  "@napi-rs/wasm-runtime":
+    dependencies:
+      "@emnapi/core": "^1.4.0"
+      "@emnapi/runtime": "^1.4.0"

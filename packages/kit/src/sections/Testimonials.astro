@@ -1,0 +1,134 @@
+---
+/**
+ * Customer voices. `featured` gives the first quote the stage and lists the rest beside it;
+ * `grid` treats them equally. Quotes are `<figure>`/`<blockquote>`/`<figcaption>`.
+ */
+import type { Testimonial } from "../types";
+import Section from "../primitives/Section.astro";
+import SectionHeader from "../primitives/SectionHeader.astro";
+import Card from "../components/Card.astro";
+
+export interface Props {
+  id: string;
+  tone?: string;
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  items: Testimonial[];
+  variant?: "grid" | "featured";
+  note?: string;
+  class?: string;
+}
+
+const { id, tone, eyebrow, title, lead, items, variant = "grid", note, class: cls } = Astro.props;
+const headingId = `${id}-title`;
+const [first, ...rest] = items;
+const cite = (t: Testimonial) => [t.role, t.company].filter(Boolean).join(", ");
+---
+
+<Section id={id} tone={tone} labelledby={headingId} class:list={["lk-quotes", cls]} data-variant={variant}>
+  <SectionHeader id={headingId} title={title} eyebrow={eyebrow} lead={lead} />
+  {variant === "featured" && first ? (
+    <div class="lk-quotes__featured">
+      <figure class="lk-quotes__hero lk-reveal">
+        <blockquote class="lk-text-h3">
+          <p>{first.quote}</p>
+        </blockquote>
+        <figcaption>
+          <span class="lk-quotes__name">{first.name}</span>
+          {cite(first) && <span class="lk-text-muted">{cite(first)}</span>}
+        </figcaption>
+      </figure>
+      <ul role="list" class="lk-quotes__side">
+        {rest.map((t) => (
+          <li class="lk-reveal">
+            <figure>
+              <blockquote>
+                <p>{t.quote}</p>
+              </blockquote>
+              <figcaption>
+                <span class="lk-quotes__name">{t.name}</span>
+                {cite(t) && <span class="lk-text-muted">{cite(t)}</span>}
+              </figcaption>
+            </figure>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ) : (
+    <ul role="list" class="lk-quotes__grid">
+      {items.map((t) => (
+        <Card as="li" class="lk-reveal">
+          <figure class="lk-quotes__card">
+            <blockquote>
+              <p>{t.quote}</p>
+            </blockquote>
+            <figcaption>
+              <span class="lk-quotes__name">{t.name}</span>
+              {cite(t) && <span>{cite(t)}</span>}
+            </figcaption>
+          </figure>
+        </Card>
+      ))}
+    </ul>
+  )}
+  {note && <p class="lk-quotes__note lk-text-small lk-text-muted">{note}</p>}
+</Section>
+
+<style>
+  @layer sections {
+    figure {
+      display: grid;
+      gap: var(--space-s);
+    }
+    figcaption {
+      display: grid;
+      gap: 0.1em;
+      font-size: var(--step--1);
+    }
+    .lk-quotes__name {
+      font-weight: var(--control-weight);
+    }
+    .lk-quotes__grid {
+      display: grid;
+      gap: var(--space-s);
+      grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+    }
+    .lk-quotes__card blockquote {
+      color: var(--tone-surface-fg);
+    }
+    .lk-quotes__card figcaption span:not(.lk-quotes__name) {
+      color: var(--tone-surface-fg-muted);
+    }
+    .lk-quotes__featured {
+      display: grid;
+      gap: var(--space-xl);
+    }
+    .lk-quotes__hero blockquote {
+      font-weight: var(--weight-heading);
+      text-wrap: pretty;
+    }
+    .lk-quotes__hero blockquote p::before {
+      content: open-quote;
+    }
+    .lk-quotes__hero blockquote p::after {
+      content: close-quote;
+    }
+    .lk-quotes__side {
+      display: grid;
+      gap: var(--space-m);
+    }
+    .lk-quotes__side li {
+      padding-block-start: var(--space-s);
+      border-block-start: var(--border-width) solid var(--tone-line);
+    }
+    @media (min-width: 64rem) {
+      .lk-quotes__featured {
+        grid-template-columns: 3fr 2fr;
+      }
+    }
+    .lk-quotes__note {
+      margin-block-start: var(--space-m);
+    }
+  }
+</style>

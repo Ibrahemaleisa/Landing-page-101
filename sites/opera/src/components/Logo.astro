@@ -1,0 +1,39 @@
+---
+/**
+ * Opera Latin wordmark — the product signature in both locales. Never mirrored (the ring's gap
+ * stays at 11 o'clock in RTL). Mark in the tone's foreground; the dot is the only colour.
+ */
+import { WORDMARK_EN } from "./logo-paths";
+
+export interface Props {
+  label?: string;
+  class?: string;
+}
+const { label, class: cls } = Astro.props;
+---
+
+<svg
+  viewBox={WORDMARK_EN.viewBox}
+  class:list={["op-logo", cls]}
+  role={label ? "img" : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : "true"}
+  style="direction: ltr"
+>
+  <path d={WORDMARK_EN.ring} fill="none" stroke="currentColor" stroke-width={WORDMARK_EN.stroke}></path>
+  <circle cx={WORDMARK_EN.dot.cx} cy={WORDMARK_EN.dot.cy} r={WORDMARK_EN.dot.r} fill="var(--op-dot, #64228a)"></circle>
+  <path d={WORDMARK_EN.text} fill="currentColor"></path>
+</svg>
+
+<style>
+  @layer site {
+    .op-logo {
+      block-size: 1.375rem;
+      inline-size: auto;
+    }
+    :global([data-tone="night"]) .op-logo,
+    :global([data-tone="plum"]) .op-logo {
+      --op-dot: #c9b3e6;
+    }
+  }
+</style>

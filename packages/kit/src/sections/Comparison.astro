@@ -1,0 +1,129 @@
+---
+/**
+ * A comparison table: a real `<table>` with a caption, column and row headers. Booleans render as
+ * icons with text alternatives. On narrow screens the table scrolls inside a focusable region.
+ */
+import Section from "../primitives/Section.astro";
+import SectionHeader from "../primitives/SectionHeader.astro";
+import Icon from "../primitives/Icon.astro";
+
+export interface ComparisonRow {
+  label: string;
+  values: (boolean | string)[];
+}
+
+export interface Props {
+  id: string;
+  tone?: string;
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  /** Column headings (excluding the row-label column). */
+  columns: string[];
+  /** Zero-based index of the column to emphasise (usually "us"). */
+  highlight?: number;
+  rows: ComparisonRow[];
+  /** Table caption (visible to assistive technology; also the scroll region's name). */
+  caption: string;
+  /** Header text for the row-label column. */
+  rowHeader: string;
+  labels: { yes: string; no: string };
+  class?: string;
+}
+
+const { id, tone, eyebrow, title, lead, columns, highlight, rows, caption, rowHeader, labels, class: cls } = Astro.props;
+const headingId = `${id}-title`;
+---
+
+<Section id={id} tone={tone} labelledby={headingId} class:list={["lk-compare", cls]}>
+  <SectionHeader id={headingId} title={title} eyebrow={eyebrow} lead={lead} />
+  <div class="lk-compare__scroll" role="region" aria-label={caption} tabindex="0">
+    <table class="lk-compare__table">
+      <caption class="lk-visually-hidden">{caption}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{rowHeader}</th>
+          {columns.map((c, i) => (
+            <th scope="col" data-highlight={i === highlight ? "" : undefined}>
+              {c}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr>
+            <th scope="row">{r.label}</th>
+            {r.values.map((v, i) => (
+              <td data-highlight={i === highlight ? "" : undefined}>
+                {v === true ? (
+                  <Icon name="check" label={labels.yes} size="1.25rem" strokeWidth={2.25} />
+                ) : v === false ? (
+                  <Icon name="minus" label={labels.no} size="1.25rem" class="lk-compare__no" />
+                ) : (
+                  v
+                )}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</Section>
+
+<style>
+  @layer sections {
+    .lk-compare__scroll {
+      overflow-x: auto;
+      border: var(--card-border-width) solid var(--tone-surface-line);
+      border-radius: var(--radius-card);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      box-shadow: var(--shadow-card);
+    }
+    .lk-compare__table {
+      inline-size: 100%;
+      min-inline-size: 36rem;
+      border-collapse: collapse;
+      font-size: var(--step--1);
+    }
+    th,
+    td {
+      padding: var(--space-xs) var(--space-s);
+      text-align: start;
+      border-block-end: 1px solid var(--tone-surface-line);
+      vertical-align: middle;
+    }
+    tbody tr:last-child > * {
+      border-block-end: 0;
+    }
+    thead th {
+      font-family: var(--font-label);
+      font-size: var(--step-label);
+      font-weight: var(--weight-label);
+      letter-spacing: var(--tracking-label);
+      text-transform: var(--transform-label);
+      color: var(--tone-surface-fg-muted);
+    }
+    tbody th {
+      font-weight: var(--control-weight);
+    }
+    td {
+      text-align: center;
+    }
+    td :global(.lk-icon) {
+      display: inline-block;
+    }
+    [data-highlight] {
+      background: color-mix(in srgb, var(--tone-accent) 8%, transparent);
+    }
+    thead th[data-highlight] {
+      color: var(--tone-surface-fg);
+      box-shadow: inset 0 3px 0 var(--tone-accent);
+    }
+    :global(.lk-compare__no) {
+      color: var(--tone-surface-fg-muted);
+    }
+  }
+</style>

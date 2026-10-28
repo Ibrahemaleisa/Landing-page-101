@@ -1,0 +1,81 @@
+---
+/**
+ * The document shell for every page: `<html lang dir>`, brand tokens, global styles, fonts,
+ * SEO, and the skip link. Header, main and footer are the page's to compose.
+ */
+import "../styles/global.css";
+import { Font } from "astro:assets";
+import type { BrandConfig } from "../brand/types";
+import { compileBrand } from "../brand/compile";
+import { alternates, dirOf, langOf, localeHref, type SiteConfig } from "../i18n";
+import Seo, { type SeoImage } from "../seo/Seo.astro";
+
+export interface FontRef {
+  /** A `cssVariable` registered under `fonts` in astro.config. */
+  cssVariable: string;
+  /** Preload the files of this family (do it for the one or two faces above the fold). */
+  preload?: boolean;
+}
+
+export interface Props {
+  site: SiteConfig;
+  brand: BrandConfig;
+  locale: string;
+  /** Path of this page without locale prefix, e.g. `/` or `/pricing/`. */
+  path?: string;
+  title: string;
+  description: string;
+  siteName: string;
+  image?: SeoImage;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  fonts?: FontRef[];
+  /** Label of the skip link, in the page's language. */
+  skipLabel: string;
+  noindex?: boolean;
+  /** Tone applied to `<body>`. Defaults to `base`. */
+  tone?: string;
+}
+
+const { site, brand, locale, path = "/", title, description, siteName, image, jsonLd, fonts = [], skipLabel, noindex, tone } = Astro.props;
+
+const codes = Object.keys(site.locales);
+const css = compileBrand(brand, { locales: codes });
+const lang = langOf(site, locale);
+const dir = dirOf(site, locale);
+const canonical = site.url + localeHref(site, locale, path);
+const ogLocale = site.locales[locale]?.ogLocale;
+const ogAlternates = codes.filter((c) => c !== locale).flatMap((c) => site.locales[c]?.ogLocale ?? []);
+---
+
+<!doctype html>
+<html lang={lang} dir={dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {brand.themeColor && <meta name="theme-color" content={brand.themeColor} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {fonts.map((f) => (
+      <Font cssVariable={f.cssVariable as never} preload={f.preload} />
+    ))}
+    <style is:inline set:html={css} />
+    <Seo
+      title={title}
+      description={description}
+      canonical={canonical}
+      alternates={codes.length > 1 ? alternates(site, path) : []}
+      siteName={siteName}
+      ogLocale={ogLocale}
+      ogLocaleAlternates={ogAlternates}
+      image={image}
+      jsonLd={jsonLd}
+      noindex={noindex}
+    />
+    <slot name="head" />
+  </head>
+  <body data-tone={tone}>
+    <a class="lk-skip" href="#main">
+      {skipLabel}
+    </a>
+    <slot />
+  </body>
+</html>

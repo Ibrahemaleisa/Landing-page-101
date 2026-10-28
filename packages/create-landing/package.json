@@ -1,0 +1,10 @@
+{
+  "name": "create-landing",
+  "version": "0.1.0",
+  "description": "Scaffold a new Landing Kit site from templates/starter.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "create-landing": "./bin/create-landing.mjs"
+  }
+}

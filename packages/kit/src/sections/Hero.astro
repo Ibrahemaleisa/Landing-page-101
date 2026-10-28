@@ -1,0 +1,257 @@
+---
+/**
+ * Hero in four compositions. They are different layouts, not one layout with options:
+ *
+ *  - `display`: full-height, oversized headline anchored low, media bleeding from the far edge
+ *    behind it, a ruled meta row. Editorial, premium (Opera).
+ *  - `split`: copy on the start side, a working figure on the end side (search box, form,
+ *    product card). Utility, conversion-led (Qitah).
+ *  - `centered`: centred headline and actions over a wide product figure. Product-led SaaS.
+ *  - `statement`: one large statement and a ruled row of lead and actions, no media. Portfolios,
+ *    corporate announcements.
+ *
+ * Slots: `media` (background/side image), `figure` (interactive or product visual), `meta`
+ * (bottom row in `display`), `after` (below the actions: trust notes, search).
+ */
+import type { Action } from "../types";
+import Actions from "../components/Actions.astro";
+
+export interface Props {
+  variant?: "display" | "split" | "centered" | "statement";
+  id?: string;
+  tone?: string;
+  eyebrow?: string;
+  /** One string, or one string per line (each line is set on its own row). */
+  title: string | string[];
+  /** Index of the title line drawn in the accent text colour. */
+  accentLine?: number;
+  lead?: string;
+  actions?: Action[];
+  /** Adds top padding for an `overlay` header sitting on top of the hero. */
+  underHeader?: boolean;
+  /** Proportion of the split layout: copy-heavy or figure-heavy. */
+  balance?: "copy" | "even" | "figure";
+  class?: string;
+}
+
+const { variant = "split", id = "top", tone, eyebrow, title, accentLine, lead, actions = [], underHeader = false, balance = "even", class: cls } = Astro.props;
+const lines = Array.isArray(title) ? title : [title];
+const headingId = `${id}-title`;
+const hasMedia = Astro.slots.has("media");
+const hasFigure = Astro.slots.has("figure");
+const align = variant === "centered" ? "center" : "start";
+const delay = (i: number) => `--lk-delay:${80 + i * 90}ms`;
+---
+
+<section
+  id={id}
+  class:list={["lk-hero", cls]}
+  data-variant={variant}
+  data-tone={tone}
+  data-under-header={underHeader ? "" : undefined}
+  data-balance={balance}
+  data-has-media={hasMedia ? "" : undefined}
+  aria-labelledby={headingId}
+>
+  {hasMedia && variant === "display" && (
+    <div class="lk-hero__bg" aria-hidden="true">
+      <slot name="media" />
+    </div>
+  )}
+  <div class="lk-container lk-hero__inner">
+    <div class="lk-hero__copy">
+      {eyebrow && (
+        <p class="lk-eyebrow lk-hero__eyebrow lk-enter" style={delay(0)}>
+          {eyebrow}
+        </p>
+      )}
+      <h1 id={headingId} class="lk-text-display lk-hero__title">
+        {lines.map((line, i) => (
+          <span class:list={["lk-hero__line lk-enter", i === accentLine && "lk-text-accent"]} style={delay(i + 1)}>
+            {line}
+          </span>
+        ))}
+      </h1>
+      {variant !== "display" && variant !== "statement" && (
+        <>
+          {lead && (
+            <p class="lk-text-lead lk-hero__lead lk-enter" style={delay(lines.length + 1)}>
+              {lead}
+            </p>
+          )}
+          <div class="lk-enter" style={delay(lines.length + 2)}>
+            <Actions actions={actions} align={align} size="lg" />
+          </div>
+          <slot name="after" />
+        </>
+      )}
+    </div>
+
+    {(variant === "display" || variant === "statement") && (
+      <div class="lk-hero__row lk-enter" style={delay(lines.length + 1)}>
+        {lead && <p class="lk-text-lead">{lead}</p>}
+        <Actions actions={actions} class="lk-hero__row-actions" size="lg" />
+        <slot name="after" />
+      </div>
+    )}
+
+    {(hasFigure || (hasMedia && variant !== "display")) && (
+      <div class="lk-hero__figure lk-enter" style={delay(lines.length + 2)}>
+        <slot name="figure" />
+        {variant !== "display" && <slot name="media" />}
+      </div>
+    )}
+
+    {Astro.slots.has("meta") && (
+      <div class="lk-hero__meta">
+        <slot name="meta" />
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  @layer sections {
+    .lk-hero {
+      position: relative;
+      isolation: isolate;
+      overflow: clip;
+      padding-block: calc(var(--section-pad) * 0.8) var(--section-pad);
+    }
+    .lk-hero[data-under-header] {
+      padding-block-start: calc(var(--header-height) + var(--section-pad) * 0.6);
+    }
+    .lk-hero__inner {
+      display: grid;
+      gap: var(--space-l);
+    }
+    .lk-hero__copy {
+      display: grid;
+      gap: var(--space-s);
+      align-content: start;
+    }
+    .lk-hero__line {
+      display: block;
+    }
+    .lk-hero__title {
+      max-inline-size: 16ch;
+    }
+    .lk-hero__eyebrow {
+      color: var(--tone-accent-text);
+    }
+    .lk-hero__lead {
+      max-inline-size: 46ch;
+    }
+    .lk-hero__copy > :global(.lk-enter:has(.lk-actions)) {
+      margin-block-start: var(--space-2xs);
+    }
+
+    /* ----- display: full height, headline anchored low, media from the far edge */
+    .lk-hero[data-variant="display"] {
+      min-block-size: 100svh;
+      display: flex;
+      padding-block-end: var(--space-l);
+    }
+    .lk-hero[data-variant="display"] .lk-hero__inner {
+      align-content: end;
+      flex: 1;
+    }
+    .lk-hero[data-variant="display"] .lk-hero__title {
+      max-inline-size: 14ch;
+    }
+    .lk-hero__bg {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-end: 0;
+      inline-size: 100%;
+      z-index: -1;
+    }
+    .lk-hero__bg :global(img) {
+      position: absolute;
+      inset: 0;
+      block-size: 100%;
+      inline-size: 100%;
+      object-fit: cover;
+    }
+    /* keep the words legible: the tone's ground rises from the foot of the image */
+    .lk-hero__bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          to top,
+          var(--tone-bg) 0%,
+          color-mix(in srgb, var(--tone-bg) 78%, transparent) 38%,
+          color-mix(in srgb, var(--tone-bg) 35%, transparent) 70%
+        ),
+        linear-gradient(to bottom, color-mix(in srgb, var(--tone-bg) 65%, transparent) 0%, transparent 25%);
+    }
+    @media (min-width: 64rem) {
+      .lk-hero__bg {
+        inline-size: 64%;
+        mask-image: linear-gradient(to right, transparent 0%, black 50%);
+      }
+      :global(:dir(rtl)) .lk-hero__bg {
+        mask-image: linear-gradient(to left, transparent 0%, black 50%);
+      }
+    }
+    .lk-hero__row {
+      display: grid;
+      gap: var(--space-m);
+      padding-block-start: var(--space-m);
+      border-block-start: var(--border-width) solid var(--tone-line);
+    }
+    @media (min-width: 64rem) {
+      .lk-hero__row {
+        grid-template-columns: 1fr auto;
+        align-items: start;
+      }
+      .lk-hero__row :global(.lk-hero__row-actions) {
+        justify-content: flex-end;
+      }
+    }
+    .lk-hero__meta {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-s);
+      font-size: var(--step--1);
+      color: var(--tone-fg-muted);
+    }
+
+    /* ----- split: copy and a working figure side by side */
+    @media (min-width: 64rem) {
+      .lk-hero[data-variant="split"] .lk-hero__inner {
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        column-gap: var(--space-xl);
+      }
+      .lk-hero[data-variant="split"][data-balance="copy"] .lk-hero__inner {
+        grid-template-columns: 7fr 5fr;
+      }
+      .lk-hero[data-variant="split"][data-balance="figure"] .lk-hero__inner {
+        grid-template-columns: 5fr 7fr;
+      }
+    }
+
+    /* ----- centered: symmetric copy over a wide figure */
+    .lk-hero[data-variant="centered"] .lk-hero__copy {
+      justify-items: center;
+      text-align: center;
+    }
+    .lk-hero[data-variant="centered"] .lk-hero__title {
+      max-inline-size: 18ch;
+    }
+    .lk-hero[data-variant="centered"] .lk-hero__lead {
+      margin-inline: auto;
+    }
+    .lk-hero[data-variant="centered"] .lk-hero__figure {
+      margin-block-start: var(--space-m);
+    }
+
+    /* ----- statement: large words, a ruled row below */
+    .lk-hero[data-variant="statement"] .lk-hero__title {
+      max-inline-size: 20ch;
+    }
+  }
+</style>

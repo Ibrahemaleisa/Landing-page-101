@@ -1,0 +1,58 @@
+---
+/**
+ * The shell of every section: a landmark region with a tone, consistent block rhythm and an
+ * optional container. Sections are labelled by their heading (`labelledby`).
+ */
+import type { HTMLAttributes } from "astro/types";
+import Container from "./Container.astro";
+
+export interface Props extends Omit<HTMLAttributes<"section">, "id"> {
+  id?: string;
+  /** Brand tone name. Omit to inherit. */
+  tone?: string;
+  /** id of the heading that names this section. */
+  labelledby?: string;
+  /** `none` for full-bleed compositions that manage their own spacing. */
+  pad?: "default" | "tight" | "none" | "top" | "bottom";
+  width?: "default" | "narrow" | "wide";
+  /** Wrap children in a Container (default true). */
+  contained?: boolean;
+}
+
+const { id, tone, labelledby, pad = "default", width = "default", contained = true, class: cls, ...rest } = Astro.props;
+---
+
+<section id={id} data-tone={tone} aria-labelledby={labelledby} class:list={["lk-section", cls]} data-pad={pad} {...rest}>
+  {contained ? (
+    <Container width={width}>
+      <slot />
+    </Container>
+  ) : (
+    <slot />
+  )}
+</section>
+
+<style>
+  @layer layout {
+    .lk-section {
+      position: relative;
+      padding-block: var(--section-pad);
+    }
+    .lk-section[data-pad="tight"] {
+      padding-block: calc(var(--section-pad) * 0.6);
+    }
+    .lk-section[data-pad="none"] {
+      padding-block: 0;
+    }
+    .lk-section[data-pad="top"] {
+      padding-block-end: 0;
+    }
+    .lk-section[data-pad="bottom"] {
+      padding-block-start: 0;
+    }
+    /* two adjacent sections in the same tone share one gap instead of doubling it */
+    .lk-section:not([data-tone]) + .lk-section:not([data-tone]) {
+      padding-block-start: 0;
+    }
+  }
+</style>

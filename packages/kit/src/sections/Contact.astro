@@ -1,0 +1,103 @@
+---
+/**
+ * Contact: heading and confirmed details on one side, a form (default slot) on the other.
+ * Only verified details should be passed; missing ones are simply not shown (never placeholders).
+ */
+import Section from "../primitives/Section.astro";
+import SectionHeader from "../primitives/SectionHeader.astro";
+
+export interface ContactDetail {
+  label: string;
+  value: string;
+  href?: string;
+  /** Always left-to-right (phone numbers, emails). */
+  ltr?: boolean;
+}
+
+export interface Props {
+  id: string;
+  tone?: string;
+  eyebrow?: string;
+  index?: string;
+  title: string;
+  lead?: string;
+  details?: ContactDetail[];
+  class?: string;
+}
+
+const { id, tone, eyebrow, index, title, lead, details = [], class: cls } = Astro.props;
+const headingId = `${id}-title`;
+---
+
+<Section id={id} tone={tone} labelledby={headingId} class:list={["lk-contact", cls]}>
+  <div class="lk-contact__grid">
+    <div>
+      <SectionHeader id={headingId} title={title} eyebrow={eyebrow} index={index} lead={lead} />
+      {details.length > 0 && (
+        <dl class="lk-contact__details">
+          {details.map((d) => (
+            <div>
+              <dt>{d.label}</dt>
+              <dd>
+                {d.href ? (
+                  <a href={d.href} dir={d.ltr ? "ltr" : undefined} class:list={[d.ltr && "lk-ltr"]}>
+                    {d.value}
+                  </a>
+                ) : (
+                  <span dir={d.ltr ? "ltr" : undefined} class:list={[d.ltr && "lk-ltr"]}>
+                    {d.value}
+                  </span>
+                )}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </div>
+    <div class="lk-contact__form lk-reveal">
+      <slot />
+    </div>
+  </div>
+</Section>
+
+<style>
+  @layer sections {
+    .lk-contact__grid {
+      display: grid;
+      gap: var(--space-l);
+    }
+    @media (min-width: 64rem) {
+      .lk-contact__grid {
+        grid-template-columns: 5fr 6fr;
+        column-gap: var(--space-xl);
+        align-items: start;
+      }
+    }
+    .lk-contact__details {
+      display: grid;
+      border-block-end: var(--border-width) solid var(--tone-line);
+    }
+    .lk-contact__details > div {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--space-2xs) var(--space-s);
+      padding-block: var(--space-s);
+      border-block-start: var(--border-width) solid var(--tone-line);
+    }
+    .lk-contact__details dt {
+      color: var(--tone-fg-muted);
+    }
+    .lk-contact__details dd {
+      font-weight: var(--control-weight);
+    }
+    .lk-contact__form {
+      padding: var(--space-m);
+      border-radius: var(--radius-card);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      border: var(--card-border-width) solid var(--tone-surface-line);
+      box-shadow: var(--shadow-card);
+    }
+  }
+</style>

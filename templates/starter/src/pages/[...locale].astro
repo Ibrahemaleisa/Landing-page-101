@@ -1,0 +1,57 @@
+---
+/**
+ * Home page. Composition lives here: reorder sections, switch variants and tones, or drop in a
+ * section of your own from src/sections. Content comes from src/content, tokens from src/brand.ts.
+ */
+import BaseLayout from "@landing/kit/layouts/BaseLayout.astro";
+import SiteHeader from "@landing/kit/components/SiteHeader.astro";
+import Hero from "@landing/kit/sections/Hero.astro";
+import Features from "@landing/kit/sections/Features.astro";
+import FAQ from "@landing/kit/sections/FAQ.astro";
+import CTA from "@landing/kit/sections/CTA.astro";
+import Footer from "@landing/kit/sections/Footer.astro";
+import { localeHref, localePaths } from "@landing/kit/i18n";
+import { brand } from "../brand";
+import { site, type Locale } from "../site";
+import { content } from "../content";
+import Logo from "../components/Logo.astro";
+import "../styles/site.css";
+
+export const getStaticPaths = () => localePaths(site);
+
+const { locale } = Astro.props as { locale: Locale };
+const t = content[locale];
+const home = localeHref(site, locale);
+---
+
+<BaseLayout
+  site={site}
+  brand={brand}
+  locale={locale}
+  title={t.meta.title}
+  description={t.meta.description}
+  siteName={t.meta.siteName}
+  skipLabel={t.ui.skip}
+  fonts={[{ cssVariable: "--font-inter", preload: true }, { cssVariable: "--font-plex-ar", preload: locale === "ar" }]}
+>
+  <SiteHeader
+    site={site}
+    locale={locale}
+    homeHref={home}
+    homeLabel={t.ui.home}
+    links={t.nav.links}
+    cta={t.nav.cta}
+    labels={{ nav: t.ui.nav, menu: t.ui.menu, close: t.ui.close, language: t.ui.language }}
+  >
+    <Logo slot="logo" />
+  </SiteHeader>
+  <main id="main">
+    <Hero variant="statement" id="top" eyebrow={t.hero.eyebrow} title={t.hero.title} lead={t.hero.lead} actions={t.hero.actions} />
+    <Features id="features" variant="grid" eyebrow={t.features.eyebrow} title={t.features.title} lead={t.features.lead} items={t.features.items} />
+    <FAQ id="faq" title={t.faq.title} items={t.faq.items} />
+    <CTA id="start" tone="inverse" title={t.cta.title} lead={t.cta.lead} actions={t.cta.actions} />
+  </main>
+  <Footer site={site} locale={locale} tagline={t.footer.tagline} groups={t.footer.groups} legal={t.footer.legal} labels={{ nav: t.ui.footerNav, language: t.ui.language }}>
+    <Logo slot="logo" />
+  </Footer>
+</BaseLayout>

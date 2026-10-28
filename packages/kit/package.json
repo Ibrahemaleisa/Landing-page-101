@@ -1,0 +1,34 @@
+{
+  "name": "@landing/kit",
+  "version": "0.1.0",
+  "description": "Static-first, brand-adaptable landing page system for Astro: tokens, components, sections.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts",
+    "./brand": "./src/brand/index.ts",
+    "./i18n": "./src/i18n/index.ts",
+    "./types": "./src/types.ts",
+    "./styles/global.css": "./src/styles/global.css",
+    "./layouts/*": "./src/layouts/*",
+    "./seo/*": "./src/seo/*",
+    "./primitives/*": "./src/primitives/*",
+    "./components/*": "./src/components/*",
+    "./sections/*": "./src/sections/*"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "check": "astro check"
+  },
+  "peerDependencies": {
+    "astro": "^7.4.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "astro": "7.4.2",
+    "typescript": "~6.0.3"
+  }
+}

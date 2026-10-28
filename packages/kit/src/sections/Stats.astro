@@ -1,0 +1,95 @@
+---
+/**
+ * Key figures as a definition list. Every figure needs a source or a clear "sample data" note;
+ * the `note` prop is rendered under the list for exactly that.
+ */
+import type { StatItem } from "../types";
+import Section from "../primitives/Section.astro";
+import SectionHeader from "../primitives/SectionHeader.astro";
+
+export interface Props {
+  id: string;
+  tone?: string;
+  eyebrow?: string;
+  title?: string;
+  lead?: string;
+  items: StatItem[];
+  variant?: "row" | "cards";
+  note?: string;
+  class?: string;
+}
+
+const { id, tone, eyebrow, title, lead, items, variant = "row", note, class: cls } = Astro.props;
+const headingId = `${id}-title`;
+---
+
+<Section
+  id={id}
+  tone={tone}
+  labelledby={title ? headingId : undefined}
+  aria-label={title ? undefined : note}
+  class:list={["lk-stats", cls]}
+  data-variant={variant}
+>
+  {title && <SectionHeader id={headingId} title={title} eyebrow={eyebrow} lead={lead} />}
+  <dl class="lk-stats__list">
+    {items.map((s) => (
+      <div class="lk-stats__item lk-reveal">
+        <dt class="lk-stats__label">{s.label}</dt>
+        <dd class="lk-stats__value lk-tabular">{s.value}</dd>
+        {s.note && <dd class="lk-stats__note">{s.note}</dd>}
+      </div>
+    ))}
+  </dl>
+  {note && <p class="lk-stats__foot lk-text-small lk-text-muted">{note}</p>}
+</Section>
+
+<style>
+  @layer sections {
+    .lk-stats__list {
+      display: grid;
+      gap: var(--space-m);
+      grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+    }
+    .lk-stats__item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3xs);
+    }
+    .lk-stats[data-variant="row"] .lk-stats__item {
+      padding-block-start: var(--space-s);
+      border-block-start: var(--border-width) solid var(--tone-line);
+    }
+    .lk-stats[data-variant="cards"] .lk-stats__item {
+      padding: var(--space-m);
+      border-radius: var(--radius-card);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      border: var(--card-border-width) solid var(--tone-surface-line);
+      box-shadow: var(--shadow-card);
+    }
+    /* the figure reads first, the label explains it */
+    .lk-stats__value {
+      order: -1;
+      font-family: var(--font-display);
+      font-size: var(--step-5);
+      font-weight: var(--weight-display);
+      line-height: 1;
+      letter-spacing: var(--tracking-display);
+      color: var(--tone-heading);
+    }
+    .lk-stats__label {
+      font-weight: var(--control-weight);
+    }
+    .lk-stats__note {
+      font-size: var(--step--1);
+      color: var(--tone-fg-muted);
+    }
+    .lk-stats[data-variant="cards"] .lk-stats__note {
+      color: var(--tone-surface-fg-muted);
+    }
+    .lk-stats__foot {
+      margin-block-start: var(--space-m);
+    }
+  }
+</style>

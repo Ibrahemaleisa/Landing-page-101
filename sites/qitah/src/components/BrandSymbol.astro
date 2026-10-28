@@ -1,0 +1,59 @@
+---
+/**
+ * The Qitah symbol (car + piece). Colours come from the surrounding tone through `--q-car` and
+ * `--q-piece` (see styles/site.css), so the primary colourway appears on light grounds and the dark
+ * colourway (white car) on Qitah Blue. `car` renders the car alone, the "needs confirmation" state;
+ * `piece` renders only the orange piece, the "selected" marker. Decorative unless given a `label`.
+ */
+import { CAR_PATH, PIECE_PATH, PIECE_VIEWBOX, SYMBOL_VIEWBOX } from "../brand/symbol";
+
+export interface Props {
+  variant?: "full" | "car" | "piece";
+  /** CSS width; height follows the symbol's proportions. */
+  width?: string;
+  label?: string;
+  class?: string;
+}
+
+const { variant = "full", width = "2.5rem", label, class: cls } = Astro.props;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox={variant === "piece" ? PIECE_VIEWBOX : SYMBOL_VIEWBOX}
+  class:list={["q-symbol", cls]}
+  style={`inline-size:${width}`}
+  data-variant={variant}
+  role={label ? "img" : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : "true"}
+  focusable="false"
+>
+  {variant !== "piece" && <path class="q-symbol__car" d={CAR_PATH} />}
+  {variant !== "car" && <path class="q-symbol__piece" d={PIECE_PATH} />}
+</svg>
+
+<style>
+  @layer site {
+    .q-symbol {
+      display: block;
+      block-size: auto;
+      flex: none;
+    }
+    .q-symbol__car {
+      fill: var(--q-car, #022b74);
+    }
+    .q-symbol__piece {
+      fill: var(--q-piece, #fe680e);
+    }
+    .q-symbol[data-variant="car"] .q-symbol__car {
+      fill: var(--q-car-pending, #566179);
+    }
+    @media (forced-colors: active) {
+      .q-symbol__car,
+      .q-symbol__piece {
+        fill: CanvasText;
+      }
+    }
+  }
+</style>

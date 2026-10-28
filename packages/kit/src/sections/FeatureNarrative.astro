@@ -1,0 +1,109 @@
+---
+/**
+ * Alternating story rows: each row pairs copy with a visual, sides swapping down the page.
+ * Visuals are named slots `media-0`, `media-1`, … so each row can hold anything (an image,
+ * a product mock, a diagram).
+ */
+import type { Action } from "../types";
+import Section from "../primitives/Section.astro";
+import SectionHeader from "../primitives/SectionHeader.astro";
+import Actions from "../components/Actions.astro";
+import Icon from "../primitives/Icon.astro";
+
+export interface NarrativeItem {
+  eyebrow?: string;
+  title: string;
+  body: string;
+  points?: string[];
+  action?: Action;
+}
+
+export interface Props {
+  id: string;
+  tone?: string;
+  eyebrow?: string;
+  title?: string;
+  lead?: string;
+  items: NarrativeItem[];
+  /** Start with the visual on the start side. */
+  mediaFirst?: boolean;
+  class?: string;
+}
+
+const { id, tone, eyebrow, title, lead, items, mediaFirst = false, class: cls } = Astro.props;
+const headingId = `${id}-title`;
+const media = await Promise.all(items.map((_, i) => Astro.slots.render(`media-${i}`)));
+---
+
+<Section id={id} tone={tone} labelledby={title ? headingId : undefined} class:list={["lk-narrative", cls]}>
+  {title && <SectionHeader id={headingId} title={title} eyebrow={eyebrow} lead={lead} />}
+  <div class="lk-narrative__rows">
+    {items.map((item, i) => (
+      <article class="lk-narrative__row" data-reverse={(i % 2 === 1) !== mediaFirst ? "" : undefined}>
+        <div class="lk-narrative__copy lk-reveal">
+          {item.eyebrow && <p class="lk-eyebrow">{item.eyebrow}</p>}
+          <h3 class="lk-text-h3">{item.title}</h3>
+          <p class="lk-text-muted">{item.body}</p>
+          {item.points && (
+            <ul role="list" class="lk-narrative__points">
+              {item.points.map((p) => (
+                <li>
+                  <Icon name="check" />
+                  <span>{p}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {item.action && <Actions actions={[{ variant: "link", icon: "arrow-right", ...item.action }]} />}
+        </div>
+        {media[i] && <div class="lk-narrative__media lk-reveal" set:html={media[i]} />}
+      </article>
+    ))}
+  </div>
+</Section>
+
+<style>
+  @layer sections {
+    .lk-narrative__rows {
+      display: grid;
+      gap: var(--section-gap);
+    }
+    .lk-narrative__row {
+      display: grid;
+      gap: var(--space-l);
+      align-items: center;
+    }
+    .lk-narrative__copy {
+      display: grid;
+      gap: var(--space-xs);
+      align-content: start;
+      max-inline-size: 34rem;
+    }
+    .lk-narrative__points {
+      display: grid;
+      gap: var(--space-2xs);
+      margin-block-start: var(--space-2xs);
+    }
+    .lk-narrative__points li {
+      display: flex;
+      gap: 0.6em;
+      align-items: start;
+    }
+    .lk-narrative__points :global(.lk-icon) {
+      margin-block-start: 0.2em;
+      color: var(--tone-accent-text);
+    }
+    @media (min-width: 56rem) {
+      .lk-narrative__row {
+        grid-template-columns: 5fr 6fr;
+        column-gap: var(--space-xl);
+      }
+      .lk-narrative__row[data-reverse] {
+        grid-template-columns: 6fr 5fr;
+      }
+      .lk-narrative__row[data-reverse] .lk-narrative__copy {
+        order: 2;
+      }
+    }
+  }
+</style>

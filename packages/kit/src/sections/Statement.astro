@@ -1,0 +1,75 @@
+---
+/**
+ * An editorial statement: one large sentence that states a position, and a lead offset beneath
+ * it. Good after a hero, before the proof. The default slot follows the copy (images, steps).
+ */
+import Section from "../primitives/Section.astro";
+
+export interface Props {
+  id: string;
+  tone?: string;
+  eyebrow?: string;
+  index?: string;
+  statement: string;
+  lead?: string;
+  align?: "start" | "center";
+  class?: string;
+}
+
+const { id, tone, eyebrow, index, statement, lead, align = "start", class: cls } = Astro.props;
+const headingId = `${id}-title`;
+---
+
+<Section id={id} tone={tone} labelledby={headingId} class:list={["lk-statement", cls]} data-align={align}>
+  {(eyebrow || index) && (
+    <p class="lk-statement__meta">
+      {index && <span class="lk-tabular lk-text-muted">{index}</span>}
+      {eyebrow && <span class="lk-eyebrow">{eyebrow}</span>}
+    </p>
+  )}
+  <div class="lk-statement__grid">
+    <h2 id={headingId} class="lk-text-h2 lk-statement__title lk-reveal">
+      {statement}
+    </h2>
+    {lead && <p class="lk-text-lead lk-statement__lead lk-reveal">{lead}</p>}
+  </div>
+  <slot />
+</Section>
+
+<style>
+  @layer sections {
+    .lk-statement__meta {
+      display: flex;
+      gap: var(--space-s);
+      align-items: baseline;
+      padding-block-start: var(--space-s);
+      margin-block-end: var(--section-gap);
+      border-block-start: var(--border-width) solid var(--tone-line);
+    }
+    .lk-statement__grid {
+      display: grid;
+      gap: var(--space-l);
+    }
+    .lk-statement__title {
+      max-inline-size: 28ch;
+    }
+    @media (min-width: 64rem) {
+      .lk-statement[data-align="start"] .lk-statement__grid {
+        grid-template-columns: repeat(12, 1fr);
+      }
+      .lk-statement[data-align="start"] .lk-statement__title {
+        grid-column: 1 / span 9;
+      }
+      .lk-statement[data-align="start"] .lk-statement__lead {
+        grid-column: 7 / span 6;
+      }
+    }
+    .lk-statement[data-align="center"] .lk-statement__grid {
+      justify-items: center;
+      text-align: center;
+    }
+    .lk-statement[data-align="center"] .lk-statement__lead {
+      margin-inline: auto;
+    }
+  }
+</style>

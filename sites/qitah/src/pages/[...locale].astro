@@ -1,0 +1,127 @@
+---
+/**
+ * Qitah home. The composition is search-led and conversion-led: the promise beside a working part
+ * finder, then browse (categories), how it works, the product proof (offers, fitment, delivery),
+ * trust, sample figures, the merchant pitch on the blue band, and the questions people ask before
+ * buying parts online.
+ */
+import BaseLayout from "@landing/kit/layouts/BaseLayout.astro";
+import SiteHeader from "@landing/kit/components/SiteHeader.astro";
+import Hero from "@landing/kit/sections/Hero.astro";
+import Steps from "@landing/kit/sections/Steps.astro";
+import FeatureNarrative from "@landing/kit/sections/FeatureNarrative.astro";
+import Features from "@landing/kit/sections/Features.astro";
+import Stats from "@landing/kit/sections/Stats.astro";
+import CTA from "@landing/kit/sections/CTA.astro";
+import FAQ from "@landing/kit/sections/FAQ.astro";
+import Footer from "@landing/kit/sections/Footer.astro";
+import Icon from "@landing/kit/primitives/Icon.astro";
+import { localeHref, localePaths } from "@landing/kit/i18n";
+import { brand } from "../brand";
+import { site, type Locale } from "../site";
+import { content } from "../content";
+import Logo from "../components/Logo.astro";
+import PartFinder from "../sections/PartFinder.astro";
+import CategoryGrid from "../sections/CategoryGrid.astro";
+import OfferBoard from "../sections/OfferBoard.astro";
+import FitCheck from "../sections/FitCheck.astro";
+import TrackCard from "../sections/TrackCard.astro";
+import "../styles/site.css";
+
+export const getStaticPaths = () => localePaths(site);
+
+const { locale } = Astro.props as { locale: Locale };
+const t = content[locale];
+const home = localeHref(site, locale);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: t.meta.siteName,
+  alternateName: locale === "ar" ? "Qitah" : "قطعة",
+  url: site.url + home,
+  description: t.meta.description,
+  inLanguage: site.locales[locale].hreflang ?? locale,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${site.url}${home}?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+};
+---
+
+<BaseLayout
+  site={site}
+  brand={brand}
+  locale={locale}
+  title={t.meta.title}
+  description={t.meta.description}
+  siteName={t.meta.siteName}
+  skipLabel={t.ui.skip}
+  jsonLd={jsonLd}
+  fonts={locale === "ar"
+    ? [{ cssVariable: "--font-plex-arabic", preload: true }, { cssVariable: "--font-plex-sans" }, { cssVariable: "--font-plex-mono" }]
+    : [{ cssVariable: "--font-plex-sans", preload: true }, { cssVariable: "--font-plex-mono" }, { cssVariable: "--font-plex-arabic" }]}
+>
+  <SiteHeader
+    site={site}
+    locale={locale}
+    homeHref={home}
+    homeLabel={t.ui.home}
+    links={t.nav.links}
+    cta={t.nav.cta}
+    tone="muted"
+    labels={{ nav: t.ui.nav, menu: t.ui.menu, close: t.ui.close, language: t.ui.language }}
+  >
+    <Logo slot="logo" lockup={locale} />
+  </SiteHeader>
+
+  <main id="main">
+    <Hero variant="split" id="top" class="q-hero" eyebrow={t.hero.eyebrow} title={t.hero.title} accentLine={1} lead={t.hero.lead} actions={t.hero.actions}>
+      <ul slot="after" role="list" class="q-hero__assure">
+        {
+          t.hero.assurances.map((a) => (
+            <li>
+              <Icon name="circle-check" />
+              {a}
+            </li>
+          ))
+        }
+      </ul>
+      <PartFinder slot="figure" c={t.finder} vehicleLegend={t.finder.title} />
+    </Hero>
+
+    <CategoryGrid id="categories" tone="muted" c={t.categories} />
+
+    <Steps id="how" variant="cards" eyebrow={t.steps.eyebrow} title={t.steps.title} lead={t.steps.lead} items={t.steps.items} />
+
+    <FeatureNarrative id="results" tone="tint" eyebrow={t.story.eyebrow} title={t.story.title} lead={t.story.lead} items={t.story.items}>
+      <OfferBoard slot="media-0" c={t.offers} locale={locale} currency={t.ui.currency} sample={t.ui.sample} />
+      <FitCheck slot="media-1" c={t.fit} sample={t.ui.sample} />
+      <TrackCard slot="media-2" c={t.tracking} sample={t.ui.sample} />
+    </FeatureNarrative>
+
+    <Features id="trust" tone="muted" variant="grid" eyebrow={t.trust.eyebrow} title={t.trust.title} lead={t.trust.lead} items={t.trust.items} headerLayout="split" />
+
+    <Stats id="numbers" variant="cards" eyebrow={t.stats.eyebrow} title={t.stats.title} lead={t.stats.lead} items={t.stats.items} note={t.stats.note} />
+
+    <CTA id="merchants" tone="inverse" variant="split" class="q-merchant" eyebrow={t.merchant.eyebrow} title={t.merchant.title} lead={t.merchant.lead} actions={t.merchant.actions}>
+      <ul slot="aside" role="list" class="q-merchant__points">
+        {
+          t.merchant.points.map((p) => (
+            <li>
+              <Icon name="check" />
+              {p}
+            </li>
+          ))
+        }
+      </ul>
+    </CTA>
+
+    <FAQ id="faq" eyebrow={t.faq.eyebrow} title={t.faq.title} lead={t.faq.lead} items={t.faq.items} />
+  </main>
+
+  <Footer site={site} locale={locale} tone="muted" tagline={t.footer.tagline} groups={t.footer.groups} legal={t.footer.legal} labels={{ nav: t.ui.footerNav, language: t.ui.language }}>
+    <Logo slot="logo" lockup={locale} label={t.ui.logo} />
+  </Footer>
+</BaseLayout>

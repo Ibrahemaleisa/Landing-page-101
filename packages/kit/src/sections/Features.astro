@@ -1,0 +1,213 @@
+---
+/**
+ * A set of capabilities in four compositions:
+ *  - `grid`: cards with icons. Scannable, product-led.
+ *  - `list`: icon + text rows without surfaces. Quiet, dense.
+ *  - `index`: editorial table of contents — number, title, body, tags on hairlines (Opera).
+ *  - `bento`: asymmetric grid; the first item spans two columns and rows.
+ */
+import type { FeatureItem } from "../types";
+import Section from "../primitives/Section.astro";
+import SectionHeader from "../primitives/SectionHeader.astro";
+import Card from "../components/Card.astro";
+import Badge from "../components/Badge.astro";
+import Icon from "../primitives/Icon.astro";
+
+export interface Props {
+  id: string;
+  tone?: string;
+  variant?: "grid" | "list" | "index" | "bento";
+  eyebrow?: string;
+  index?: string;
+  title: string;
+  lead?: string;
+  headerLayout?: "stack" | "split" | "center";
+  items: FeatureItem[];
+  columns?: 2 | 3 | 4;
+  class?: string;
+}
+
+const { id, tone, variant = "grid", eyebrow, index, title, lead, headerLayout = "stack", items, columns = 3, class: cls } = Astro.props;
+const headingId = `${id}-title`;
+const pad = (n: number) => String(n + 1).padStart(2, "0");
+---
+
+<Section id={id} tone={tone} labelledby={headingId} class:list={["lk-features", cls]} data-variant={variant}>
+  <SectionHeader id={headingId} title={title} eyebrow={eyebrow} index={index} lead={lead} layout={headerLayout} rule={variant === "index"} />
+
+  {variant === "grid" && (
+    <ul role="list" class="lk-features__grid" style={`--cols:${columns}`}>
+      {items.map((f) => (
+        <Card as="li" href={f.href} linkLabel={f.title} class="lk-reveal">
+          {f.icon && (
+            <span class="lk-features__icon">
+              <Icon name={f.icon} size="1.5rem" />
+            </span>
+          )}
+          {f.eyebrow && <Badge>{f.eyebrow}</Badge>}
+          <h3 class="lk-text-h4">{f.title}</h3>
+          <p>{f.body}</p>
+        </Card>
+      ))}
+    </ul>
+  )}
+
+  {variant === "bento" && (
+    <ul role="list" class="lk-features__bento">
+      {items.map((f, i) => (
+        <Card as="li" href={f.href} linkLabel={f.title} class:list={["lk-reveal", i === 0 && "lk-features__lead-item"]} pad={i === 0 ? "l" : "m"}>
+          {f.icon && (
+            <span class="lk-features__icon">
+              <Icon name={f.icon} size="1.5rem" />
+            </span>
+          )}
+          <h3 class={i === 0 ? "lk-text-h3" : "lk-text-h4"}>{f.title}</h3>
+          <p>{f.body}</p>
+          {f.tags && (
+            <ul role="list" class="lk-features__tags">
+              {f.tags.map((t) => (
+                <li>
+                  <Badge>{t}</Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      ))}
+    </ul>
+  )}
+
+  {variant === "list" && (
+    <ul role="list" class="lk-features__list" style={`--cols:${columns}`}>
+      {items.map((f) => (
+        <li class="lk-features__row lk-reveal">
+          {f.icon && (
+            <span class="lk-features__icon" data-plain>
+              <Icon name={f.icon} size="1.5rem" />
+            </span>
+          )}
+          <div>
+            <h3 class="lk-text-h4">{f.title}</h3>
+            <p class="lk-text-muted">{f.body}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  {variant === "index" && (
+    <ol role="list" class="lk-features__index">
+      {items.map((f, i) => (
+        <li class="lk-features__entry lk-reveal">
+          <span class="lk-features__num lk-tabular" aria-hidden="true">
+            {pad(i)}
+          </span>
+          <h3 class="lk-text-h3 lk-features__entry-title">{f.title}</h3>
+          <p class="lk-text-muted lk-features__entry-body">{f.body}</p>
+          {f.tags && (
+            <ul role="list" class="lk-features__tags">
+              {f.tags.map((t) => (
+                <li>
+                  <Badge>{t}</Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ol>
+  )}
+</Section>
+
+<style>
+  @layer sections {
+    .lk-features__icon {
+      display: inline-grid;
+      place-items: center;
+      inline-size: 2.75rem;
+      block-size: 2.75rem;
+      margin-block-end: var(--space-2xs);
+      border-radius: var(--radius-control);
+      background: var(--tone-accent);
+      color: var(--tone-on-accent);
+    }
+    .lk-features__icon[data-plain] {
+      background: none;
+      color: var(--tone-accent-text);
+      inline-size: auto;
+      block-size: auto;
+    }
+    .lk-features__grid {
+      display: grid;
+      gap: var(--space-s);
+      grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+    }
+    @media (min-width: 64rem) {
+      .lk-features__grid {
+        grid-template-columns: repeat(var(--cols), 1fr);
+      }
+    }
+    .lk-features__bento {
+      display: grid;
+      gap: var(--space-s);
+      grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+    }
+    @media (min-width: 64rem) {
+      .lk-features__bento {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .lk-features__bento > :global(.lk-features__lead-item) {
+        grid-column: span 2;
+        grid-row: span 2;
+        justify-content: end;
+        min-block-size: 22rem;
+      }
+    }
+    .lk-features__list {
+      display: grid;
+      gap: var(--space-l) var(--space-xl);
+      grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+    }
+    .lk-features__row {
+      display: flex;
+      gap: var(--space-s);
+      align-items: start;
+    }
+    .lk-features__row h3 {
+      margin-block-end: var(--space-3xs);
+    }
+    .lk-features__tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3xs);
+      align-content: start;
+    }
+    .lk-features__index {
+      border-block-end: var(--border-width) solid var(--tone-line);
+    }
+    .lk-features__entry {
+      display: grid;
+      gap: var(--space-xs);
+      padding-block: var(--space-m);
+      border-block-start: var(--border-width) solid var(--tone-line);
+      transition: background-color var(--motion-base) var(--motion-ease);
+    }
+    .lk-features__num {
+      font-size: var(--step--1);
+      color: var(--tone-accent-text);
+    }
+    @media (min-width: 64rem) {
+      .lk-features__entry {
+        grid-template-columns: 1fr 5fr 4fr 2fr;
+        column-gap: var(--space-m);
+        align-items: start;
+      }
+      .lk-features__num {
+        padding-block-start: 0.6em;
+      }
+      .lk-features__entry-body {
+        padding-block-start: 0.3em;
+      }
+    }
+  }
+</style>

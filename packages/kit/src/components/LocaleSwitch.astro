@@ -1,0 +1,57 @@
+---
+/**
+ * Links to this page in the other locales. Each label is written in its own language and marked
+ * with `lang`/`hreflang` so screen readers pronounce it correctly.
+ */
+import { langOf, localeHref, type SiteConfig } from "../i18n";
+import Icon from "../primitives/Icon.astro";
+
+export interface Props {
+  site: SiteConfig;
+  locale: string;
+  path?: string;
+  /** Accessible name for the group, in the current language (e.g. "Language"). */
+  label: string;
+  showIcon?: boolean;
+  class?: string;
+}
+
+const { site, locale, path = "/", label, showIcon = true, class: cls } = Astro.props;
+const others = Object.keys(site.locales).filter((l) => l !== locale);
+---
+
+{others.length > 0 && (
+  <nav class:list={["lk-locale", cls]} aria-label={label}>
+    {showIcon && <Icon name="globe" size="1.1em" />}
+    {others.map((l) => (
+      <a href={localeHref(site, l, path)} hreflang={langOf(site, l)} lang={langOf(site, l)} class="lk-locale__link">
+        {site.locales[l]!.label}
+      </a>
+    ))}
+  </nav>
+)}
+
+<style>
+  @layer components {
+    .lk-locale {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4em;
+      color: var(--tone-fg-muted);
+    }
+    .lk-locale__link {
+      display: inline-flex;
+      align-items: center;
+      min-block-size: 2.75rem;
+      padding-inline: 0.25em;
+      color: var(--tone-fg);
+      text-decoration: none;
+      font-size: var(--step--1);
+      font-weight: var(--control-weight);
+      border-radius: var(--radius-control);
+    }
+    .lk-locale__link:hover {
+      text-decoration: underline;
+    }
+  }
+</style>

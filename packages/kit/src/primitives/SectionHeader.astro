@@ -1,0 +1,88 @@
+---
+/**
+ * The heading block of a section. Three layouts cover most narratives:
+ *  - `stack`: eyebrow, title, lead in one column
+ *  - `split`: title on the start side, lead pinned to the end (editorial)
+ *  - `center`: centred, for symmetric compositions
+ * `index` adds an editorial number ("01") and `rule` a hairline above.
+ */
+export interface Props {
+  /** id for the heading so the section can be labelled by it. */
+  id: string;
+  title: string;
+  eyebrow?: string;
+  index?: string;
+  lead?: string;
+  layout?: "stack" | "split" | "center";
+  level?: 1 | 2 | 3;
+  size?: "display" | "h1" | "h2" | "h3";
+  rule?: boolean;
+  class?: string;
+}
+
+const { id, title, eyebrow, index, lead, layout = "stack", level = 2, size = "h2", rule = false, class: cls } = Astro.props;
+const H = `h${level}` as "h1" | "h2" | "h3";
+const hasMeta = !!(eyebrow || index);
+---
+
+<header class:list={["lk-sh", cls]} data-layout={layout} data-rule={rule ? "" : undefined}>
+  {hasMeta && (
+    <p class="lk-sh__meta">
+      {index && <span class="lk-sh__index lk-tabular">{index}</span>}
+      {eyebrow && <span class="lk-eyebrow">{eyebrow}</span>}
+    </p>
+  )}
+  <H id={id} class:list={["lk-sh__title", `lk-text-${size}`, "lk-reveal"]}>
+    {title}
+    <slot name="title" />
+  </H>
+  {lead && <p class="lk-sh__lead lk-text-lead lk-reveal">{lead}</p>}
+  <slot />
+</header>
+
+<style>
+  @layer components {
+    .lk-sh {
+      display: grid;
+      gap: var(--space-s);
+      margin-block-end: var(--section-gap);
+    }
+    .lk-sh[data-rule] {
+      border-block-start: var(--border-width) solid var(--tone-line);
+      padding-block-start: var(--space-s);
+    }
+    .lk-sh__meta {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-s);
+      margin-block-end: var(--space-2xs);
+    }
+    .lk-sh__index {
+      font-size: var(--step--1);
+      color: var(--tone-fg-muted);
+    }
+    .lk-sh__title {
+      max-inline-size: 22ch;
+    }
+    .lk-sh[data-layout="center"] {
+      justify-items: center;
+      text-align: center;
+    }
+    .lk-sh[data-layout="center"] .lk-sh__lead {
+      margin-inline: auto;
+    }
+    @media (min-width: 64rem) {
+      .lk-sh[data-layout="split"] {
+        grid-template-columns: 7fr 4fr;
+        column-gap: var(--space-xl);
+        align-items: end;
+      }
+      .lk-sh[data-layout="split"] .lk-sh__meta {
+        grid-column: 1 / -1;
+      }
+      .lk-sh[data-layout="split"] .lk-sh__lead {
+        grid-column: 2;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,148 @@
+---
+/**
+ * Kitebase home. The composition is product-led: centred promise over the product itself, then
+ * proof, then how it works, then the decision (compare, pricing, FAQ), then the close.
+ */
+import BaseLayout from "@landing/kit/layouts/BaseLayout.astro";
+import SiteHeader from "@landing/kit/components/SiteHeader.astro";
+import Hero from "@landing/kit/sections/Hero.astro";
+import LogoCloud from "@landing/kit/sections/LogoCloud.astro";
+import Showcase from "@landing/kit/sections/Showcase.astro";
+import Features from "@landing/kit/sections/Features.astro";
+import Comparison from "@landing/kit/sections/Comparison.astro";
+import Testimonials from "@landing/kit/sections/Testimonials.astro";
+import Pricing from "@landing/kit/sections/Pricing.astro";
+import FAQ from "@landing/kit/sections/FAQ.astro";
+import CTA from "@landing/kit/sections/CTA.astro";
+import Footer from "@landing/kit/sections/Footer.astro";
+import { localeHref, localePaths } from "@landing/kit/i18n";
+import { brand } from "../brand";
+import { site, type Locale } from "../site";
+import { content } from "../content";
+import Logo from "../components/Logo.astro";
+import CodePanel from "../components/CodePanel.astro";
+import FlagConsole from "../sections/FlagConsole.astro";
+import "../styles/site.css";
+
+export const getStaticPaths = () => localePaths(site);
+
+const { locale } = Astro.props as { locale: Locale };
+const t = content[locale];
+const home = localeHref(site, locale);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Kitebase",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Web",
+  url: site.url + home,
+  description: t.meta.description,
+};
+---
+
+<BaseLayout
+  site={site}
+  brand={brand}
+  locale={locale}
+  title={t.meta.title}
+  description={t.meta.description}
+  siteName={t.meta.siteName}
+  skipLabel={t.ui.skip}
+  jsonLd={jsonLd}
+  fonts={
+    locale === "ar"
+      ? [{ cssVariable: "--font-readex", preload: true }, { cssVariable: "--font-space-grotesk" }, { cssVariable: "--font-jetbrains" }]
+      : [{ cssVariable: "--font-space-grotesk", preload: true }, { cssVariable: "--font-jetbrains" }, { cssVariable: "--font-readex" }]
+  }
+>
+  <SiteHeader
+    site={site}
+    locale={locale}
+    homeHref={home}
+    homeLabel={t.ui.home}
+    links={t.nav.links}
+    cta={t.nav.cta}
+    secondary={t.nav.secondary}
+    labels={{ nav: t.ui.nav, menu: t.ui.menu, close: t.ui.close, language: t.ui.language }}
+  >
+    <Logo slot="logo" />
+  </SiteHeader>
+
+  <main id="main">
+    <Hero variant="centered" id="top" class="kb-hero" eyebrow={t.hero.eyebrow} title={t.hero.title} accentLine={1} lead={t.hero.lead} actions={t.hero.actions}>
+      <p slot="after" class="kb-hero__note">
+        {t.hero.note}
+      </p>
+      <FlagConsole slot="figure" c={t.console} />
+    </Hero>
+
+    <LogoCloud id="customers" title={t.logos.title} logos={t.logos.names.map((name) => ({ name }))} variant="grid" note={t.logos.note} />
+
+    <Showcase
+      id="product"
+      tone="inverse"
+      eyebrow={t.showcase.eyebrow}
+      title={t.showcase.title}
+      lead={t.showcase.lead}
+      tabsLabel={t.showcase.tabsLabel}
+      items={t.showcase.items}
+      headerLayout="split"
+    >
+      {t.showcase.items.map((it) => (
+        <CodePanel slot={`media-${it.id}`} code={it.code} label={it.title} />
+      ))}
+    </Showcase>
+
+    <Features id="features" variant="bento" eyebrow={t.features.eyebrow} title={t.features.title} lead={t.features.lead} items={t.features.items} />
+
+    <Comparison
+      id="compare"
+      eyebrow={t.compare.eyebrow}
+      title={t.compare.title}
+      lead={t.compare.lead}
+      caption={t.compare.caption}
+      rowHeader={t.compare.rowHeader}
+      columns={t.compare.columns}
+      rows={t.compare.rows}
+      highlight={0}
+      labels={{ yes: t.ui.yes, no: t.ui.no }}
+    />
+
+    <Testimonials
+      id="stories"
+      tone="inverse"
+      variant="featured"
+      eyebrow={t.quotes.eyebrow}
+      title={t.quotes.title}
+      items={t.quotes.items}
+      note={t.quotes.note}
+    />
+
+    <Pricing
+      id="pricing"
+      eyebrow={t.pricing.eyebrow}
+      title={t.pricing.title}
+      lead={t.pricing.lead}
+      plans={t.pricing.plans}
+      billing={t.pricing.billing}
+      footnote={t.pricing.footnote}
+    />
+
+    <FAQ id="faq" eyebrow={t.faq.eyebrow} title={t.faq.title} lead={t.faq.lead} items={t.faq.items} />
+
+    <CTA id="start" tone="brand" variant="band" title={t.cta.title} lead={t.cta.lead} actions={t.cta.actions} size="display" />
+  </main>
+
+  <Footer
+    site={site}
+    locale={locale}
+    tone="inverse"
+    tagline={t.footer.tagline}
+    groups={t.footer.groups}
+    legal={t.footer.legal}
+    labels={{ nav: t.ui.footerNav, language: t.ui.language }}
+  >
+    <Logo slot="logo" />
+  </Footer>
+</BaseLayout>

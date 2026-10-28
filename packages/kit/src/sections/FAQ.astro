@@ -1,0 +1,59 @@
+---
+/** Questions and answers on the zero-JS Accordion. `split` pins the heading beside the list. */
+import type { FaqItem } from "../types";
+import Section from "../primitives/Section.astro";
+import SectionHeader from "../primitives/SectionHeader.astro";
+import Accordion from "../components/Accordion.astro";
+
+export interface Props {
+  id: string;
+  tone?: string;
+  eyebrow?: string;
+  index?: string;
+  title: string;
+  lead?: string;
+  items: FaqItem[];
+  variant?: "split" | "stacked";
+  /** One open at a time. */
+  exclusive?: boolean;
+  class?: string;
+}
+
+const { id, tone, eyebrow, index, title, lead, items, variant = "split", exclusive = true, class: cls } = Astro.props;
+const headingId = `${id}-title`;
+---
+
+<Section id={id} tone={tone} labelledby={headingId} width={variant === "stacked" ? "narrow" : "default"} class:list={["lk-faq", cls]} data-variant={variant}>
+  <div class="lk-faq__layout">
+    <SectionHeader
+      id={headingId}
+      title={title}
+      eyebrow={eyebrow}
+      index={index}
+      lead={lead}
+      layout={variant === "stacked" ? "center" : "stack"}
+      class="lk-faq__header"
+    >
+      <slot name="header" />
+    </SectionHeader>
+    <Accordion items={items.map((i) => ({ title: i.question, body: i.answer }))} exclusive={exclusive ? `${id}-group` : undefined} />
+  </div>
+</Section>
+
+<style>
+  @layer sections {
+    @media (min-width: 64rem) {
+      .lk-faq[data-variant="split"] .lk-faq__layout {
+        display: grid;
+        grid-template-columns: 5fr 7fr;
+        gap: var(--space-xl);
+        align-items: start;
+      }
+      .lk-faq[data-variant="split"] :global(.lk-faq__header) {
+        position: sticky;
+        inset-block-start: calc(var(--header-height) + var(--space-m));
+        margin-block-end: 0;
+      }
+    }
+  }
+</style>

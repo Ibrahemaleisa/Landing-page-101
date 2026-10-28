@@ -1,0 +1,53 @@
+---
+/**
+ * Qitah horizontal lockups (guidelines p.5–6): Arabic places the symbol to the right of «قطعة»,
+ * Latin places it to the left of «Qitah». The lockup itself never mirrors, so it is laid out LTR.
+ * Wordmarks are typeset in IBM Plex Sans Arabic / IBM Plex Sans Bold as the guidelines specify.
+ */
+import BrandSymbol from "./BrandSymbol.astro";
+
+export interface Props {
+  lockup: "ar" | "en";
+  /** Give the logo an accessible name when it is not already inside a labelled link. */
+  label?: string;
+  class?: string;
+}
+
+const { lockup, label, class: cls } = Astro.props;
+const word = lockup === "ar" ? "قطعة" : "Qitah";
+---
+
+<span class:list={["q-logo", cls]} data-lockup={lockup} dir="ltr" role={label ? "img" : undefined} aria-label={label}>
+  {lockup === "en" && <BrandSymbol width="2.6rem" />}
+  <span class="q-logo__word" lang={lockup} aria-hidden={label ? "true" : undefined}>{word}</span>
+  {lockup === "ar" && <BrandSymbol width="2.6rem" />}
+</span>
+
+<style>
+  @layer site {
+    .q-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-self: start;
+      inline-size: fit-content;
+      gap: 0.55rem;
+      color: var(--tone-heading);
+    }
+    .q-logo__word {
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .q-logo[data-lockup="ar"] .q-logo__word {
+      font-family: var(--font-plex-arabic), var(--font-plex-sans), sans-serif;
+      font-size: 1.75rem;
+      /* Arabic sits higher on the line; nudge it onto the symbol's optical centre */
+      padding-block-start: 0.15em;
+    }
+    .q-logo[data-lockup="en"] .q-logo__word {
+      font-family: var(--font-plex-sans), sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+  }
+</style>

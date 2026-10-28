@@ -1,0 +1,179 @@
+---
+/**
+ * Kitebase signature figure: an illustration of the flag console built in HTML (no screenshot,
+ * so it is crisp, translatable, themable and costs no image bytes). It is a static picture of the
+ * product: nothing in it is interactive, and its text is readable by assistive technology.
+ */
+import type { Content } from "../content/types";
+
+export interface Props {
+  c: Content["console"];
+}
+
+const { c } = Astro.props;
+---
+
+<figure class="kb-console" aria-label={c.label}>
+  <div class="kb-console__bar">
+    <span class="kb-console__dots" aria-hidden="true">
+      <i></i>
+      <i></i>
+      <i></i>
+    </span>
+    <span class="kb-console__env">
+      <span aria-hidden="true">●</span> {c.env}
+    </span>
+    <span class="kb-console__search" aria-hidden="true">
+      {c.search}
+    </span>
+  </div>
+  <ul role="list" class="kb-console__list">
+    {c.flags.map((f) => (
+      <li class="kb-console__row" data-on={f.on ? "" : undefined}>
+        <span class="kb-console__switch" aria-hidden="true" />
+        <span class="kb-console__state lk-visually-hidden">{f.on ? c.onLabel : c.offLabel}</span>
+        <span class="kb-console__name">
+          <span>{f.name}</span>
+          <code dir="ltr">{f.key}</code>
+        </span>
+        <span class="kb-console__segment">{f.segment}</span>
+        <span class="kb-console__rollout">
+          <span class="kb-console__meter" aria-hidden="true">
+            <span style={`inline-size:${f.rollout}%`} />
+          </span>
+          <span class="lk-tabular" dir="ltr">
+            <span class="lk-visually-hidden">{c.rolloutLabel} </span>
+            {f.rollout}%
+          </span>
+        </span>
+      </li>
+    ))}
+  </ul>
+  <figcaption class="kb-console__foot">{c.footer}</figcaption>
+</figure>
+
+<style>
+  @layer site {
+    .kb-console {
+      max-inline-size: 60rem;
+      margin-inline: auto;
+      text-align: start;
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      border: 2px solid var(--tone-fg);
+      box-shadow: 10px 10px 0 0 var(--tone-fg);
+      font-size: var(--step--1);
+    }
+    .kb-console__bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-s);
+      padding: 0.75rem 1rem;
+      border-block-end: 2px solid var(--tone-fg);
+      font-family: var(--font-mono);
+    }
+    .kb-console__dots {
+      display: flex;
+      gap: 6px;
+    }
+    .kb-console__dots i {
+      inline-size: 10px;
+      block-size: 10px;
+      border: 2px solid var(--tone-fg);
+    }
+    .kb-console__dots i:first-child {
+      background: var(--tone-highlight);
+    }
+    .kb-console__env {
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .kb-console__env span {
+      color: #1d7a3e;
+    }
+    .kb-console__search {
+      margin-inline-start: auto;
+      padding: 0.25rem 0.75rem;
+      border: 2px solid var(--tone-fg);
+      color: var(--tone-surface-fg-muted);
+      min-inline-size: 10rem;
+    }
+    .kb-console__row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.5rem 1rem;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      border-block-end: 1px solid color-mix(in srgb, var(--tone-fg) 25%, transparent);
+    }
+    .kb-console__switch {
+      position: relative;
+      inline-size: 2.5rem;
+      block-size: 1.375rem;
+      border: 2px solid var(--tone-fg);
+      background: var(--tone-surface);
+    }
+    .kb-console__switch::after {
+      content: "";
+      position: absolute;
+      inset-block: 2px;
+      inset-inline-start: 2px;
+      inline-size: 0.875rem;
+      background: var(--tone-fg);
+    }
+    [data-on] .kb-console__switch {
+      background: var(--tone-highlight);
+    }
+    [data-on] .kb-console__switch::after {
+      inset-inline-start: auto;
+      inset-inline-end: 2px;
+    }
+    .kb-console__name {
+      display: grid;
+      gap: 0.1rem;
+      font-weight: 600;
+    }
+    .kb-console__name code {
+      font-weight: 400;
+      color: var(--tone-surface-fg-muted);
+      font-size: 0.85em;
+      justify-self: start;
+    }
+    .kb-console__segment {
+      display: none;
+      color: var(--tone-surface-fg-muted);
+    }
+    .kb-console__rollout {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    .kb-console__meter {
+      display: none;
+      inline-size: 8rem;
+      block-size: 0.625rem;
+      border: 2px solid var(--tone-fg);
+    }
+    .kb-console__meter span {
+      display: block;
+      block-size: 100%;
+      background: var(--tone-fg);
+    }
+    .kb-console__foot {
+      padding: 0.75rem 1rem;
+      font-family: var(--font-mono);
+      color: var(--tone-surface-fg-muted);
+    }
+    @media (min-width: 48rem) {
+      .kb-console__row {
+        grid-template-columns: auto 2fr 1.2fr auto;
+      }
+      .kb-console__segment,
+      .kb-console__meter {
+        display: block;
+      }
+    }
+  }
+</style>

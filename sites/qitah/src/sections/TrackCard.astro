@@ -1,0 +1,154 @@
+---
+/**
+ * Order tracking as the guidelines draw it (p.31): completed stages are blue check circles, the
+ * current stage is the full symbol, upcoming stages are empty circles, and the text is always shown.
+ * Each stage also states its status for screen readers. Static illustration.
+ */
+import Icon from "@landing/kit/primitives/Icon.astro";
+import BrandSymbol from "../components/BrandSymbol.astro";
+import type { Content } from "../content/types";
+
+export interface Props {
+  c: Content["tracking"];
+  sample: string;
+}
+
+const { c, sample } = Astro.props;
+---
+
+<figure class="q-track" aria-label={c.label}>
+  <div class="q-track__head">
+    <p class="q-track__order">{c.order}</p>
+    <p class="q-track__dest">
+      <Icon name="wrench" size="1.1em" />
+      <span>{c.destinationLabel}: <strong>{c.destination}</strong></span>
+    </p>
+  </div>
+  <ol role="list" class="q-track__list">
+    {
+      c.stages.map((s) => (
+        <li class="q-track__stage" data-state={s.state} aria-current={s.state === "now" ? "step" : undefined}>
+          <span class="q-track__marker">
+            {s.state === "done" && <Icon name="check" size="0.9rem" strokeWidth={3} />}
+            {s.state === "now" && <BrandSymbol width="2.25rem" />}
+          </span>
+          <span class="q-track__text">
+            <span class="q-track__title">
+              {s.title}
+              <span class="lk-visually-hidden"> — {c.stateLabels[s.state]}</span>
+            </span>
+            <span class="q-track__time">{s.time}</span>
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+  <figcaption class="q-track__foot">{sample}</figcaption>
+</figure>
+
+<style>
+  @layer site {
+    .q-track {
+      display: grid;
+      gap: var(--space-s);
+      padding: var(--space-s);
+      border-radius: calc(var(--radius-card) + 4px);
+      background: #ffffff;
+      color: #0a1633;
+      border: 1px solid #e3e8f0;
+      box-shadow: 0 20px 40px -24px rgb(2 43 116 / 0.3);
+      font-size: var(--step--1);
+    }
+    .q-track__head {
+      display: grid;
+      gap: 0.25rem;
+      padding-block-end: var(--space-xs);
+      border-block-end: 1px solid #e3e8f0;
+    }
+    .q-track__order {
+      font-weight: 700;
+      font-size: var(--step-0);
+      color: #022b74;
+    }
+    .q-track__dest {
+      display: flex;
+      align-items: center;
+      gap: 0.4em;
+      color: #566179;
+    }
+    .q-track__dest strong {
+      color: #0a1633;
+      font-weight: 600;
+    }
+    .q-track__list {
+      display: grid;
+    }
+    .q-track__stage {
+      position: relative;
+      display: grid;
+      grid-template-columns: 2.5rem 1fr;
+      gap: var(--space-xs);
+      align-items: start;
+      padding-block-end: var(--space-s);
+    }
+    .q-track__stage:last-child {
+      padding-block-end: 0;
+    }
+    /* the rail between markers */
+    .q-track__stage:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      inset-inline-start: calc(1.25rem - 1px);
+      inset-block: 1.6rem 0.1rem;
+      inline-size: 2px;
+      background: #cbd3e1;
+    }
+    .q-track__stage[data-state="done"]:not(:last-child)::before {
+      background: #022b74;
+    }
+    .q-track__marker {
+      display: grid;
+      place-items: center;
+      justify-self: center;
+      inline-size: 1.5rem;
+      block-size: 1.5rem;
+      border-radius: 50%;
+      border: 2px solid #8a94a8;
+      background: #ffffff;
+    }
+    [data-state="done"] .q-track__marker {
+      border-color: #022b74;
+      background: #022b74;
+      color: #ffffff;
+    }
+    [data-state="now"] .q-track__marker {
+      inline-size: 2.5rem;
+      block-size: 1.5rem;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+    .q-track__text {
+      display: grid;
+    }
+    .q-track__title {
+      font-weight: 600;
+    }
+    [data-state="now"] .q-track__title {
+      color: #022b74;
+      font-weight: 700;
+    }
+    [data-state="todo"] .q-track__title {
+      color: #566179;
+      font-weight: 400;
+    }
+    .q-track__time {
+      color: #566179;
+      font-size: var(--step--2);
+    }
+    .q-track__foot {
+      color: #566179;
+      font-size: var(--step--2);
+    }
+  }
+</style>

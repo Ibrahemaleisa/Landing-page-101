@@ -1,0 +1,110 @@
+/*
+ * Qitah site layer: brand gestures the kit doesn't (and shouldn't) know about.
+ * Written in the `site` layer so it wins over kit styles without !important.
+ */
+@layer site {
+  /* ---- per-tone brand roles: the symbol's colourway and eyebrow chips */
+  :root,
+  [data-tone="base"],
+  [data-tone="muted"],
+  [data-tone="tint"] {
+    --q-car: #022b74;
+    --q-car-pending: #566179;
+    --q-chip-bg: #e8eef8;
+    --q-chip-fg: #0b3a94;
+  }
+  [data-tone="tint"] {
+    --q-chip-bg: #ffffff;
+  }
+  [data-tone="inverse"] {
+    --q-car: #ffffff;
+    --q-car-pending: #c8d3e8;
+    --q-chip-bg: #0b3a94;
+    --q-chip-fg: #ffffff;
+  }
+
+  /* eyebrows are small rounded chips — a utility marketplace label, not an editorial kicker */
+  .lk-eyebrow:not(.lk-footer__heading) {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    inline-size: fit-content;
+    padding: 0.3em 0.75em;
+    border-radius: 999px;
+    background: var(--q-chip-bg);
+    color: var(--q-chip-fg);
+  }
+  .lk-sh[data-layout="center"] .lk-eyebrow {
+    justify-self: center;
+  }
+  .lk-footer__heading {
+    color: var(--tone-fg);
+  }
+
+  /* ---- hero: bright mist ground with a soft blue wash behind the finder */
+  .q-hero {
+    background-image:
+      radial-gradient(60rem 30rem at 85% 0%, rgb(232 238 248 / 0.95), transparent 70%),
+      radial-gradient(40rem 24rem at 10% 100%, rgb(255 255 255 / 0.9), transparent 70%);
+  }
+  .q-hero .lk-hero__title {
+    color: var(--tone-fg);
+    font-size: var(--step-4);
+    max-inline-size: 20ch;
+  }
+  .q-hero .lk-hero__line.lk-text-accent {
+    color: #022b74;
+  }
+  .q-hero__assure {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-s);
+    margin-block-start: var(--space-2xs);
+    font-size: var(--step--1);
+    color: var(--tone-fg-muted);
+  }
+  .q-hero__assure li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+  .q-hero__assure .lk-icon {
+    color: #1e7a46;
+  }
+
+  /* ---- stat figures are numbers: always IBM Plex Sans, also on Arabic pages */
+  .lk-stats__value {
+    font-family: var(--font-plex-sans), sans-serif;
+  }
+
+  /* ---- merchant band: a large faint symbol at the far edge, the aside as a checklist */
+  .q-merchant {
+    background-image: radial-gradient(50rem 26rem at 100% 100%, rgb(11 58 148 / 0.9), transparent 70%);
+  }
+  .q-merchant__points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-m);
+    padding-block-start: var(--space-s);
+    border-block-start: 1px solid var(--tone-line);
+    color: var(--tone-fg-muted);
+  }
+  .q-merchant__points li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+  }
+  .q-merchant__points .lk-icon {
+    color: var(--tone-fg);
+  }
+
+  /* ---- story: figures sit on white cards over the Blue 50 band */
+  .lk-narrative__media {
+    min-inline-size: 0;
+  }
+
+  /* the footer reads quieter */
+  .lk-footer__tagline {
+    max-inline-size: 42ch;
+  }
+}

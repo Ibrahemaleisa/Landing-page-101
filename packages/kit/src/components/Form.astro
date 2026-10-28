@@ -1,0 +1,108 @@
+---
+/**
+ * Form wrapper with accessible client-side validation on top of native constraint validation.
+ * Without JavaScript the browser validates and the form submits normally.
+ *
+ * With `demo`, a valid submission is not sent anywhere: the success message is shown instead.
+ * Use it for reference sites without a backend, and say so in the copy.
+ */
+export interface Props {
+  action: string;
+  method?: "get" | "post";
+  /** Accessible name of the form. */
+  label: string;
+  /** Shown after a successful (or demo) submission. */
+  successMessage: string;
+  /** Summary shown when submission is blocked by errors. */
+  errorSummary: string;
+  demo?: boolean;
+  class?: string;
+}
+
+const { action, method = "post", label, successMessage, errorSummary, demo = false, class: cls } = Astro.props;
+---
+
+<form class:list={["lk-form", cls]} action={action} method={method} aria-label={label} novalidate data-lk-form data-demo={demo ? "" : undefined}>
+  <p class="lk-form__summary" data-lk-form-summary role="alert" hidden>
+    {errorSummary}
+  </p>
+  <slot />
+  <p class="lk-form__success" data-lk-form-success role="status" hidden>
+    {successMessage}
+  </p>
+</form>
+
+<script>
+  type Control = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+  function messageFor(el: Control): string {
+    if (el.validity.valueMissing) return el.dataset.msgRequired || el.validationMessage;
+    return el.dataset.msgInvalid || el.validationMessage;
+  }
+
+  function show(el: Control): boolean {
+    const err = el.closest(".lk-field")?.querySelector<HTMLElement>("[data-lk-error]");
+    const ok = el.checkValidity();
+    el.setAttribute("aria-invalid", String(!ok));
+    if (err) {
+      err.textContent = ok ? "" : messageFor(el);
+      err.hidden = ok;
+    }
+    return ok;
+  }
+
+  document.querySelectorAll<HTMLFormElement>("[data-lk-form]").forEach((form) => {
+    const controls = () => Array.from(form.querySelectorAll<Control>("input, textarea, select")).filter((c) => c.name);
+    const summary = form.querySelector<HTMLElement>("[data-lk-form-summary]")!;
+    const success = form.querySelector<HTMLElement>("[data-lk-form-success]")!;
+
+    // validate a field once the user leaves it, then live while they fix it
+    controls().forEach((c) => {
+      c.addEventListener("blur", () => c.value && show(c));
+      c.addEventListener("input", () => c.getAttribute("aria-invalid") === "true" && show(c));
+    });
+
+    form.addEventListener("submit", (e) => {
+      const invalid = controls().filter((c) => !show(c));
+      success.hidden = true;
+      if (invalid.length) {
+        e.preventDefault();
+        summary.hidden = false;
+        invalid[0].focus();
+        return;
+      }
+      summary.hidden = true;
+      if (form.hasAttribute("data-demo")) {
+        e.preventDefault();
+        form.reset();
+        success.hidden = false;
+        success.focus?.();
+      }
+    });
+  });
+</script>
+
+<style>
+  @layer components {
+    .lk-form {
+      display: grid;
+      gap: var(--space-s);
+    }
+    .lk-form__summary,
+    .lk-form__success {
+      padding: var(--space-xs) var(--space-s);
+      border-radius: var(--radius-card);
+      border: var(--border-width) solid currentColor;
+      font-weight: var(--control-weight);
+    }
+    .lk-form__success {
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      border-inline-start: 4px solid var(--tone-accent);
+    }
+    .lk-form__summary[hidden],
+    .lk-form__success[hidden] {
+      display: none;
+    }
+  }
+</style>

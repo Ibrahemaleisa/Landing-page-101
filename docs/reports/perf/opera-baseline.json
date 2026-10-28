@@ -1,0 +1,42 @@
+{
+  "measuredAt": "2026-10-28T05:18:01.041Z",
+  "tool": "lighthouse@13.6.0 (lab, simulated throttling)",
+  "results": [
+    {
+      "url": "http://localhost:3100/",
+      "formFactor": "mobile",
+      "runs": 3,
+      "score": 79,
+      "a11y": 96,
+      "bestPractices": 100,
+      "seo": 100,
+      "fcp": 1072.7718,
+      "lcp": 5441.8773,
+      "cls": 0,
+      "tbt": 80,
+      "si": 1386.2971406710826,
+      "bytes": 911353,
+      "jsBytes": 266737,
+      "requests": 30,
+      "lcpElement": null
+    },
+    {
+      "url": "http://localhost:3100/",
+      "formFactor": "desktop",
+      "runs": 3,
+      "score": 98,
+      "a11y": 96,
+      "bestPractices": 100,
+      "seo": 100,
+      "fcp": 301.4759,
+      "lcp": 1107.7657750000003,
+      "cls": 0,
+      "tbt": 1,
+      "si": 327.94233901188574,
+      "bytes": 913757,
+      "jsBytes": 266737,
+      "requests": 32,
+      "lcpElement": null
+    }
+  ]
+}
