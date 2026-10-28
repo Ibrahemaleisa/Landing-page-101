@@ -32,7 +32,10 @@ const home = localeHref(site, locale);
   description={t.meta.description}
   siteName={t.meta.siteName}
   skipLabel={t.ui.skip}
-  fonts={[{ cssVariable: "--font-inter", preload: true }, { cssVariable: "--font-plex-ar", preload: locale === "ar" }]}
+  fonts={[
+    { cssVariable: "--font-inter", preload: true },
+    { cssVariable: "--font-plex-ar", preload: locale === "ar" },
+  ]}
 >
   <SiteHeader
     site={site}
@@ -51,7 +54,14 @@ const home = localeHref(site, locale);
     <FAQ id="faq" title={t.faq.title} items={t.faq.items} />
     <CTA id="start" tone="inverse" title={t.cta.title} lead={t.cta.lead} actions={t.cta.actions} />
   </main>
-  <Footer site={site} locale={locale} tagline={t.footer.tagline} groups={t.footer.groups} legal={t.footer.legal} labels={{ nav: t.ui.footerNav, language: t.ui.language }}>
+  <Footer
+    site={site}
+    locale={locale}
+    tagline={t.footer.tagline}
+    groups={t.footer.groups}
+    legal={t.footer.legal}
+    labels={{ nav: t.ui.footerNav, language: t.ui.language }}
+  >
     <Logo slot="logo" />
   </Footer>
 </BaseLayout>

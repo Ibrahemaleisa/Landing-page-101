@@ -7,7 +7,6 @@
     "node": ">=22.23.4"
   },
   "scripts": {
-    "dev": "pnpm --filter",
     "build": "pnpm -r --filter \"./sites/*\" build",
     "check": "pnpm -r --filter \"./sites/*\" --filter \"./packages/*\" check",
     "lint": "eslint .",

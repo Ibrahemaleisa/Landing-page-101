@@ -65,6 +65,9 @@ export function checkTone(name: string, tone: Tone): ContrastCheck[] {
     ["onAccent / accentHover", t.onAccent, t.accentHover, 4.5, "required"],
     ["surfaceFg / surface", t.surfaceFg, t.surface, 4.5, "required"],
     ["surfaceFgMuted / surface", t.surfaceFgMuted, t.surface, 4.5, "required"],
+    // accent text and muted text also appear on cards (icons, check marks, badges)
+    ["accentText / surface", t.accentText, t.surface, 4.5, "required"],
+    ["fgMuted / surface", t.fgMuted, t.surface, 4.5, "required"],
     // focus indicators: WCAG 2.4.13 / 1.4.11 non-text contrast
     ["ring / bg", t.ring, t.bg, 3, "required"],
     ["ring / surface", t.ring, t.surface, 3, "required"],
@@ -72,7 +75,8 @@ export function checkTone(name: string, tone: Tone): ContrastCheck[] {
     ["accent / bg", t.accent, t.bg, 3, "advisory"],
     ["line / bg", t.line, t.bg, 1.5, "advisory"],
   ];
-  if (t.highlight && t.onHighlight) pairs.push(["onHighlight / highlight", t.onHighlight, t.highlight, 4.5, "required"]);
+  // the CSS falls back to accent/onAccent when highlight roles are omitted; check what will actually render
+  pairs.push(["onHighlight / highlight", t.onHighlight ?? t.onAccent, t.highlight ?? t.accent, 4.5, "required"]);
   return pairs.map(([pair, fg, bg, min, level]) => {
     const ratio = contrast(fg, bg);
     return { tone: name, pair, fg, bg, ratio: Number(ratio.toFixed(2)), min, level, pass: ratio >= min };

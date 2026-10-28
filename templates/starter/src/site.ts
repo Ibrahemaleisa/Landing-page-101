@@ -5,7 +5,7 @@ export const site = defineSite({
   url: "__URL__",
   defaultLocale: "__DEFAULT__",
   locales: {
-__LOCALES__
+    __LOCALES__,
   },
 });
 

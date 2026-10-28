@@ -150,3 +150,31 @@ describe("brand contrast gate", () => {
     expect(edge.level).toBe("advisory");
   });
 });
+
+describe("review regressions", () => {
+  it("treats region-tagged caseless locales (ar-SA, zh-Hans) as caseless", () => {
+    const css = compileBrand({ ...brand, type: { ...brand.type, locales: {} } }, { locales: ["ar-SA", "zh-Hans", "en-GB"] });
+    expect(css).toMatch(/:root:lang\(ar-SA\) \{[^}]*--transform-label: none;/);
+    expect(css).toContain(":root:lang(zh-Hans)");
+    expect(css).not.toContain(":root:lang(en-GB)");
+  });
+  it("applies locale label step and family overrides", () => {
+    const css = compileBrand({ ...brand, type: { ...brand.type, locales: { ar: { label: { step: 0, family: "display" } } } } }, { locales: ["ar"] });
+    const ar = css.slice(css.indexOf(":root:lang(ar)"));
+    expect(ar).toContain("--step-label: var(--step-0);");
+    expect(ar).toContain("--font-label: var(--font-display);");
+  });
+  it("rejects malformed colours with the tone and role in the message", () => {
+    const bad = { ...brand, color: { tones: { base: { ...light, fg: "#12345" as const } } } };
+    expect(() => compileBrand(bad)).toThrow(/tone "base": fg must be a hex colour/);
+  });
+  it("checks the highlight pair that will actually render when roles are omitted", () => {
+    const pair = checkBrandContrast(brand).find((c) => c.tone === "base" && c.pair === "onHighlight / highlight")!;
+    expect([pair.fg, pair.bg]).toEqual([light.onAccent, light.accent]);
+  });
+  it("gates accent text and muted text on surfaces", () => {
+    const pairs = checkBrandContrast(brand).map((c) => c.pair);
+    expect(pairs).toContain("accentText / surface");
+    expect(pairs).toContain("fgMuted / surface");
+  });
+});

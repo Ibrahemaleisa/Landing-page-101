@@ -22,9 +22,13 @@ const q = (term: string) => `?q=${encodeURIComponent(term)}#results`;
 
 <div class="q-finder" id="finder">
   <div class="q-finder__head">
-    <span class="q-finder__icon"><Icon name="car" size="1.5rem" /></span>
+    <span class="q-finder__icon">
+      <Icon name="car" size="1.5rem" />
+    </span>
     <div>
-      <h2 id="finder-title" class="q-finder__title">{c.title}</h2>
+      <h2 id="finder-title" class="q-finder__title">
+        {c.title}
+      </h2>
       <p class="q-finder__lead">{c.lead}</p>
     </div>
   </div>
@@ -36,29 +40,31 @@ const q = (term: string) => `?q=${encodeURIComponent(term)}#results`;
         <label for="q-make">{c.make.label}</label>
         <select id="q-make" name="make" class="q-control" autocomplete="off">
           <option value="">{c.make.placeholder}</option>
-          {c.make.options.map((o) => <option value={o.value}>{o.label}</option>)}
+          {c.make.options.map((o) => (
+            <option value={o.value}>{o.label}</option>
+          ))}
         </select>
       </div>
       <div class="q-field">
         <label for="q-model">{c.model.label}</label>
         <select id="q-model" name="model" class="q-control" autocomplete="off">
           <option value="">{c.model.placeholder}</option>
-          {
-            c.model.groups.map((g) => (
-              <optgroup label={g.label}>
-                {g.options.map((o) => (
-                  <option value={o.value}>{o.label}</option>
-                ))}
-              </optgroup>
-            ))
-          }
+          {c.model.groups.map((g) => (
+            <optgroup label={g.label}>
+              {g.options.map((o) => (
+                <option value={o.value}>{o.label}</option>
+              ))}
+            </optgroup>
+          ))}
         </select>
       </div>
       <div class="q-field">
         <label for="q-year">{c.year.label}</label>
         <select id="q-year" name="year" class="q-control" autocomplete="off">
           <option value="">{c.year.placeholder}</option>
-          {c.year.options.map((o) => <option value={o.value}>{o.label}</option>)}
+          {c.year.options.map((o) => (
+            <option value={o.value}>{o.label}</option>
+          ))}
         </select>
       </div>
     </fieldset>
@@ -67,30 +73,45 @@ const q = (term: string) => `?q=${encodeURIComponent(term)}#results`;
       <label for="q-query">{c.query.label}</label>
       <div class="q-search">
         <Icon name="search" size="1.25rem" class="q-search__icon" />
-        <input id="q-query" name="q" type="search" class="q-control q-search__input" placeholder={c.query.placeholder} aria-describedby="q-query-hint" autocomplete="off" enterkeyhint="search" />
+        <input
+          id="q-query"
+          name="q"
+          type="search"
+          class="q-control q-search__input"
+          placeholder={c.query.placeholder}
+          aria-describedby="q-query-hint"
+          autocomplete="off"
+          enterkeyhint="search"
+        />
       </div>
-      <p id="q-query-hint" class="q-field__hint">{c.query.hint}</p>
+      <p id="q-query-hint" class="q-field__hint">
+        {c.query.hint}
+      </p>
     </div>
 
-    <Button type="submit" size="lg" block icon="search" iconStart class="q-finder__submit">{c.submit}</Button>
+    <Button type="submit" size="lg" block icon="search" iconStart class="q-finder__submit">
+      {c.submit}
+    </Button>
   </form>
 
   <div class="q-finder__popular">
-    <p id="finder-popular" class="q-finder__popular-label">{c.popularLabel}</p>
+    <p id="finder-popular" class="q-finder__popular-label">
+      {c.popularLabel}
+    </p>
     <ul role="list" aria-labelledby="finder-popular">
-      {
-        c.popular.map((term) => (
-          <li>
-            <a href={q(term)}>{term}</a>
-          </li>
-        ))
-      }
+      {c.popular.map((term) => (
+        <li>
+          <a href={q(term)}>{term}</a>
+        </li>
+      ))}
     </ul>
   </div>
 
   <p class="q-finder__fit">
     <BrandSymbol width="2.75rem" />
-    <span><strong>{c.fit.label}</strong> <span class="q-finder__fit-detail">{c.fit.detail}</span></span>
+    <span>
+      <strong>{c.fit.label}</strong> <span class="q-finder__fit-detail">{c.fit.detail}</span>
+    </span>
   </p>
 </div>
 

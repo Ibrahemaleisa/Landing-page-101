@@ -37,7 +37,9 @@ const n0 = (x: number) => formatNumber(locale, x);
     <div class="q-offers__part">
       <p class="q-offers__name">{c.part}</p>
       <p class="q-offers__meta">
-        <span>{c.partNumberLabel} <code dir="ltr">{c.partNumber}</code></span>
+        <span>
+          {c.partNumberLabel} <code dir="ltr">{c.partNumber}</code>
+        </span>
         <span aria-hidden="true">·</span>
         <span>{c.vehicle}</span>
       </p>
@@ -47,57 +49,57 @@ const n0 = (x: number) => formatNumber(locale, x);
 
   <div class="q-offers__bar">
     <span class="q-offers__count">{c.count}</span>
-    <span>{c.sortLabel}: <strong>{c.sort}</strong></span>
+    <span>
+      {c.sortLabel}: <strong>{c.sort}</strong>
+    </span>
   </div>
 
   <ul role="list" class="q-offers__list">
-    {
-      c.items.map((o) => (
-        <li class="q-offer" data-selected={o.selected ? "" : undefined}>
-          {o.selected && <BrandSymbol variant="piece" width="2.25rem" class="q-offer__marker" />}
-          <div class="q-offer__seller">
-            <p class="q-offer__name">{o.seller}</p>
-            <p class="q-offer__meta">
-              {o.city} · {o.condition}
-            </p>
+    {c.items.map((o) => (
+      <li class="q-offer" data-selected={o.selected ? "" : undefined}>
+        {o.selected && <BrandSymbol variant="piece" width="2.25rem" class="q-offer__marker" />}
+        <div class="q-offer__seller">
+          <p class="q-offer__name">{o.seller}</p>
+          <p class="q-offer__meta">
+            {o.city} · {o.condition}
+          </p>
+        </div>
+        <Price amount={o.price} locale={locale} currency={currency} class="q-offer__price" />
+        <ul role="list" class="q-offer__tags">
+          {o.badges.map((b) => (
+            <li class="q-tag" data-kind={b}>
+              <Icon name={badgeIcon[b]} size="1em" strokeWidth={2} />
+              {c.badges[b]}
+            </li>
+          ))}
+          {o.selected && (
+            <li class="q-tag" data-kind="selected">
+              <Icon name="check" size="1em" strokeWidth={2.25} />
+              {c.selected}
+            </li>
+          )}
+        </ul>
+        <dl class="q-offer__facts">
+          <div>
+            <dt>{c.ratingLabel}</dt>
+            <dd>
+              <Icon name="star" size="1em" class="q-offer__star" />
+              <bdi class="q-num">{n1(o.rating)}</bdi>
+              <span class="q-offer__muted">
+                (<bdi class="q-num">{n0(o.reviews)}</bdi> {c.reviews})
+              </span>
+            </dd>
           </div>
-          <Price amount={o.price} locale={locale} currency={currency} class="q-offer__price" />
-          <ul role="list" class="q-offer__tags">
-            {o.badges.map((b) => (
-              <li class="q-tag" data-kind={b}>
-                <Icon name={badgeIcon[b]} size="1em" strokeWidth={2} />
-                {c.badges[b]}
-              </li>
-            ))}
-            {o.selected && (
-              <li class="q-tag" data-kind="selected">
-                <Icon name="check" size="1em" strokeWidth={2.25} />
-                {c.selected}
-              </li>
-            )}
-          </ul>
-          <dl class="q-offer__facts">
-            <div>
-              <dt>{c.ratingLabel}</dt>
-              <dd>
-                <Icon name="star" size="1em" class="q-offer__star" />
-                <bdi class="q-num">{n1(o.rating)}</bdi>
-                <span class="q-offer__muted">
-                  (<bdi class="q-num">{n0(o.reviews)}</bdi> {c.reviews})
-                </span>
-              </dd>
-            </div>
-            <div>
-              <dt>{c.deliveryLabel}</dt>
-              <dd>
-                <Icon name="truck" size="1em" />
-                {o.delivery}
-              </dd>
-            </div>
-          </dl>
-        </li>
-      ))
-    }
+          <div>
+            <dt>{c.deliveryLabel}</dt>
+            <dd>
+              <Icon name="truck" size="1em" />
+              {o.delivery}
+            </dd>
+          </div>
+        </dl>
+      </li>
+    ))}
   </ul>
   <figcaption class="q-offers__foot">
     <Icon name="info" size="1em" />

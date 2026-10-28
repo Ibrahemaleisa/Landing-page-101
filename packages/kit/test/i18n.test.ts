@@ -30,6 +30,15 @@ describe("locale routing", () => {
     expect(localeHref(site, "en", "pricing")).toBe("/en/pricing/");
     expect(localeHref(site, "ar", "/pricing/")).toBe("/pricing/");
   });
+  it("keeps query strings and hashes after the trailing slash, and leaves files alone", () => {
+    expect(localeHref(site, "en", "/pricing#faq")).toBe("/en/pricing/#faq");
+    expect(localeHref(site, "ar", "/x?a=1")).toBe("/x/?a=1");
+    expect(localeHref(site, "ar", "/feed.xml")).toBe("/feed.xml");
+    expect(localeHref(site, "ar", "//double")).toBe("/double/");
+  });
+  it("ignores prototype keys when stripping prefixes", () => {
+    expect(unlocalizedPath(site, "/constructor/x/")).toBe("/constructor/x/");
+  });
   it("strips locale prefixes", () => {
     expect(unlocalizedPath(site, "/en/pricing/")).toBe("/pricing/");
     expect(unlocalizedPath(site, "/en/")).toBe("/");

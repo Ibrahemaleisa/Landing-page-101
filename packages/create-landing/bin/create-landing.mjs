@@ -41,7 +41,10 @@ export function parse(argv) {
   const name = positionals[0];
   if (values.help || !name) return { help: true };
   if (!/^[a-z][a-z0-9-]{1,39}$/.test(name)) throw new Error(`Site name must be lowercase letters, digits and dashes (got "${name}")`);
-  const locales = values.locales.split(",").map((l) => l.trim()).filter(Boolean);
+  const locales = values.locales
+    .split(",")
+    .map((l) => l.trim())
+    .filter(Boolean);
   const unknown = locales.filter((l) => !(l in KNOWN_LOCALES));
   if (unknown.length) throw new Error(`Unsupported locale(s) ${unknown.join(", ")}. The starter ships content for: ${Object.keys(KNOWN_LOCALES).join(", ")}`);
   if (locales.length === 0) throw new Error("At least one locale is required");
@@ -66,7 +69,10 @@ async function nextPort() {
 
 /** Placeholder replacements for the template files. */
 export function render(opts) {
-  const obj = (o) => `{ ${Object.entries(o).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(", ")} }`;
+  const obj = (o) =>
+    `{ ${Object.entries(o)
+      .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
+      .join(", ")} }`;
   const localeLines = opts.locales.map((l) => `    ${l}: ${obj(KNOWN_LOCALES[l])},`).join("\n");
   return {
     __NAME__: opts.name,
@@ -93,7 +99,14 @@ async function walk(dir) {
 async function main() {
   const opts = parse(process.argv.slice(2));
   if (opts.help) {
-    console.log(await readFile(fileURLToPath(import.meta.url), "utf8").then((s) => s.split("*/")[0].replace(/^#!.*\n\/\*\*\n/, "").replace(/^ \* ?/gm, "")));
+    console.log(
+      await readFile(fileURLToPath(import.meta.url), "utf8").then((s) =>
+        s
+          .split("*/")[0]
+          .replace(/^#!.*\n\/\*\*\n/, "")
+          .replace(/^ \* ?/gm, ""),
+      ),
+    );
     return;
   }
   opts.port ??= await nextPort();
@@ -102,7 +115,9 @@ async function main() {
 
   const vars = render(opts);
   const files = await walk(TEMPLATE);
-  const skipped = Object.keys(KNOWN_LOCALES).filter((l) => !opts.locales.includes(l)).map((l) => join(TEMPLATE, "src/content", `${l}.ts`));
+  const skipped = Object.keys(KNOWN_LOCALES)
+    .filter((l) => !opts.locales.includes(l))
+    .map((l) => join(TEMPLATE, "src/content", `${l}.ts`));
 
   if (opts.dryRun) {
     console.log(`Would create ${relative(ROOT, target)} (port ${opts.port}, locales ${opts.locales.join(",")}, default ${opts.defaultLocale}):`);

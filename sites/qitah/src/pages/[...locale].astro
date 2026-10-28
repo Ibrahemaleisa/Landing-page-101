@@ -59,9 +59,11 @@ const jsonLd = {
   siteName={t.meta.siteName}
   skipLabel={t.ui.skip}
   jsonLd={jsonLd}
-  fonts={locale === "ar"
-    ? [{ cssVariable: "--font-plex-arabic", preload: true }, { cssVariable: "--font-plex-sans" }, { cssVariable: "--font-plex-mono" }]
-    : [{ cssVariable: "--font-plex-sans", preload: true }, { cssVariable: "--font-plex-mono" }, { cssVariable: "--font-plex-arabic" }]}
+  fonts={
+    locale === "ar"
+      ? [{ cssVariable: "--font-plex-arabic", preload: true }, { cssVariable: "--font-plex-sans" }, { cssVariable: "--font-plex-mono" }]
+      : [{ cssVariable: "--font-plex-sans", preload: true }, { cssVariable: "--font-plex-mono" }, { cssVariable: "--font-plex-arabic" }]
+  }
 >
   <SiteHeader
     site={site}
@@ -79,14 +81,12 @@ const jsonLd = {
   <main id="main">
     <Hero variant="split" id="top" class="q-hero" eyebrow={t.hero.eyebrow} title={t.hero.title} accentLine={1} lead={t.hero.lead} actions={t.hero.actions}>
       <ul slot="after" role="list" class="q-hero__assure">
-        {
-          t.hero.assurances.map((a) => (
-            <li>
-              <Icon name="circle-check" />
-              {a}
-            </li>
-          ))
-        }
+        {t.hero.assurances.map((a) => (
+          <li>
+            <Icon name="circle-check" />
+            {a}
+          </li>
+        ))}
       </ul>
       <PartFinder slot="figure" c={t.finder} vehicleLegend={t.finder.title} />
     </Hero>
@@ -101,27 +101,51 @@ const jsonLd = {
       <TrackCard slot="media-2" c={t.tracking} sample={t.ui.sample} />
     </FeatureNarrative>
 
-    <Features id="trust" tone="muted" variant="grid" eyebrow={t.trust.eyebrow} title={t.trust.title} lead={t.trust.lead} items={t.trust.items} headerLayout="split" />
+    <Features
+      id="trust"
+      tone="muted"
+      variant="grid"
+      eyebrow={t.trust.eyebrow}
+      title={t.trust.title}
+      lead={t.trust.lead}
+      items={t.trust.items}
+      headerLayout="split"
+    />
 
     <Stats id="numbers" variant="cards" eyebrow={t.stats.eyebrow} title={t.stats.title} lead={t.stats.lead} items={t.stats.items} note={t.stats.note} />
 
-    <CTA id="merchants" tone="inverse" variant="split" class="q-merchant" eyebrow={t.merchant.eyebrow} title={t.merchant.title} lead={t.merchant.lead} actions={t.merchant.actions}>
+    <CTA
+      id="merchants"
+      tone="inverse"
+      variant="split"
+      class="q-merchant"
+      eyebrow={t.merchant.eyebrow}
+      title={t.merchant.title}
+      lead={t.merchant.lead}
+      actions={t.merchant.actions}
+    >
       <ul slot="aside" role="list" class="q-merchant__points">
-        {
-          t.merchant.points.map((p) => (
-            <li>
-              <Icon name="check" />
-              {p}
-            </li>
-          ))
-        }
+        {t.merchant.points.map((p) => (
+          <li>
+            <Icon name="check" />
+            {p}
+          </li>
+        ))}
       </ul>
     </CTA>
 
     <FAQ id="faq" eyebrow={t.faq.eyebrow} title={t.faq.title} lead={t.faq.lead} items={t.faq.items} />
   </main>
 
-  <Footer site={site} locale={locale} tone="muted" tagline={t.footer.tagline} groups={t.footer.groups} legal={t.footer.legal} labels={{ nav: t.ui.footerNav, language: t.ui.language }}>
+  <Footer
+    site={site}
+    locale={locale}
+    tone="muted"
+    tagline={t.footer.tagline}
+    groups={t.footer.groups}
+    legal={t.footer.legal}
+    labels={{ nav: t.ui.footerNav, language: t.ui.language }}
+  >
     <Logo slot="logo" lockup={locale} label={t.ui.logo} />
   </Footer>
 </BaseLayout>

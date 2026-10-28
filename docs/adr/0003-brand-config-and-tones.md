@@ -19,12 +19,13 @@ Opera's `dark` class on a section, which re-themes the tokens for that subtree, 
 
 1. `defineBrand()` takes a typed `BrandConfig`:
    - `color.tones`: named tone scopes (`base`, `muted`, `inverse`, `brand`, plus any custom names). Each tone defines `bg`,
-     `fg`, `fgMuted`, `line`, `accent`, `onAccent`, `ring`, `surface`, `surfaceFg`.
+     `fg`, `fgMuted`, `line`, `accent`, `onAccent`, `ring` and `surface`, plus optional `heading`, `accentText`,
+     `accentHover`, `surfaceFg`, `surfaceFgMuted`, `surfaceLine`, `highlight`/`onHighlight` and `bgImage`.
    - `type`: families per role (`display`, `body`, `mono`), per-locale overrides (Arabic families, line-heights,
-     size-adjust), a fluid scale (`minBase`, `maxBase`, `minRatio`, `maxRatio`, or explicit steps), heading weight and
+     an optional per-script scale), a fluid scale (`minBase`, `maxBase`, `minRatio`, `maxRatio`), heading weight and
      tracking, and label style (`uppercase`, tracking).
    - `shape`: radii for controls, cards and media, plus border width.
-   - `elevation`: `flat` | `soft` | `hard`, with an optional colour.
+   - `elevation`: `flat` | `soft` | `hard`, with an offset (hard) or a shadow tint (soft).
    - `space`: density (`compact` | `comfortable` | `airy`), which drives section padding and the fluid space scale.
    - `motion`: durations, easing, reveal style (`none` | `fade` | `rise`) and distance.
    - `layout`: container width, gutters, header height.

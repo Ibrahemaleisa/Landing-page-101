@@ -22,20 +22,18 @@ const { c, sample } = Astro.props;
     <span>{c.vehicle}</span>
   </p>
   <ul role="list" class="q-fit__list">
-    {
-      c.items.map((it) => (
-        <li class="q-fit__card" data-state={it.state}>
-          <BrandSymbol variant={it.state === "fits" ? "full" : "car"} width="3rem" />
-          <div class="q-fit__body">
-            <p class="q-fit__status">{it.status}</p>
-            <p class="q-fit__part">
-              {it.part} · <code dir="ltr">{it.partNumber}</code>
-            </p>
-            <p class="q-fit__detail">{it.detail}</p>
-          </div>
-        </li>
-      ))
-    }
+    {c.items.map((it) => (
+      <li class="q-fit__card" data-state={it.state}>
+        <BrandSymbol variant={it.state === "fits" ? "full" : "car"} width="3rem" />
+        <div class="q-fit__body">
+          <p class="q-fit__status">{it.status}</p>
+          <p class="q-fit__part">
+            {it.part} · <code dir="ltr">{it.partNumber}</code>
+          </p>
+          <p class="q-fit__detail">{it.detail}</p>
+        </div>
+      </li>
+    ))}
   </ul>
   <figcaption class="q-fit__foot">{sample}</figcaption>
 </figure>

@@ -4,7 +4,19 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "**/.astro/**", "**/node_modules/**", "test-results/**", "playwright-report/**", "docs/reports/**"] },
+  {
+    ignores: [
+      "**/dist/**",
+      "**/.astro/**",
+      "**/node_modules/**",
+      "test-results/**",
+      "playwright-report/**",
+      "docs/reports/**",
+      // placeholders replaced by create-landing; the generated files are linted in the new site
+      "templates/starter/src/content/index.ts",
+      "templates/starter/src/site.ts",
+    ],
+  },
   ...tseslint.configs.recommended,
   ...eslintPluginAstro.configs.recommended,
   ...eslintPluginAstro.configs["jsx-a11y-strict"],

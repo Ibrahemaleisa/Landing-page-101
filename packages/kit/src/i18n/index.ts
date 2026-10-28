@@ -30,7 +30,7 @@ export function defineSite<const L extends string>(site: SiteConfig<L>): SiteCon
   if (!/^https?:\/\/[^/]+$/.test(site.url)) {
     throw new Error(`site.url must be an absolute origin without a trailing slash, got "${site.url}"`);
   }
-  if (!(site.defaultLocale in site.locales)) {
+  if (!Object.hasOwn(site.locales, site.defaultLocale)) {
     throw new Error(`defaultLocale "${site.defaultLocale}" is not one of the site's locales`);
   }
   return site;
@@ -49,9 +49,13 @@ export function localePaths<L extends string>(site: SiteConfig<L>) {
   }));
 }
 
+/** Normalises a path to a leading and trailing slash, keeping any ?query or #hash after it. */
 const clean = (path: string) => {
-  const p = path.startsWith("/") ? path : `/${path}`;
-  return p === "/" ? "/" : p.replace(/\/?$/, "/");
+  const m = /^([^?#]*)(.*)$/.exec(path)!;
+  let p = m[1]!.replace(/\/{2,}/g, "/");
+  if (!p.startsWith("/")) p = `/${p}`;
+  if (p !== "/" && !p.endsWith("/") && !/\.[a-z0-9]+$/i.test(p)) p += "/";
+  return p + m[2];
 };
 
 /** Path of `path` in `locale`, e.g. `localeHref(site, "en", "/pricing")` → `/en/pricing/`. */
@@ -64,7 +68,7 @@ export function localeHref<L extends string>(site: SiteConfig<L>, locale: L, pat
 /** Strips the locale prefix: `/en/pricing/` → `/pricing/`. */
 export function unlocalizedPath<L extends string>(site: SiteConfig<L>, pathname: string): string {
   const seg = pathname.split("/")[1];
-  if (seg && seg in site.locales && seg !== site.defaultLocale) {
+  if (seg && Object.hasOwn(site.locales, seg) && seg !== site.defaultLocale) {
     return clean(pathname.slice(seg.length + 1) || "/");
   }
   return clean(pathname);

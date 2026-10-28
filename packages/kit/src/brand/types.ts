@@ -67,7 +67,7 @@ export interface TypeConfig {
   families: { display: string; body: string; mono?: string };
   scale: FluidScale;
   /** Which scale step the hero display headline uses (default 6). */
-  displayStep?: number;
+  displayStep?: 3 | 4 | 5 | 6 | 7;
   display: TextStyle;
   heading: TextStyle;
   body: Omit<TextStyle, "transform">;

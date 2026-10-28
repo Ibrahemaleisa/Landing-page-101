@@ -7,13 +7,14 @@ export interface Props {
   as?: "div" | "article" | "li";
   variant?: "surface" | "outline" | "plain";
   href?: string;
-  /** Accessible name of the stretched link when `href` is set (usually the card title). */
+  /** Accessible name of the stretched link; required with `href` (usually the card title). */
   linkLabel?: string;
   pad?: "s" | "m" | "l";
   class?: string;
 }
 
 const { as: Tag = "div", variant = "surface", href, linkLabel, pad = "m", class: cls } = Astro.props;
+if (href && !linkLabel?.trim()) throw new Error(`Card with href="${href}" needs a linkLabel (the link's accessible name).`);
 ---
 
 <Tag class:list={["lk-card", cls]} data-variant={variant} data-pad={pad} data-link={href ? "" : undefined}>

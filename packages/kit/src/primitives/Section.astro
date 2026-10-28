@@ -51,7 +51,7 @@ const { id, tone, labelledby, pad = "default", width = "default", contained = tr
       padding-block-start: 0;
     }
     /* two adjacent sections in the same tone share one gap instead of doubling it */
-    .lk-section:not([data-tone]) + .lk-section:not([data-tone]) {
+    .lk-section[data-pad="default"]:not([data-tone]) + .lk-section[data-pad="default"]:not([data-tone]) {
       padding-block-start: 0;
     }
   }

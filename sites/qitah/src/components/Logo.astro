@@ -19,7 +19,9 @@ const word = lockup === "ar" ? "قطعة" : "Qitah";
 
 <span class:list={["q-logo", cls]} data-lockup={lockup} dir="ltr" role={label ? "img" : undefined} aria-label={label}>
   {lockup === "en" && <BrandSymbol width="2.6rem" />}
-  <span class="q-logo__word" lang={lockup} aria-hidden={label ? "true" : undefined}>{word}</span>
+  <span class="q-logo__word" lang={lockup} aria-hidden={label ? "true" : undefined}>
+    {word}
+  </span>
   {lockup === "ar" && <BrandSymbol width="2.6rem" />}
 </span>
 

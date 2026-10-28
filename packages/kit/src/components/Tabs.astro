@@ -13,13 +13,13 @@ export interface Props {
   tabs: TabDef[];
   /** Accessible name of the tab list. */
   label: string;
-  /** Prefix that keeps ids unique when several tab sets share a page. */
-  idPrefix?: string;
+  /** Prefix that keeps ids unique on the page (e.g. the section id). Required: two tab sets must not share ids. */
+  idPrefix: string;
   variant?: "underline" | "pill";
   class?: string;
 }
 
-const { tabs, label, idPrefix = "tabs", variant = "underline", class: cls } = Astro.props;
+const { tabs, label, idPrefix, variant = "underline", class: cls } = Astro.props;
 const panels = await Promise.all(tabs.map((t) => Astro.slots.render(`panel-${t.id}`)));
 ---
 

@@ -10,12 +10,13 @@ listeners cost INP. Opera's CSS scroll-driven reveal with visible-by-default con
 
 ## Decision
 
-- **Tokens:** `--motion-duration-{fast,base,slow}`, `--motion-ease`, `--motion-distance`, generated from `brand.motion`.
+- **Tokens:** `--motion-fast`, `--motion-base`, `--motion-slow`, `--motion-ease`, `--reveal-distance` and
+  `--reveal-from-opacity`, generated from `brand.motion`.
 - **Primitives (CSS classes, no JS):**
   - `.lk-reveal`: fade/rise on entry using `animation-timeline: view()` inside `@supports`. Content is visible without
     support. The brand picks `none` | `fade` | `rise`.
   - `.lk-enter` with `--lk-delay`: load-time staggered entrance for heroes.
-  - `[data-header="overlay"]`: transparent → solid header via `animation-timeline: scroll(root)`.
+  - `SiteHeader mode="overlay"`: transparent → solid header via `animation-timeline: scroll(root)`.
   - Hover/press transitions on interactive components use the duration tokens; only `opacity`, `transform`, `color`,
     `background-color` and `border-color` animate.
 - **Reduced motion:** under `prefers-reduced-motion: reduce` every primitive is disabled (`animation: none`) and

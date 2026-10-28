@@ -26,8 +26,9 @@ export interface Props {
 }
 
 const { src, alt, sizes, priority = false, fill = false, aspect, focus, rounded = false, widths, class: cls } = Astro.props;
-const w = widths ?? [480, 768, 1080, 1440, 1920].filter((x) => x <= src.width * 1.01);
-if (w.length === 0) w.push(src.width);
+// never upscale; always offer the source's own width as the largest candidate
+const w = [...(widths ?? [480, 768, 1080, 1440, 1920])].filter((x) => x < src.width);
+w.push(src.width);
 ---
 
 <Picture

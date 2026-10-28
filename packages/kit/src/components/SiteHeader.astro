@@ -121,10 +121,18 @@ const logo = await Astro.slots.render("logo");
     });
     dialog.querySelector("[data-lk-menu-close]")?.addEventListener("click", () => dialog.close());
     // in-page links: close first so the page can scroll to the target
-    dialog.querySelectorAll("[data-lk-menu-link]").forEach((a) => a.addEventListener("click", () => dialog.close()));
+    // ...and don't pull focus (and the scroll position) back to the menu button afterwards
+    let viaLink = false;
+    dialog.querySelectorAll("[data-lk-menu-link]").forEach((a) =>
+      a.addEventListener("click", () => {
+        viaLink = true;
+        dialog.close();
+      }),
+    );
     dialog.addEventListener("close", () => {
       opener.setAttribute("aria-expanded", "false");
-      opener.focus();
+      if (!viaLink) opener.focus({ preventScroll: true });
+      viaLink = false;
     });
     // the menu is for small screens only; never leave it open past the breakpoint
     matchMedia("(min-width: 64rem)").addEventListener("change", (e) => e.matches && dialog.open && dialog.close());

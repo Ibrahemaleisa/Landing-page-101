@@ -21,27 +21,27 @@ const { c, sample } = Astro.props;
     <p class="q-track__order">{c.order}</p>
     <p class="q-track__dest">
       <Icon name="wrench" size="1.1em" />
-      <span>{c.destinationLabel}: <strong>{c.destination}</strong></span>
+      <span>
+        {c.destinationLabel}: <strong>{c.destination}</strong>
+      </span>
     </p>
   </div>
   <ol role="list" class="q-track__list">
-    {
-      c.stages.map((s) => (
-        <li class="q-track__stage" data-state={s.state} aria-current={s.state === "now" ? "step" : undefined}>
-          <span class="q-track__marker">
-            {s.state === "done" && <Icon name="check" size="0.9rem" strokeWidth={3} />}
-            {s.state === "now" && <BrandSymbol width="2.25rem" />}
+    {c.stages.map((s) => (
+      <li class="q-track__stage" data-state={s.state} aria-current={s.state === "now" ? "step" : undefined}>
+        <span class="q-track__marker">
+          {s.state === "done" && <Icon name="check" size="0.9rem" strokeWidth={3} />}
+          {s.state === "now" && <BrandSymbol width="2.25rem" />}
+        </span>
+        <span class="q-track__text">
+          <span class="q-track__title">
+            {s.title}
+            <span class="lk-visually-hidden"> — {c.stateLabels[s.state]}</span>
           </span>
-          <span class="q-track__text">
-            <span class="q-track__title">
-              {s.title}
-              <span class="lk-visually-hidden"> — {c.stateLabels[s.state]}</span>
-            </span>
-            <span class="q-track__time">{s.time}</span>
-          </span>
-        </li>
-      ))
-    }
+          <span class="q-track__time">{s.time}</span>
+        </span>
+      </li>
+    ))}
   </ol>
   <figcaption class="q-track__foot">{sample}</figcaption>
 </figure>

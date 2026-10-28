@@ -27,7 +27,8 @@ const ICONS: Record<CategoryIcon, string> = {
     '<path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 2v2"/><path d="M12 22v-2"/><path d="m17 20.66-1-1.73"/><path d="M11 10.27 7 3.34"/><path d="m20.66 17-1.73-1"/><path d="m3.34 7 1.73 1"/><path d="M14 12h8"/><path d="M2 12h2"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m17 3.34-1 1.73"/><path d="m11 13.73-4 6.93"/>',
   suspension: '<path d="M12 2v3"/><path d="M12 19v3"/><path d="M7 5h10"/><path d="M7 19h10"/><path d="m8 8 8 2-8 2 8 2-8 2"/>',
   electrical: '<rect width="16" height="10" x="2" y="7" rx="2"/><path d="M22 11v2"/><path d="m11 9-2 3h4l-2 3"/>',
-  lighting: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+  lighting:
+    '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
   cooling: '<path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>',
   body: '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
 };
@@ -36,22 +37,20 @@ const ICONS: Record<CategoryIcon, string> = {
 <Section id={id} tone={tone} labelledby={headingId} class="q-cats">
   <SectionHeader id={headingId} title={c.title} eyebrow={c.eyebrow} lead={c.lead} layout="split" />
   <ul role="list" class="q-cats__grid">
-    {
-      c.items.map((it) => (
-        <li class="lk-reveal">
-          <a class="q-cat" href={`?category=${it.id}#results`}>
-            <span class="q-cat__icon">
-              <Icon paths={ICONS[it.id]} size="1.625rem" />
-            </span>
-            <span class="q-cat__text">
-              <span class="q-cat__name">{it.name}</span>
-              <span class="q-cat__hint">{it.hint}</span>
-            </span>
-            <Icon name="chevron-right" class="q-cat__go" />
-          </a>
-        </li>
-      ))
-    }
+    {c.items.map((it) => (
+      <li class="lk-reveal">
+        <a class="q-cat" href={`?category=${it.id}#results`}>
+          <span class="q-cat__icon">
+            <Icon paths={ICONS[it.id]} size="1.625rem" />
+          </span>
+          <span class="q-cat__text">
+            <span class="q-cat__name">{it.name}</span>
+            <span class="q-cat__hint">{it.hint}</span>
+          </span>
+          <Icon name="chevron-right" class="q-cat__go" />
+        </a>
+      </li>
+    ))}
   </ul>
 </Section>
 

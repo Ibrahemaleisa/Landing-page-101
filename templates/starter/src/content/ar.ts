@@ -3,7 +3,15 @@ import type { Content } from "./types";
 // نص مؤقت. استبدل كل الجمل؛ البنية هي ما تبنيه الصفحة.
 export const ar: Content = {
   meta: { title: "__TITLE__ — وعد في سطر واحد", description: "صف المنتج في جملة واحدة لنتائج البحث.", siteName: "__TITLE__" },
-  ui: { skip: "تخطَّ إلى المحتوى", nav: "القائمة الرئيسية", menu: "القائمة", close: "إغلاق القائمة", language: "اللغة", home: "__TITLE__ — الصفحة الرئيسية", footerNav: "روابط التذييل" },
+  ui: {
+    skip: "تخطَّ إلى المحتوى",
+    nav: "القائمة الرئيسية",
+    menu: "القائمة",
+    close: "إغلاق القائمة",
+    language: "اللغة",
+    home: "__TITLE__ — الصفحة الرئيسية",
+    footerNav: "روابط التذييل",
+  },
   nav: {
     links: [
       { href: "#features", label: "المزايا" },
@@ -38,5 +46,17 @@ export const ar: Content = {
     ],
   },
   cta: { title: "جاهزون متى كنت جاهزاً.", lead: "كرّر الوعد والخطوة التالية.", actions: [{ label: "ابدأ الآن", href: "#features", icon: "arrow-right" }] },
-  footer: { tagline: "جملة واحدة عن الشركة.", groups: [{ title: "المنتج", links: [{ label: "المزايا", href: "#features" }, { label: "الأسئلة الشائعة", href: "#faq" }] }], legal: "© 2026 __TITLE__. جميع الحقوق محفوظة." },
+  footer: {
+    tagline: "جملة واحدة عن الشركة.",
+    groups: [
+      {
+        title: "المنتج",
+        links: [
+          { label: "المزايا", href: "#features" },
+          { label: "الأسئلة الشائعة", href: "#faq" },
+        ],
+      },
+    ],
+    legal: "© 2026 __TITLE__. جميع الحقوق محفوظة.",
+  },
 };

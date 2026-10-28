@@ -17,7 +17,12 @@ const { amount, locale, currency, class: cls } = Astro.props;
 const value = formatNumber(locale, amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 ---
 
-<span class:list={["q-price", cls]}><bdi class="q-price__amount" dir="ltr">{value}</bdi> <span class="q-price__cur">{currency}</span></span>
+<span class:list={["q-price", cls]}>
+  <bdi class="q-price__amount" dir="ltr">
+    {value}
+  </bdi>{" "}
+  <span class="q-price__cur">{currency}</span>
+</span>
 
 <style>
   @layer site {

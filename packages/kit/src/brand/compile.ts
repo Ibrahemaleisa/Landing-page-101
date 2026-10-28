@@ -8,9 +8,44 @@ import { fluid, spaceScale, typeScale } from "./fluid";
 import type { BrandConfig, LocaleTypeOverride, TextStyle, Tone, TypeConfig } from "./types";
 
 /** Scripts without letter case, where tracking and uppercasing harm legibility. */
-export const CASELESS_LOCALES = ["ar", "fa", "ur", "ps", "he", "yi", "ja", "zh", "ko", "th", "hi"] as const;
+export const CASELESS_LOCALES = [
+  "ar",
+  "fa",
+  "ur",
+  "ps",
+  "ckb",
+  "sd",
+  "ug",
+  "dv",
+  "he",
+  "yi",
+  "ja",
+  "zh",
+  "ko",
+  "th",
+  "lo",
+  "km",
+  "my",
+  "hi",
+  "bn",
+  "ta",
+  "te",
+  "ml",
+  "kn",
+  "gu",
+  "pa",
+  "mr",
+  "ne",
+  "si",
+  "am",
+  "ka",
+  "hy",
+] as const;
 
 type Decls = Record<string, string | number | undefined>;
+
+/** Matches by primary language subtag, so `ar-SA` and `zh-Hans` count too. */
+export const isCaseless = (code: string) => (CASELESS_LOCALES as readonly string[]).includes(code.split("-")[0]!.toLowerCase());
 
 const block = (selector: string, decls: Decls) => {
   const body = Object.entries(decls)
@@ -75,7 +110,7 @@ function typeDecls(type: TypeConfig): Decls {
 }
 
 function localeTypeDecls(code: string, o: LocaleTypeOverride, base: TypeConfig): Decls {
-  const caseless = (CASELESS_LOCALES as readonly string[]).includes(code);
+  const caseless = isCaseless(code);
   const decls: Decls = {
     "--font-display": o.families?.display,
     "--font-body": o.families?.body,
@@ -85,6 +120,8 @@ function localeTypeDecls(code: string, o: LocaleTypeOverride, base: TypeConfig):
     ...textDecls("heading", o.heading ?? {}),
     ...textDecls("body", o.body ?? {}),
     ...textDecls("label", o.label ?? {}),
+    "--font-label": o.label?.family ? `var(--font-${o.label.family})` : undefined,
+    "--step-label": o.label?.step !== undefined ? `var(--step-${o.label.step})` : undefined,
   };
   if (caseless) {
     for (const p of ["display", "heading", "body", "label"]) decls[`--tracking-${p}`] = "0";
@@ -121,6 +158,18 @@ export interface CompileOptions {
 }
 
 export function compileBrand(brand: BrandConfig, opts: CompileOptions = {}): string {
+  // fail the build on malformed colours instead of emitting broken CSS
+  for (const [name, tone] of Object.entries(brand.color.tones)) {
+    for (const [role, value] of Object.entries(tone)) {
+      if (role !== "scheme" && role !== "bgImage") {
+        try {
+          parseHex(value as string);
+        } catch {
+          throw new Error(`Brand "${brand.name}", tone "${name}": ${role} must be a hex colour, got "${value}"`);
+        }
+      }
+    }
+  }
   const { type, shape, motion, layout, control, space } = brand;
   const root: Decls = {
     ...typeDecls(type),
@@ -158,7 +207,7 @@ export function compileBrand(brand: BrandConfig, opts: CompileOptions = {}): str
   const overrides = type.locales ?? {};
   const codes = new Set([...(opts.locales ?? Object.keys(overrides))]);
   for (const code of codes) {
-    const caseless = (CASELESS_LOCALES as readonly string[]).includes(code);
+    const caseless = isCaseless(code);
     const o = overrides[code];
     if (!o && !caseless) continue;
     const decls = localeTypeDecls(code, o ?? {}, type);

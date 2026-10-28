@@ -30,6 +30,8 @@ export interface Props {
   /** Force direction for values that are always LTR (email, phone) inside RTL pages. */
   dir?: "ltr" | "rtl" | "auto";
   rows?: number;
+  /** Prefix for generated ids; set it when two forms on a page share field names. Default "f". */
+  idPrefix?: string;
   value?: string;
   class?: string;
 }
@@ -52,10 +54,11 @@ const {
   dir,
   rows = 4,
   value,
+  idPrefix = "f",
   class: cls,
 } = Astro.props;
 
-const id = `f-${name}`;
+const id = `${idPrefix}-${name}`;
 const hintId = hint ? `${id}-hint` : undefined;
 const errId = `${id}-error`;
 const describedby = [hintId, errId].filter(Boolean).join(" ");

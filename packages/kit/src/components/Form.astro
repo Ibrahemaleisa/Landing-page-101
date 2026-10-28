@@ -3,7 +3,8 @@
  * Form wrapper with accessible client-side validation on top of native constraint validation.
  * Without JavaScript the browser validates and the form submits normally.
  *
- * With `demo`, a valid submission is not sent anywhere: the success message is shown instead.
+ * With `demo`, a valid submission is not sent anywhere and `successMessage` is announced instead.
+ * Without `demo` the form submits to `action`; the destination page confirms.
  * Use it for reference sites without a backend, and say so in the copy.
  */
 export interface Props {
@@ -11,7 +12,7 @@ export interface Props {
   method?: "get" | "post";
   /** Accessible name of the form. */
   label: string;
-  /** Shown after a successful (or demo) submission. */
+  /** Announced after a valid submission in `demo` mode. */
   successMessage: string;
   /** Summary shown when submission is blocked by errors. */
   errorSummary: string;
@@ -27,9 +28,8 @@ const { action, method = "post", label, successMessage, errorSummary, demo = fal
     {errorSummary}
   </p>
   <slot />
-  <p class="lk-form__success" data-lk-form-success role="status" hidden>
-    {successMessage}
-  </p>
+  <!-- the live region is always in the tree (empty) so screen readers announce it when text arrives -->
+  <p class="lk-form__success" data-lk-form-success role="status" data-message={successMessage}></p>
 </form>
 
 <script>
@@ -64,7 +64,7 @@ const { action, method = "post", label, successMessage, errorSummary, demo = fal
 
     form.addEventListener("submit", (e) => {
       const invalid = controls().filter((c) => !show(c));
-      success.hidden = true;
+      success.textContent = "";
       if (invalid.length) {
         e.preventDefault();
         summary.hidden = false;
@@ -75,8 +75,7 @@ const { action, method = "post", label, successMessage, errorSummary, demo = fal
       if (form.hasAttribute("data-demo")) {
         e.preventDefault();
         form.reset();
-        success.hidden = false;
-        success.focus?.();
+        success.textContent = success.dataset.message ?? "";
       }
     });
   });
@@ -100,9 +99,10 @@ const { action, method = "post", label, successMessage, errorSummary, demo = fal
       color: var(--tone-surface-fg);
       border-inline-start: 4px solid var(--tone-accent);
     }
-    .lk-form__summary[hidden],
-    .lk-form__success[hidden] {
-      display: none;
+    /* collapsed but still in the accessibility tree, so the live region is announced when filled */
+    .lk-form__success:empty {
+      padding: 0;
+      border: 0;
     }
   }
 </style>

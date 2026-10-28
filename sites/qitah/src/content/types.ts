@@ -52,7 +52,17 @@ export interface Content {
     ratingLabel: string;
     reviews: string;
     deliveryLabel: string;
-    items: { seller: string; city: string; condition: string; price: number; delivery: string; rating: number; reviews: number; badges: OfferBadge[]; selected?: boolean }[];
+    items: {
+      seller: string;
+      city: string;
+      condition: string;
+      price: number;
+      delivery: string;
+      rating: number;
+      reviews: number;
+      badges: OfferBadge[];
+      selected?: boolean;
+    }[];
     vat: string;
   };
   fit: {

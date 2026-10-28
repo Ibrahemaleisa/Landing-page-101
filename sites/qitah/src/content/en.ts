@@ -121,8 +121,27 @@ export const en: Content = {
     reviews: "ratings",
     deliveryLabel: "Delivery",
     items: [
-      { seller: "Eastern Parts Co.", city: "Dammam", condition: "Aftermarket · New", price: 245, delivery: "In 2–3 days", rating: 4.5, reviews: 860, badges: ["cheapest"] },
-      { seller: "Riyadh Parts Center", city: "Riyadh", condition: "Genuine · New", price: 289, delivery: "Tomorrow", rating: 4.8, reviews: 1240, badges: ["topRated"], selected: true },
+      {
+        seller: "Eastern Parts Co.",
+        city: "Dammam",
+        condition: "Aftermarket · New",
+        price: 245,
+        delivery: "In 2–3 days",
+        rating: 4.5,
+        reviews: 860,
+        badges: ["cheapest"],
+      },
+      {
+        seller: "Riyadh Parts Center",
+        city: "Riyadh",
+        condition: "Genuine · New",
+        price: 289,
+        delivery: "Tomorrow",
+        rating: 4.8,
+        reviews: 1240,
+        badges: ["topRated"],
+        selected: true,
+      },
       { seller: "Brake House", city: "Riyadh", condition: "Genuine · New", price: 310, delivery: "Today", rating: 4.6, reviews: 410, badges: ["fastest"] },
     ],
     vat: "Prices include VAT",
@@ -131,8 +150,20 @@ export const en: Content = {
     label: "Illustration: fitment states",
     vehicle: "Your car: Toyota Camry 2022",
     items: [
-      { state: "fits", part: "Front brake pads", partNumber: "04465-X3301", status: "Fits your car", detail: "Matched by catalog data. Confirm with your VIN before fitting." },
-      { state: "confirm", part: "Front brake disc", partNumber: "TRV-R4410", status: "Needs confirmation", detail: "The seller says it fits; we haven't verified it. Message them your VIN." },
+      {
+        state: "fits",
+        part: "Front brake pads",
+        partNumber: "04465-X3301",
+        status: "Fits your car",
+        detail: "Matched by catalog data. Confirm with your VIN before fitting.",
+      },
+      {
+        state: "confirm",
+        part: "Front brake disc",
+        partNumber: "TRV-R4410",
+        status: "Needs confirmation",
+        detail: "The seller says it fits; we haven't verified it. Message them your VIN.",
+      },
     ],
   },
   tracking: {
@@ -154,10 +185,22 @@ export const en: Content = {
     title: "An open marketplace with clear rules",
     lead: "Qitah brings independent parts merchants together. Each merchant owns its stock and sets its prices; we organise the listings, payment and delivery.",
     items: [
-      { icon: "badge-check", title: "Verified merchants", body: "Every seller shows its business verification status, on-time delivery rate and response time." },
-      { icon: "star", title: "Two ratings, never mixed", body: "The part's rating is separate from the seller's service rating, so you know where the quality lies." },
+      {
+        icon: "badge-check",
+        title: "Verified merchants",
+        body: "Every seller shows its business verification status, on-time delivery rate and response time.",
+      },
+      {
+        icon: "star",
+        title: "Two ratings, never mixed",
+        body: "The part's rating is separate from the seller's service rating, so you know where the quality lies.",
+      },
       { icon: "shield", title: "7-day returns", body: "If a part arrives wrong or damaged, request a return from the order page within 7 days of delivery." },
-      { icon: "package", title: "Genuine or aftermarket, clearly", body: "Genuine, aftermarket, used and refurbished parts are always labelled, so they never blur." },
+      {
+        icon: "package",
+        title: "Genuine or aftermarket, clearly",
+        body: "Genuine, aftermarket, used and refurbished parts are always labelled, so they never blur.",
+      },
       { icon: "wrench", title: "Built for workshops too", body: "Order in your name and have the part delivered straight to the workshop that will fit it." },
       { icon: "lock", title: "Familiar ways to pay", body: "The app supports mada, Apple Pay, STC Pay and cards, plus instalments with Tabby and Tamara." },
     ],
@@ -196,7 +239,8 @@ export const en: Content = {
       },
       {
         question: "Does Qitah sell parts itself?",
-        answer: "No. Qitah is a marketplace for independent parts merchants. Each merchant owns its stock and sets its prices; we organise the listings, payment and delivery.",
+        answer:
+          "No. Qitah is a marketplace for independent parts merchants. Each merchant owns its stock and sets its prices; we organise the listings, payment and delivery.",
       },
       {
         question: "Do prices include VAT?",
@@ -211,7 +255,8 @@ export const en: Content = {
       },
       {
         question: "Can parts be delivered to a workshop?",
-        answer: "Yes. Choose delivery to your home or straight to a service workshop. Some merchants don't deliver to workshops, and we show that on the offer before you order.",
+        answer:
+          "Yes. Choose delivery to your home or straight to a service workshop. Some merchants don't deliver to workshops, and we show that on the offer before you order.",
       },
       {
         question: "What if the part I receive is wrong?",

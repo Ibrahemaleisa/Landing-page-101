@@ -37,6 +37,22 @@ export const en: Content = {
       { question: "How do I start?", answer: "Describe the first step." },
     ],
   },
-  cta: { title: "Ready when you are.", lead: "Repeat the promise and the next step.", actions: [{ label: "Get started", href: "#features", icon: "arrow-right" }] },
-  footer: { tagline: "One sentence about the company.", groups: [{ title: "Product", links: [{ label: "Features", href: "#features" }, { label: "FAQ", href: "#faq" }] }], legal: "© 2026 __TITLE__." },
+  cta: {
+    title: "Ready when you are.",
+    lead: "Repeat the promise and the next step.",
+    actions: [{ label: "Get started", href: "#features", icon: "arrow-right" }],
+  },
+  footer: {
+    tagline: "One sentence about the company.",
+    groups: [
+      {
+        title: "Product",
+        links: [
+          { label: "Features", href: "#features" },
+          { label: "FAQ", href: "#faq" },
+        ],
+      },
+    ],
+    legal: "© 2026 __TITLE__.",
+  },
 };

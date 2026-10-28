@@ -4,10 +4,20 @@ import { parse, render } from "../bin/create-landing.mjs";
 
 describe("create-landing argument parsing", () => {
   it("applies defaults", () => {
-    expect(parse(["acme-cloud"])).toMatchObject({ name: "acme-cloud", title: "Acme Cloud", url: "https://acme-cloud.example", locales: ["en", "ar"], defaultLocale: "en" });
+    expect(parse(["acme-cloud"])).toMatchObject({
+      name: "acme-cloud",
+      title: "Acme Cloud",
+      url: "https://acme-cloud.example",
+      locales: ["en", "ar"],
+      defaultLocale: "en",
+    });
   });
   it("accepts an Arabic-first configuration", () => {
-    expect(parse(["souq", "--locales", "ar,en", "--default", "ar", "--url", "https://souq.sa"])).toMatchObject({ locales: ["ar", "en"], defaultLocale: "ar", url: "https://souq.sa" });
+    expect(parse(["souq", "--locales", "ar,en", "--default", "ar", "--url", "https://souq.sa"])).toMatchObject({
+      locales: ["ar", "en"],
+      defaultLocale: "ar",
+      url: "https://souq.sa",
+    });
   });
   it("rejects bad input with a helpful message", () => {
     expect(() => parse(["Bad Name"])).toThrow(/lowercase/);
