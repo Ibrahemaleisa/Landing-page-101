@@ -276,33 +276,122 @@ const f = t.contact.form;
 
 <script>
   import { compileBrand } from "@landing/kit/brand";
-  import { PAGES, buildBrand, type Selection, type Tweaks } from "../../studio/options";
+  import { PAGES, buildBrand, type Block, type Selection, type Tweaks } from "../../studio/options";
   import { decodeState, encodeSelection } from "../../studio/state";
+  import { PLACEHOLDER_NAME, nameFor, type Lang } from "../../studio/project";
+  import { getProject, mediaUrls } from "../../studio/store";
+  import type { SnapItem, Snapshot } from "../../studio/brief";
 
+  /** What the studio sends. Everything but the style is optional, so a bare URL still previews. */
+  interface Apply {
+    selection: Selection;
+    tweaks?: Tweaks;
+    sections?: Block[] | null;
+    content?: Record<string, string>;
+    name?: string;
+    media?: Record<string, string>;
+    editing?: boolean;
+  }
+
+  const lang: Lang = document.documentElement.lang.startsWith("ar") ? "ar" : "en";
   const main = document.querySelector<HTMLElement>("[data-studio-main]")!;
   const tokens = Array.from(document.querySelectorAll("style")).find((s) => s.textContent?.startsWith("@layer tokens"))!;
   const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
   links.forEach((a) => (a.dataset.href = a.getAttribute("href")!));
+  const embedded = window.parent !== window;
+  const post = (msg: object) => embedded && window.parent.postMessage(msg, location.origin);
 
-  function apply(sel: Selection, tweaks: Tweaks) {
-    tokens.textContent = compileBrand(buildBrand(sel, "Studio", tweaks), { locales: ["ar", "en"] });
+  // ---------------------------------------------------------------- editable texts and image slots
+  const norm = (s: string | null) => (s ?? "").replace(/\s+/g, " ").trim();
+  const SKIP = "svg, script, style, template, input, textarea, select, option, .lk-visually-hidden, .lk-tabs__fallback-title";
+  const scopes = [document.querySelector("header"), main, document.querySelector("footer")].filter(Boolean) as HTMLElement[];
+  const leaves = scopes.flatMap((root) =>
+    Array.from(root.querySelectorAll<HTMLElement>("*")).filter((el) => el.children.length === 0 && norm(el.textContent) && !el.closest(SKIP)),
+  );
+  leaves.forEach((el) => (el.dataset.k = norm(el.textContent)));
+
+  main.querySelectorAll<HTMLElement>("[data-block]").forEach((w) => {
+    const top = Array.from(w.querySelectorAll<HTMLElement>(".art, .pcard, .app")).filter((m) => !m.parentElement?.closest(".art, .pcard, .app"));
+    top.forEach((m, n) => (m.dataset.slot = `${w.dataset.block}/${n}`));
+  });
+  document.querySelectorAll<HTMLElement>(".rlogo").forEach((l) => (l.dataset.slot = "logo"));
+
+  // the placeholder name also hides in text that can't be edited (screen-reader text, labels, alt)
+  const ph = PLACEHOLDER_NAME[lang];
+  const nameTexts: [Text, string][] = [];
+  for (const root of scopes) {
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode() as Text | null; n; n = walk.nextNode() as Text | null)
+      if (n.data.includes(ph) && !n.parentElement?.closest("[data-k], svg, script, style")) nameTexts.push([n, n.data]);
+  }
+  const nameAttrs: [Element, string, string][] = [];
+  document.querySelectorAll("[aria-label], [alt], [title]").forEach((el) =>
+    ["aria-label", "alt", "title"].forEach((attr) => {
+      const v = el.getAttribute(attr);
+      if (v?.includes(ph)) nameAttrs.push([el, attr, v]);
+    }),
+  );
+
+  let state: Apply = { selection: decodeState(location.search).selection };
+  let active: HTMLElement | null = null;
+
+  const base = (k: string) => (state.name ? k.split(ph).join(state.name) : k);
+  const textFor = (k: string) => state.content?.[k] ?? base(k);
+
+  function applyTexts() {
+    const swap = (v: string) => (state.name ? v.split(ph).join(state.name) : v);
+    for (const [node, orig] of nameTexts) node.data = swap(orig);
+    for (const [el, attr, orig] of nameAttrs) el.setAttribute(attr, swap(orig));
+    for (const el of leaves) {
+      if (el === active) continue;
+      const v = textFor(el.dataset.k!);
+      if (norm(el.textContent) !== v) el.textContent = v;
+    }
+  }
+
+  function applyMedia() {
+    document.querySelectorAll<HTMLElement>("[data-slot]").forEach((el) => {
+      const url = state.media?.[el.dataset.slot!];
+      let img = el.querySelector<HTMLImageElement>(":scope > img.studio-img");
+      if (url) {
+        if (!img) {
+          img = document.createElement("img");
+          img.className = "studio-img";
+          img.alt = "";
+          el.append(img);
+        }
+        if (img.src !== url) img.src = url;
+        el.dataset.filled = "";
+      } else {
+        img?.remove();
+        delete el.dataset.filled;
+      }
+    });
+  }
+
+  function apply(next: Apply) {
+    state = next;
+    tokens.textContent = compileBrand(buildBrand(next.selection, "Studio", next.tweaks ?? {}), { locales: ["ar", "en"] });
 
     const blocks = Array.from(main.querySelectorAll<HTMLElement>("[data-block]"));
     blocks.forEach((b) => {
       b.hidden = true;
       b.removeAttribute("id");
     });
-    const order = [["top", sel.hero, "base"], ...(PAGES.find((p) => p.id === sel.page) ?? PAGES[0]!).value];
+    const page = next.sections ?? (PAGES.find((p) => p.id === next.selection.page) ?? PAGES[0]!).value;
+    const order: Block[] = [["top", next.selection.hero, "base"], ...page];
+    const used = new Set<string>();
     for (const [block, variant, tone] of order) {
       const w = main.querySelector<HTMLElement>(`[data-block="${block}"][data-variant="${variant}"]`);
-      if (!w) continue;
+      if (!w || !w.hidden) continue;
       w.hidden = false;
-      w.id = block!;
-      w.querySelector(w.dataset.toneTarget ?? "section")?.setAttribute("data-tone", tone!);
+      w.id = used.has(block) ? `${block}-${variant}` : block;
+      used.add(block);
+      w.querySelector(w.dataset.toneTarget ?? "section")?.setAttribute("data-tone", tone);
       main.appendChild(w);
     }
 
-    // in-page links whose target this template doesn't have: hide nav items, retarget buttons
+    // in-page links whose target this page doesn't have: hide nav items, retarget buttons
     for (const a of links) {
       const id = a.dataset.href!.slice(1);
       const ok = !!document.getElementById(id);
@@ -310,19 +399,155 @@ const f = t.contact.form;
       if (li && (a.closest("nav") || a.closest("footer"))) li.hidden = !ok;
       else a.setAttribute("href", ok ? `#${id}` : `#${["close", "contact", "top"].find((x) => document.getElementById(x))}`);
     }
-    document.documentElement.dataset.studio = sel.page;
+    applyTexts();
+    applyMedia();
+    // the studio lists the visible image slots so they can be filled from the panel too
+    post({
+      type: "studio:slots",
+      slots: [...new Set(Array.from(main.querySelectorAll<HTMLElement>("[data-block]:not([hidden]) [data-slot]")).map((m) => m.dataset.slot!))],
+    });
+    document.documentElement.toggleAttribute("data-editing", !!next.editing);
+    document.documentElement.dataset.studio = next.selection.page;
   }
 
-  const initial = decodeState(location.search);
-  apply(initial.selection, initial.tweaks);
+  // ---------------------------------------------------------------- editing on the page
+  function startEdit(el: HTMLElement) {
+    if (active === el) return;
+    active?.blur();
+    active = el;
+    try {
+      el.contentEditable = "plaintext-only";
+    } catch {
+      el.contentEditable = "true";
+    }
+    el.focus();
+    getSelection()?.selectAllChildren(el);
+    const before = el.textContent;
+    const done = (commit: boolean) => {
+      el.removeEventListener("keydown", onKey);
+      el.removeEventListener("blur", onBlur);
+      el.removeAttribute("contenteditable");
+      active = null;
+      const k = el.dataset.k!;
+      const value = norm(el.textContent);
+      if (!commit || !value) el.textContent = before;
+      else {
+        const edited = value === base(k) ? null : value;
+        const content = { ...state.content };
+        if (edited === null) delete content[k];
+        else content[k] = edited;
+        state = { ...state, content };
+        post({ type: "studio:text", lang, key: k, value: edited });
+      }
+      applyTexts();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        el.blur();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        el.removeEventListener("blur", onBlur);
+        done(false);
+      }
+    };
+    const onBlur = () => done(true);
+    el.addEventListener("keydown", onKey);
+    el.addEventListener("blur", onBlur);
+  }
 
-  window.addEventListener("message", (e) => {
-    if (e.origin !== location.origin || e.data?.type !== "studio:apply") return;
-    const { selection, tweaks = {} } = e.data as { selection: Selection; tweaks?: Tweaks };
-    apply(selection, tweaks);
-    history.replaceState(null, "", encodeSelection(selection, tweaks) + location.hash);
+  const picker = document.createElement("input");
+  picker.type = "file";
+  picker.accept = "image/*";
+  picker.hidden = true;
+  document.body.append(picker);
+  let pickSlot = "";
+  picker.addEventListener("change", () => {
+    const file = picker.files?.[0];
+    if (file && pickSlot) post({ type: "studio:media", slot: pickSlot, file });
+    picker.value = "";
   });
-  if (window.parent !== window) window.parent.postMessage({ type: "studio:ready" }, location.origin);
+
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!state.editing) return;
+      const t = e.target as HTMLElement;
+      if (t.closest("[contenteditable]")) {
+        // placing the caret inside an editable link or button must not follow or press it
+        if (t.closest("a, button, summary, label")) e.preventDefault();
+        return;
+      }
+      const leaf = t.closest<HTMLElement>("[data-k]");
+      const slot = t.closest<HTMLElement>("[data-slot]");
+      if (!leaf && !slot && !t.closest("a, button, summary, label")) return;
+      // in edit mode a click edits; it never navigates, submits or toggles
+      e.preventDefault();
+      e.stopPropagation();
+      if (leaf) startEdit(leaf);
+      else if (slot) {
+        pickSlot = slot.dataset.slot!;
+        picker.click();
+      }
+    },
+    true,
+  );
+
+  // ---------------------------------------------------------------- snapshot for the build brief
+  function snapshot(): Snapshot {
+    const shown = (el: Element) => !el.closest("[data-block][hidden], li[hidden]");
+    const item = (el: HTMLElement): SnapItem => ({
+      role: el.classList.contains("lk-btn__label") ? "btn" : el.closest(".lk-eyebrow") ? "eyebrow" : el.tagName.toLowerCase(),
+      text: norm(el.textContent),
+      // typed in the studio, or the business name standing in for the placeholder name
+      edited: (!!state.content && el.dataset.k! in state.content) || (!!state.name && norm(el.textContent) === state.name),
+    });
+    const within = (root: Element | null) => (root ? leaves.filter((l) => root.contains(l) && shown(l)).map(item) : []);
+    return {
+      lang,
+      header: within(document.querySelector("header")),
+      footer: within(document.querySelector("footer")),
+      sections: Array.from(main.querySelectorAll<HTMLElement>("[data-block]:not([hidden])")).map((w) => ({
+        block: w.dataset.block!,
+        variant: w.dataset.variant!,
+        tone: w.querySelector(w.dataset.toneTarget ?? "section")?.getAttribute("data-tone") ?? "base",
+        items: within(w),
+        slots: Array.from(w.querySelectorAll<HTMLElement>("[data-slot]")).map((m) => m.dataset.slot!),
+      })),
+    };
+  }
+
+  // ---------------------------------------------------------------- wiring
+  window.addEventListener("message", (e) => {
+    if (e.origin !== location.origin) return;
+    if (e.data?.type === "studio:apply") {
+      apply(e.data as Apply);
+      history.replaceState(null, "", encodeSelection(e.data.selection, e.data.tweaks ?? {}) + location.hash);
+    } else if (e.data?.type === "studio:snapshot") {
+      post({ type: "studio:snapshot", id: e.data.id, snapshot: snapshot() });
+    }
+  });
+
+  async function boot() {
+    const q = new URLSearchParams(location.search);
+    const id = q.get("project");
+    const project = id && !embedded ? await getProject(id) : undefined;
+    if (project) {
+      apply({
+        selection: project.selection,
+        tweaks: project.tweaks,
+        sections: project.sections,
+        content: project.content[lang],
+        name: nameFor(project.info, lang),
+        media: await mediaUrls(project),
+      });
+    } else {
+      const initial = decodeState(location.search);
+      apply({ selection: initial.selection, tweaks: initial.tweaks });
+    }
+    post({ type: "studio:ready" });
+  }
+  boot();
 </script>
 
 <style is:global>
@@ -330,6 +555,58 @@ const f = t.contact.form;
     .studio-note {
       font-size: var(--step--1);
       color: var(--tone-fg-muted);
+    }
+    [data-slot] {
+      position: relative;
+    }
+    .studio-img {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      inline-size: 100%;
+      block-size: 100%;
+      object-fit: cover;
+      border-radius: inherit;
+    }
+    .rlogo[data-filled] > svg {
+      display: none;
+    }
+    .rlogo[data-filled] .rlogo__name {
+      position: absolute;
+      clip-path: inset(50%);
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .rlogo > .studio-img {
+      position: static;
+      inline-size: auto;
+      max-inline-size: 10rem;
+      block-size: 2.25rem;
+      object-fit: contain;
+      border-radius: 0;
+    }
+    /* edit mode: everything editable shows itself on hover */
+    [data-editing] [data-k] {
+      cursor: text;
+    }
+    [data-editing] [data-k]:hover,
+    [data-editing] [data-k]:focus {
+      outline: 2px dashed var(--tone-ring);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+    [data-editing] [data-k][contenteditable] {
+      outline-style: solid;
+      background: color-mix(in srgb, var(--tone-ring) 10%, transparent);
+    }
+    [data-editing] [data-slot] {
+      cursor: pointer;
+    }
+    [data-editing] [data-slot]:hover {
+      outline: 3px dashed var(--tone-ring);
+      outline-offset: 3px;
     }
     [data-block="top"] .lk-hero__bg::after {
       background: linear-gradient(to top, var(--tone-bg) 0%, color-mix(in srgb, var(--tone-bg) 70%, transparent) 45%, transparent 100%);

@@ -1,8 +1,9 @@
 ---
 /**
- * The style studio: pick a ready-made style or mix every element yourself, and watch the preview
- * update live. Choices are visual cards (radio groups), fine-tuning is sliders and a colour picker,
- * and every element and option carries a one-line plain-language hint. Private tool — not indexed.
+ * The style studio: one project per client. Style (ready-made styles, picture cards, fine-tuning),
+ * sections (order, variant, background), content (the business facts, logo, images, and any text
+ * edited directly on the preview), and a handoff that produces the build brief and project file.
+ * The client logic lives in src/studio/app.ts. Private tool — not indexed.
  */
 import BaseLayout from "@landing/kit/layouts/BaseLayout.astro";
 import Dialog from "@landing/kit/components/Dialog.astro";
@@ -11,7 +12,9 @@ import Icon from "@landing/kit/primitives/Icon.astro";
 import LocaleSwitch from "@landing/kit/components/LocaleSwitch.astro";
 import { localeHref, localePaths } from "@landing/kit/i18n";
 import { site, type Locale } from "../site";
-import { DEFAULT_SELECTION, ELEMENTS, ELEMENT_INFO, PRESETS, TWEAKS, buildBrand, type ElementKey } from "../studio/options";
+import Tabs from "@landing/kit/components/Tabs.astro";
+import { BLOCKS, DEFAULT_SELECTION, ELEMENTS, ELEMENT_INFO, HEROES, PRESETS, TONES, TWEAKS, buildBrand, type ElementKey } from "../studio/options";
+import { INFO_GROUPS } from "../studio/project";
 import { PALETTES } from "../studio/palettes";
 import { FONT_FAMILIES, cssVar } from "../studio/fonts";
 import ChoiceArt from "../components/ChoiceArt.astro";
@@ -24,7 +27,18 @@ const ar = locale === "ar";
 const t = ar
   ? {
       title: "استوديو الأنماط",
-      tagline: "اختر نمطاً جاهزاً أو اخلط كل عنصر بنفسك، وشاهد النتيجة مباشرة.",
+      tagline: "صمّم صفحة العميل كاملة: الشكل والأقسام والمحتوى والصور، ثم اضغط «تنفيذ».",
+      project: "المشروع",
+      newProject: "مشروع جديد",
+      duplicate: "نسخة",
+      remove: "حذف",
+      openFile: "فتح ملف",
+      confirmDelete: "حذف هذا المشروع وصوره من هذا الجهاز؟",
+      untitled: "مشروع",
+      tabs: "أقسام الاستوديو",
+      tabStyle: "الشكل",
+      tabSections: "الأقسام",
+      tabContent: "المحتوى",
       presets: "ابدأ بنمط جاهز",
       presetsHint: "كل نمط يختار لك كل العناصر دفعة واحدة. بعدها عدّل ما تريد تحت.",
       custom: "مخصص: مزيجك الخاص (لا يطابق نمطاً جاهزاً)",
@@ -35,30 +49,101 @@ const t = ar
       tuneReset: "رجّع الافتراضي",
       off: "متوقف لأن الحركة مطفأة",
       adjusted: "عدّلنا درجته قليلاً حتى يبقى النص مقروءاً",
+      modified: "معدّل",
+      sectionsTitle: "أقسام الصفحة وترتيبها",
+      sectionsHint: "رتّب الأقسام بالأسهم، واختر لكل قسم شكله ولون خلفيته، أو احذفه. الواجهة دائماً في الأعلى.",
+      heroRow: "الواجهة",
+      heroHint: "تتغيّر من «قالب الواجهة» في تبويب الشكل",
+      variant: "الشكل",
+      tone: "الخلفية",
+      up: "تحريك للأعلى",
+      down: "تحريك للأسفل",
+      removeSection: "حذف القسم",
+      addSection: "أضف قسماً",
+      add: "أضف",
+      backToTemplate: "رجّع ترتيب القالب",
+      editTitle: "تعديل مباشر على الصفحة",
+      editHint: "شغّل «تعديل مباشر» فوق المعاينة، ثم اضغط على أي نص لتكتب فوقه، أو على أي صورة لتبدّلها. Enter للحفظ، Esc للإلغاء.",
+      edit: "تعديل مباشر",
+      editBar: "اضغط على أي نص لتكتب فوقه، أو على أي صورة لتبدّلها. Enter للحفظ · Esc للإلغاء",
+      projectTitle: "اسم المشروع أو العميل",
+      projectTitleHint: "للتنظيم فقط، لا يظهر في الموقع",
+      logo: "الشعار",
+      logoHint: "PNG أو SVG بخلفية شفافة أفضل. يظهر في الترويسة والتذييل.",
+      upload: "ارفع صورة",
+      replace: "بدّل",
+      removeImage: "إزالة",
+      logoColor: "خذ لون الأزرار من الشعار",
+      logoColorDone: "طبّقنا لون الشعار:",
+      images: "صور الصفحة",
+      imagesHint: "كل مكان صورة في الصفحة الحالية. ارفع صورة لأي مكان، أو اضغط عليه مباشرة في وضع التعديل.",
+      emptySlot: "لا توجد صورة",
+      texts: "النصوص المعدّلة",
+      textsCount: "{n} نصاً معدّلاً في {lang}",
+      clearTexts: "امسح تعديلات النصوص",
+      confirmClear: "مسح كل النصوص التي كتبتها في هذا المشروع؟",
+      langs: "لغات الموقع",
+      langAr: "عربي فقط",
+      langEn: "إنجليزي فقط",
+      langBoth: "عربي وإنجليزي",
+      defaultLang: "اللغة الافتراضية",
+      arabic: "العربية",
+      english: "الإنجليزية",
+      domain: "الدومين",
+      domainHas: "عنده دومين",
+      domainNeeds: "يحتاج دومين",
+      domainLater: "لاحقاً",
+      domainName: "اسم الدومين",
+      tooBig: "الصورة أكبر من 10 ميغابايت. صغّرها وجرّب مرة ثانية.",
+      notImage: "هذا الملف ليس صورة.",
+      badFile: "هذا ليس ملف مشروع من الاستوديو.",
+      imported: "فُتح المشروع:",
       random: "اقتراح عشوائي",
-      reset: "إعادة الضبط",
+      reset: "إعادة ضبط الشكل",
       device: "حجم المعاينة",
       mobile: "جوال",
       tablet: "تابلت",
       desktop: "كمبيوتر",
       previewLang: "لغة المعاينة",
       open: "افتح المعاينة كاملة",
-      exportTitle: "تصدير النمط كملف brand.ts",
-      exportOpen: "تصدير النمط",
-      copy: "نسخ",
+      deliver: "تنفيذ: جهّز الطلب",
+      deliverTitle: "جاهز للتنفيذ",
+      deliverHint: "انسخ البرومبت وأرسله مع ملف المشروع (فيه الصور). المنفّذ يبني الموقع وينشره بدون أي سؤال.",
+      preparing: "جارٍ تجهيز الطلب…",
+      copyPrompt: "انسخ البرومبت",
       copied: "تم النسخ",
+      downloadFile: "نزّل ملف المشروع",
+      downloadPrompt: "نزّل البرومبت (.md)",
+      checkName: "اسم النشاط",
+      checkAbout: "نبذة عن النشاط",
+      checkContact: "معلومة تواصل واحدة على الأقل",
+      checkLogo: "الشعار",
+      checkImages: "الصور: {n} من {m}",
+      checkTexts: "{n} نصاً تجريبياً سيُكتب من نبذة النشاط",
+      checkTextsNone: "كل النصوص مكتوبة",
+      missing: "ناقص",
       close: "إغلاق",
       contrast: "فحص وضوح الألوان (WCAG AA)",
       contrastOk: "كل النصوص مقروءة ({m} فحصاً ناجحاً)",
       contrastBad: "{n} من {m} أزواج لا تحقق الحد الأدنى",
-      frame: "معاينة النمط",
+      frame: "معاينة الموقع",
       language: "اللغة",
       skip: "تخطَّ إلى الاستوديو",
-      exportHelp: "انسخ الملف إلى src/brand.ts في موقع جديد (pnpm new-site)، وثبّت الخطوط المذكورة في أعلاه.",
     }
   : {
       title: "Style Studio",
-      tagline: "Pick a ready-made style or mix every element yourself, and see the result live.",
+      tagline: "Design the client's whole page: style, sections, content and images, then press “Build”.",
+      project: "Project",
+      newProject: "New project",
+      duplicate: "Duplicate",
+      remove: "Delete",
+      openFile: "Open file",
+      confirmDelete: "Delete this project and its images from this device?",
+      untitled: "Project",
+      tabs: "Studio sections",
+      tabStyle: "Style",
+      tabSections: "Sections",
+      tabContent: "Content",
       presets: "Start from a ready-made style",
       presetsHint: "Each style sets every element at once. Then change anything below.",
       custom: "Custom: your own mix (matches no ready-made style)",
@@ -69,26 +154,87 @@ const t = ar
       tuneReset: "Back to default",
       off: "Off because motion is turned off",
       adjusted: "We adjusted its shade slightly so text stays readable",
+      modified: "modified",
+      sectionsTitle: "Page sections and order",
+      sectionsHint: "Reorder with the arrows, choose each section's layout and background, or remove it. The hero always comes first.",
+      heroRow: "Hero",
+      heroHint: "Change it under “Hero template” in the Style tab",
+      variant: "Layout",
+      tone: "Background",
+      up: "Move up",
+      down: "Move down",
+      removeSection: "Remove section",
+      addSection: "Add a section",
+      add: "Add",
+      backToTemplate: "Back to the template order",
+      editTitle: "Edit directly on the page",
+      editHint: "Turn on “Edit on page” above the preview, then click any text to type over it, or any image to replace it. Enter saves, Esc cancels.",
+      edit: "Edit on page",
+      editBar: "Click any text to type over it, or any image to replace it. Enter saves · Esc cancels",
+      projectTitle: "Project or client name",
+      projectTitleHint: "For your own organising; not shown on the site",
+      logo: "Logo",
+      logoHint: "PNG or SVG with a transparent background works best. Shown in the header and footer.",
+      upload: "Upload image",
+      replace: "Replace",
+      removeImage: "Remove",
+      logoColor: "Take the button colour from the logo",
+      logoColorDone: "Applied the logo colour:",
+      images: "Page images",
+      imagesHint: "Every image spot on the current page. Upload an image for any of them, or click it directly in edit mode.",
+      emptySlot: "No image",
+      texts: "Edited texts",
+      textsCount: "{n} texts edited in {lang}",
+      clearTexts: "Clear text edits",
+      confirmClear: "Clear every text you typed in this project?",
+      langs: "Site languages",
+      langAr: "Arabic only",
+      langEn: "English only",
+      langBoth: "Arabic and English",
+      defaultLang: "Default language",
+      arabic: "Arabic",
+      english: "English",
+      domain: "Domain",
+      domainHas: "Has a domain",
+      domainNeeds: "Needs a domain",
+      domainLater: "Later",
+      domainName: "Domain name",
+      tooBig: "That image is over 10 MB. Make it smaller and try again.",
+      notImage: "That file isn't an image.",
+      badFile: "That isn't a studio project file.",
+      imported: "Opened project:",
       random: "Surprise me",
-      reset: "Reset",
+      reset: "Reset the style",
       device: "Preview size",
       mobile: "Phone",
       tablet: "Tablet",
       desktop: "Desktop",
       previewLang: "Preview language",
       open: "Open full preview",
-      exportTitle: "Export the style as brand.ts",
-      exportOpen: "Export style",
-      copy: "Copy",
+      deliver: "Build: prepare the order",
+      deliverTitle: "Ready to build",
+      deliverHint:
+        "Copy the prompt and send it with the project file (it holds the images). The developer builds and publishes the site without a single question.",
+      preparing: "Preparing the order…",
+      copyPrompt: "Copy prompt",
       copied: "Copied",
+      downloadFile: "Download project file",
+      downloadPrompt: "Download prompt (.md)",
+      checkName: "Business name",
+      checkAbout: "About the business",
+      checkContact: "At least one contact detail",
+      checkLogo: "Logo",
+      checkImages: "Images: {n} of {m}",
+      checkTexts: "{n} placeholder texts will be written from the description",
+      checkTextsNone: "Every text is written",
+      missing: "missing",
       close: "Close",
       contrast: "Colour readability (WCAG AA)",
       contrastOk: "All text is readable ({m} checks pass)",
       contrastBad: "{n} of {m} pairs below the minimum",
-      frame: "Style preview",
+      frame: "Site preview",
       language: "Language",
       skip: "Skip to the studio",
-      exportHelp: "Paste this into src/brand.ts of a new site (pnpm new-site) and install the fonts listed at the top.",
     };
 const keys = Object.keys(ELEMENTS) as ElementKey[];
 const lbl = (l: { ar: string; en: string }) => l[locale];
@@ -97,6 +243,15 @@ const current = (k: ElementKey) => ELEMENTS[k].find((o) => o.id === DEFAULT_SELE
 const swatches = (pid: string) => {
   const tn = PALETTES.find((p) => p.id === pid)!.tones;
   return [tn.base.bg, tn.base.accent, tn.inverse.bg, tn.brand.bg];
+};
+/** Strings and labels the client script renders, in the page's language. */
+const ui = {
+  ...t,
+  blocks: Object.fromEntries(
+    Object.entries(BLOCKS).map(([k, b]) => [k, { label: lbl(b.label), variants: Object.fromEntries(Object.entries(b.variants).map(([v, l]) => [v, lbl(l)])) }]),
+  ),
+  heroes: Object.fromEntries(HEROES.map((h) => [h.id, lbl(h.label)])),
+  tones: Object.fromEntries(Object.entries(TONES).map(([k, l]) => [k, lbl(l)])),
 };
 ---
 
@@ -111,7 +266,7 @@ const swatches = (pid: string) => {
   noindex
   fonts={FONT_FAMILIES.map((ff) => ({ cssVariable: cssVar(ff.id), preload: ["inter", "plex-ar"].includes(ff.id) }))}
 >
-  <main id="main" class="studio" data-studio data-preview-ar={previewPath("ar")} data-preview-en={previewPath("en")}>
+  <main id="main" class="studio" data-studio data-preview-ar={previewPath("ar")} data-preview-en={previewPath("en")} data-ui={JSON.stringify(ui)}>
     <section class="studio__panel" aria-labelledby="studio-title">
       <header class="studio__head">
         <h1 id="studio-title" class="studio__title">
@@ -121,119 +276,336 @@ const swatches = (pid: string) => {
       </header>
       <p class="studio__tagline">{t.tagline}</p>
 
-      <div class="studio__controls">
-        <fieldset class="studio__presets" aria-describedby="presets-hint">
-          <legend class="studio__step">{t.presets}</legend>
-          <p class="studio__desc" id="presets-hint">
-            {t.presetsHint}
-          </p>
-          <div class="presets">
-            {PRESETS.map((p, i) => (
-              <label class="preset">
-                <input type="radio" name="preset" value={p.id} checked={i === 0} aria-describedby={`pd-${p.id}`} />
-                <span class="preset__sw" aria-hidden="true">
-                  {swatches(p.selection.palette).map((c) => (
-                    <span style={{ background: c }} />
-                  ))}
-                </span>
-                <span class="preset__name">{lbl(p.label)}</span>
-                <span class="preset__desc" id={`pd-${p.id}`}>
-                  {lbl(p.description)}
-                </span>
-              </label>
-            ))}
-          </div>
-          <p class="studio__custom" data-custom hidden>
-            {t.custom}
-          </p>
-        </fieldset>
+      <div class="studio__projects">
+        <label for="s-project">{t.project}</label>
+        <select id="s-project" data-project></select>
+        <div class="studio__projects-actions">
+          <button type="button" class="mini" data-project-new>
+            {t.newProject}
+          </button>
+          <button type="button" class="mini" data-project-dup>
+            {t.duplicate}
+          </button>
+          <button type="button" class="mini" data-project-del>
+            {t.remove}
+          </button>
+          <label class="mini">
+            {t.openFile}
+            <input type="file" accept=".json,application/json" class="lk-visually-hidden" data-project-import />
+          </label>
+        </div>
+      </div>
+      <p class="studio__status" role="status" data-status></p>
 
-        <section class="studio__elements" aria-labelledby="elements-title">
-          <h2 id="elements-title" class="studio__step">
-            {t.elements}
-          </h2>
-          <p class="studio__desc">{t.elementsHint}</p>
-          {keys.map((k, i) => {
-            const tweaks = TWEAKS.filter((tw) => tw.group === k);
-            return (
-              <details class="opt" data-group={k} open={i === 0}>
-                <summary>
-                  <span class="opt__title">{lbl(ELEMENT_INFO[k].label)}</span>
-                  <span class="opt__current" data-current>
-                    {lbl(current(k).label)}
-                  </span>
-                  <Icon name="chevron-down" class="opt__chev" />
-                </summary>
-                <div class="opt__body">
-                  <p class="opt__hint" id={`h-${k}`}>
-                    {lbl(ELEMENT_INFO[k].hint)}
-                  </p>
-                  <fieldset class="choices" data-el={k} data-cols={k === "palette" || k === "type" || k === "page" ? "2" : "3"} aria-describedby={`h-${k}`}>
-                    <legend class="lk-visually-hidden">{lbl(ELEMENT_INFO[k].label)}</legend>
-                    {ELEMENTS[k].map((o) => (
-                      <label class="choice">
-                        <input type="radio" name={`el-${k}`} value={o.id} checked={DEFAULT_SELECTION[k] === o.id} />
-                        <ChoiceArt element={k} id={o.id} locale={locale} />
-                        <span class="choice__name">{lbl(o.label)}</span>
-                      </label>
+      <Tabs
+        tabs={[
+          { id: "style", label: t.tabStyle },
+          { id: "sections", label: t.tabSections },
+          { id: "content", label: t.tabContent },
+        ]}
+        label={t.tabs}
+        idPrefix="studio"
+        variant="pill"
+        class="studio__tabs"
+      >
+        <div slot="panel-style" class="studio__controls">
+          <fieldset class="studio__presets" aria-describedby="presets-hint">
+            <legend class="studio__step">{t.presets}</legend>
+            <p class="studio__desc" id="presets-hint">
+              {t.presetsHint}
+            </p>
+            <div class="presets">
+              {PRESETS.map((p, i) => (
+                <label class="preset">
+                  <input type="radio" name="preset" value={p.id} checked={i === 0} aria-describedby={`pd-${p.id}`} />
+                  <span class="preset__sw" aria-hidden="true">
+                    {swatches(p.selection.palette).map((c) => (
+                      <span style={{ background: c }} />
                     ))}
-                  </fieldset>
-                  <p class="opt__now" data-now>
-                    <strong>{t.now}</strong> <span data-now-text>{lbl(current(k).hint)}</span>
-                  </p>
-                  {tweaks.length > 0 && (
-                    <div class="tune" role="group" aria-labelledby={`tune-${k}`}>
-                      <div class="tune__head">
-                        <h3 id={`tune-${k}`}>{t.tune}</h3>
-                        <button type="button" class="tune__reset" data-tune-reset={k} hidden>
-                          {t.tuneReset}
-                        </button>
-                      </div>
-                      {tweaks.map((tw) => (
-                        <div class="tune__row" data-tweak={tw.id}>
-                          <div class="tune__label">
-                            <label for={`tw-${tw.id}`}>{lbl(tw.label)}</label>
-                            <output for={`tw-${tw.id}`} data-out />
-                          </div>
-                          {tw.kind === "color" ? (
-                            <input type="color" id={`tw-${tw.id}`} aria-describedby={`twh-${tw.id}`} data-adjusted={t.adjusted} />
-                          ) : (
-                            <input type="range" id={`tw-${tw.id}`} min={tw.min} max={tw.max} step={tw.step} aria-describedby={`twh-${tw.id}`} />
-                          )}
-                          <p class="tune__hint" id={`twh-${tw.id}`}>
-                            <span data-hint>{lbl(tw.hint)}</span>
-                            <span data-note data-off={t.off} />
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </details>
-            );
-          })}
-        </section>
+                  </span>
+                  <span class="preset__name">{lbl(p.label)}</span>
+                  <span class="preset__desc" id={`pd-${p.id}`}>
+                    {lbl(p.description)}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <p class="studio__custom" data-custom hidden>
+              {t.custom}
+            </p>
+          </fieldset>
 
-        <div class="studio__actions">
-          <Button variant="secondary" size="sm" icon="zap" iconStart data-random>
-            {t.random}
-          </Button>
-          <Button variant="ghost" size="sm" data-reset>
-            {t.reset}
-          </Button>
+          <section class="studio__elements" aria-labelledby="elements-title">
+            <h2 id="elements-title" class="studio__step">
+              {t.elements}
+            </h2>
+            <p class="studio__desc">{t.elementsHint}</p>
+            {keys.map((k, i) => {
+              const tweaks = TWEAKS.filter((tw) => tw.group === k);
+              return (
+                <details class="opt" data-group={k} open={i === 0}>
+                  <summary>
+                    <span class="opt__title">{lbl(ELEMENT_INFO[k].label)}</span>
+                    <span class="opt__current" data-current>
+                      {lbl(current(k).label)}
+                    </span>
+                    <Icon name="chevron-down" class="opt__chev" />
+                  </summary>
+                  <div class="opt__body">
+                    <p class="opt__hint" id={`h-${k}`}>
+                      {lbl(ELEMENT_INFO[k].hint)}
+                    </p>
+                    <fieldset class="choices" data-el={k} data-cols={k === "palette" || k === "type" || k === "page" ? "2" : "3"} aria-describedby={`h-${k}`}>
+                      <legend class="lk-visually-hidden">{lbl(ELEMENT_INFO[k].label)}</legend>
+                      {ELEMENTS[k].map((o) => (
+                        <label class="choice">
+                          <input type="radio" name={`el-${k}`} value={o.id} checked={DEFAULT_SELECTION[k] === o.id} />
+                          <ChoiceArt element={k} id={o.id} locale={locale} />
+                          <span class="choice__name">{lbl(o.label)}</span>
+                        </label>
+                      ))}
+                    </fieldset>
+                    <p class="opt__now" data-now>
+                      <strong>{t.now}</strong> <span data-now-text>{lbl(current(k).hint)}</span>
+                    </p>
+                    {tweaks.length > 0 && (
+                      <div class="tune" role="group" aria-labelledby={`tune-${k}`}>
+                        <div class="tune__head">
+                          <h3 id={`tune-${k}`}>{t.tune}</h3>
+                          <button type="button" class="tune__reset" data-tune-reset={k} hidden>
+                            {t.tuneReset}
+                          </button>
+                        </div>
+                        {tweaks.map((tw) => (
+                          <div class="tune__row" data-tweak={tw.id}>
+                            <div class="tune__label">
+                              <label for={`tw-${tw.id}`}>{lbl(tw.label)}</label>
+                              <output for={`tw-${tw.id}`} data-out />
+                            </div>
+                            {tw.kind === "color" ? (
+                              <input type="color" id={`tw-${tw.id}`} aria-describedby={`twh-${tw.id}`} data-adjusted={t.adjusted} />
+                            ) : (
+                              <input type="range" id={`tw-${tw.id}`} min={tw.min} max={tw.max} step={tw.step} aria-describedby={`twh-${tw.id}`} />
+                            )}
+                            <p class="tune__hint" id={`twh-${tw.id}`}>
+                              <span data-hint>{lbl(tw.hint)}</span>
+                              <span data-note data-off={t.off} />
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </details>
+              );
+            })}
+          </section>
+
+          <div class="studio__actions">
+            <Button variant="secondary" size="sm" icon="zap" iconStart data-random>
+              {t.random}
+            </Button>
+            <Button variant="ghost" size="sm" data-reset>
+              {t.reset}
+            </Button>
+          </div>
+
+          <section class="studio__contrast" aria-labelledby="contrast-title">
+            <h2 id="contrast-title">{t.contrast}</h2>
+            <p data-contrast aria-live="polite" data-ok-template={t.contrastOk} data-bad-template={t.contrastBad}></p>
+          </section>
         </div>
 
-        <section class="studio__contrast" aria-labelledby="contrast-title">
-          <h2 id="contrast-title">{t.contrast}</h2>
-          <p data-contrast aria-live="polite" data-ok-template={t.contrastOk} data-bad-template={t.contrastBad}></p>
-        </section>
+        <div slot="panel-sections" class="studio__controls">
+          <h2 class="studio__step">{t.sectionsTitle}</h2>
+          <p class="studio__desc">{t.sectionsHint}</p>
+          <div class="sec sec--hero">
+            <div class="sec__head">
+              <span class="sec__num">1</span>
+              <span class="sec__name">
+                {t.heroRow}: <span data-hero-name></span>
+              </span>
+            </div>
+            <p class="sec__hint">{t.heroHint}</p>
+          </div>
+          <ol class="secs" data-sections role="list"></ol>
+          <div class="sec-add">
+            <label for="s-add">{t.addSection}</label>
+            <div class="sec-add__row">
+              <select id="s-add" data-add-section></select>
+              <button type="button" class="mini mini--primary" data-add>
+                {t.add}
+              </button>
+            </div>
+          </div>
+          <button type="button" class="mini" data-sections-reset hidden>
+            {t.backToTemplate}
+          </button>
+        </div>
 
-        <Dialog id="export" title={t.exportTitle} triggerLabel={t.exportOpen} closeLabel={t.close} triggerVariant="primary">
-          <p class="studio__desc">{t.exportHelp}</p>
-          <pre class="studio__code" tabindex="0" dir="ltr"><code data-export></code></pre>
-          <Button variant="primary" size="sm" icon="check" iconStart data-copy data-copied={t.copied}>
-            {t.copy}
-          </Button>
+        <div slot="panel-content" class="studio__controls">
+          <div class="note">
+            <h2 class="note__title">{t.editTitle}</h2>
+            <p>{t.editHint}</p>
+          </div>
+
+          <div class="field">
+            <label for="info-title">{t.projectTitle}</label>
+            <input id="info-title" type="text" data-title aria-describedby="info-title-h" />
+            <p class="field__hint" id="info-title-h">
+              {t.projectTitleHint}
+            </p>
+          </div>
+
+          <section class="group" aria-labelledby="logo-title">
+            <h2 class="group__title" id="logo-title">
+              {t.logo}
+            </h2>
+            <p class="field__hint">{t.logoHint}</p>
+            <div class="slot slot--logo" data-slot-row="logo">
+              <span class="slot__thumb" data-thumb></span>
+              <div class="slot__actions">
+                <label class="mini mini--primary">
+                  <span data-upload-label>{t.upload}</span>
+                  <input type="file" accept="image/*" class="lk-visually-hidden" data-upload="logo" />
+                </label>
+                <button type="button" class="mini" data-remove-image="logo" hidden>
+                  {t.removeImage}
+                </button>
+              </div>
+            </div>
+            <button type="button" class="mini" data-logo-color hidden>
+              {t.logoColor}
+            </button>
+          </section>
+
+          {INFO_GROUPS.map((g, gi) => (
+            <section class="group" aria-labelledby={`grp-${gi}`}>
+              <h2 class="group__title" id={`grp-${gi}`}>
+                {lbl(g.title)}
+              </h2>
+              {g.fields.map((f) => (
+                <div class="field">
+                  <label for={`info-${f.id}`}>{lbl(f.label)}</label>
+                  {f.kind === "textarea" ? (
+                    <textarea id={`info-${f.id}`} rows="3" data-info={f.id} aria-describedby={f.hint ? `info-${f.id}-h` : undefined} />
+                  ) : (
+                    <input
+                      id={`info-${f.id}`}
+                      type={f.kind}
+                      dir={f.dir}
+                      placeholder={f.placeholder}
+                      data-info={f.id}
+                      aria-describedby={f.hint ? `info-${f.id}-h` : undefined}
+                      autocomplete="off"
+                    />
+                  )}
+                  {f.hint && (
+                    <p class="field__hint" id={`info-${f.id}-h`}>
+                      {lbl(f.hint)}
+                    </p>
+                  )}
+                </div>
+              ))}
+              {gi === 0 && (
+                <>
+                  <fieldset class="field">
+                    <legend>{t.langs}</legend>
+                    <div class="pills">
+                      {(
+                        [
+                          ["both", t.langBoth],
+                          ["ar", t.langAr],
+                          ["en", t.langEn],
+                        ] as const
+                      ).map(([v, l]) => (
+                        <label class="pill">
+                          <input type="radio" name="info-languages" value={v} />
+                          <span>{l}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                  <fieldset class="field" data-default-lang>
+                    <legend>{t.defaultLang}</legend>
+                    <div class="pills">
+                      {(
+                        [
+                          ["ar", t.arabic],
+                          ["en", t.english],
+                        ] as const
+                      ).map(([v, l]) => (
+                        <label class="pill">
+                          <input type="radio" name="info-defaultLang" value={v} />
+                          <span>{l}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                </>
+              )}
+              {gi === 1 && (
+                <fieldset class="field">
+                  <legend>{t.domain}</legend>
+                  <div class="pills">
+                    {(
+                      [
+                        ["has", t.domainHas],
+                        ["needs", t.domainNeeds],
+                        ["later", t.domainLater],
+                      ] as const
+                    ).map(([v, l]) => (
+                      <label class="pill">
+                        <input type="radio" name="info-domainStatus" value={v} />
+                        <span>{l}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <label for="info-domain" class="field__sub">
+                    {t.domainName}
+                  </label>
+                  <input id="info-domain" type="text" dir="ltr" placeholder="example.com" data-info="domain" autocomplete="off" />
+                </fieldset>
+              )}
+            </section>
+          ))}
+
+          <section class="group" aria-labelledby="images-title">
+            <h2 class="group__title" id="images-title">
+              {t.images}
+            </h2>
+            <p class="field__hint">{t.imagesHint}</p>
+            <ul class="slots" role="list" data-slots></ul>
+          </section>
+
+          <section class="group" aria-labelledby="texts-title">
+            <h2 class="group__title" id="texts-title">
+              {t.texts}
+            </h2>
+            <p class="field__hint" data-texts-count></p>
+            <button type="button" class="mini" data-clear-texts>
+              {t.clearTexts}
+            </button>
+          </section>
+        </div>
+      </Tabs>
+
+      <div class="studio__deliver">
+        <Dialog id="deliver" title={t.deliverTitle} triggerLabel={t.deliver} closeLabel={t.close} triggerVariant="primary">
+          <p class="studio__desc">{t.deliverHint}</p>
+          <ul class="checks" role="list" data-checks></ul>
+          <div class="studio__deliver-actions">
+            <Button variant="primary" size="sm" icon="check" iconStart data-copy-prompt>
+              {t.copyPrompt}
+            </Button>
+            <button type="button" class="mini" data-download-file>
+              {t.downloadFile}
+            </button>
+            <button type="button" class="mini" data-download-prompt>
+              {t.downloadPrompt}
+            </button>
+          </div>
+          <pre class="studio__code studio__code--brief" tabindex="0"><code data-prompt>{t.preparing}</code></pre>
         </Dialog>
       </div>
     </section>
@@ -260,11 +632,31 @@ const swatches = (pid: string) => {
             English
           </label>
         </fieldset>
+        <button type="button" class="studio__edit" aria-pressed="false" data-edit>
+          <svg
+            viewBox="0 0 24 24"
+            width="1.1em"
+            height="1.1em"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 20h9"></path>
+            <path d="M16.4 3.6a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"></path>
+          </svg>
+          {t.edit}
+        </button>
         <a class="studio__open" href={previewPath(locale)} target="_blank" rel="noopener" data-open>
           {t.open}
           <Icon name="external-link" />
         </a>
       </div>
+      <p class="studio__editbar" data-editbar hidden>
+        {t.editBar}
+      </p>
       <div class="studio__frame" data-frame-wrap>
         <iframe title={t.frame} src={previewPath(locale)} data-frame></iframe>
       </div>
@@ -273,207 +665,6 @@ const swatches = (pid: string) => {
 </BaseLayout>
 
 <script>
-  import { checkBrandContrast } from "@landing/kit/brand";
-  import {
-    DEFAULT_SELECTION,
-    ELEMENTS,
-    PRESETS,
-    TWEAKS,
-    buildBrand,
-    cleanTweaks,
-    exportBrand,
-    matchPreset,
-    type ElementKey,
-    type Selection,
-    type Tweaks,
-  } from "../studio/options";
-  import { decodeState, encodeSelection, hasSelection, type StudioState } from "../studio/state";
-
-  const root = document.querySelector<HTMLElement>("[data-studio]")!;
-  const frame = root.querySelector<HTMLIFrameElement>("[data-frame]")!;
-  const wrap = root.querySelector<HTMLElement>("[data-frame-wrap]")!;
-  const customNote = root.querySelector<HTMLElement>("[data-custom]")!;
-  const presetRadios = Array.from(root.querySelectorAll<HTMLInputElement>('input[name="preset"]'));
-  const groups = Array.from(root.querySelectorAll<HTMLElement>("details[data-group]"));
-  const contrastEl = root.querySelector<HTMLElement>("[data-contrast]")!;
-  const openLink = root.querySelector<HTMLAnchorElement>("[data-open]")!;
-  const lang = document.documentElement.lang.startsWith("ar") ? "ar" : "en";
-  const STORE = "lk-studio";
-
-  const keys = Object.keys(ELEMENTS) as ElementKey[];
-  const initial: StudioState = hasSelection(location.search) ? decodeState(location.search) : load();
-  let sel: Selection = initial.selection;
-  let tweaks: Tweaks = initial.tweaks;
-
-  function load(): StudioState {
-    try {
-      const raw = localStorage.getItem(STORE);
-      if (raw) return decodeState(raw);
-    } catch {
-      /* storage unavailable: use the default */
-    }
-    return { selection: { ...DEFAULT_SELECTION }, tweaks: {} };
-  }
-
-  const plang = () => root.querySelector<HTMLInputElement>('input[name="plang"]:checked')!.value;
-  const previewUrl = () => (plang() === "ar" ? root.dataset.previewAr : root.dataset.previewEn)!;
-
-  // URL and storage writes are debounced: sliders fire many input events per second
-  let persistTimer: number | undefined;
-  function persist() {
-    clearTimeout(persistTimer);
-    persistTimer = window.setTimeout(() => {
-      const q = encodeSelection(sel, tweaks);
-      history.replaceState(null, "", q);
-      try {
-        localStorage.setItem(STORE, q);
-      } catch {
-        /* not persisted */
-      }
-    }, 250);
-  }
-
-  function sync() {
-    const brand = buildBrand(sel, "Studio", tweaks);
-
-    for (const g of groups) {
-      const k = g.dataset.group as ElementKey;
-      const opt = ELEMENTS[k].find((o) => o.id === sel[k])!;
-      g.querySelectorAll<HTMLInputElement>(`input[name="el-${k}"]`).forEach((r) => (r.checked = r.value === sel[k]));
-      g.querySelector("[data-current]")!.textContent = opt.label[lang];
-      g.querySelector("[data-now-text]")!.textContent = opt.hint[lang];
-      const reset = g.querySelector<HTMLButtonElement>("[data-tune-reset]");
-      if (reset) reset.hidden = !TWEAKS.some((tw) => tw.group === k && tw.id in tweaks);
-    }
-
-    for (const tw of TWEAKS) {
-      const row = root.querySelector<HTMLElement>(`[data-tweak="${tw.id}"]`)!;
-      const input = row.querySelector<HTMLInputElement>("input")!;
-      const out = row.querySelector<HTMLOutputElement>("[data-out]")!;
-      const note = row.querySelector<HTMLElement>("[data-note]")!;
-      row.dataset.changed = String(tw.id in tweaks);
-      if (tw.kind === "color") {
-        const picked = (tweaks.accent as string | undefined) ?? tw.read(sel);
-        if (document.activeElement !== input) input.value = picked;
-        const used = brand.color.tones.base.accent;
-        out.textContent = used.toUpperCase();
-        note.textContent = used.toLowerCase() !== picked.toLowerCase() ? input.dataset.adjusted! : "";
-      } else {
-        const v = (tweaks[tw.id] as number | undefined) ?? tw.read(sel);
-        input.value = String(v);
-        out.textContent = tw.format(v, sel, lang);
-        const on = tw.enabled?.(sel) ?? true;
-        input.disabled = !on;
-        note.textContent = on ? "" : note.dataset.off!;
-      }
-    }
-
-    const preset = matchPreset(sel, tweaks);
-    presetRadios.forEach((r) => (r.checked = r.value === preset?.id));
-    customNote.hidden = !!preset;
-
-    const checks = checkBrandContrast(brand).filter((c) => c.level === "required");
-    const failed = checks.filter((c) => !c.pass).length;
-    contrastEl.textContent = (failed ? contrastEl.dataset.badTemplate! : contrastEl.dataset.okTemplate!)
-      .replace("{n}", String(failed))
-      .replace("{m}", String(checks.length));
-    contrastEl.dataset.state = failed ? "bad" : "ok";
-
-    openLink.href = previewUrl() + encodeSelection(sel, tweaks);
-    persist();
-    frame.contentWindow?.postMessage({ type: "studio:apply", selection: sel, tweaks }, location.origin);
-  }
-
-  /** Choosing a new option for an element drops that element's fine-tuning. */
-  function dropTweaks(k: ElementKey) {
-    tweaks = Object.fromEntries(Object.entries(tweaks).filter(([id]) => TWEAKS.find((tw) => tw.id === id)?.group !== k));
-  }
-
-  root.addEventListener("change", (e) => {
-    const input = e.target as HTMLInputElement;
-    if (input.name === "preset") {
-      const p = PRESETS.find((x) => x.id === input.value);
-      if (p) {
-        sel = { ...p.selection };
-        tweaks = {};
-        sync();
-      }
-    } else if (input.name.startsWith("el-")) {
-      const k = input.name.slice(3) as ElementKey;
-      sel = { ...sel, [k]: input.value };
-      dropTweaks(k);
-      sync();
-    }
-  });
-
-  for (const tw of TWEAKS) {
-    const input = root.querySelector<HTMLInputElement>(`#tw-${tw.id}`)!;
-    input.addEventListener("input", () => {
-      tweaks = cleanTweaks({ ...tweaks, [tw.id]: tw.kind === "color" ? input.value : Number(input.value) });
-      // back at the option's own value: no longer a tweak
-      if (String(tweaks[tw.id]).toLowerCase() === String(tw.read(sel)).toLowerCase()) delete tweaks[tw.id];
-      sync();
-    });
-  }
-  root.querySelectorAll<HTMLButtonElement>("[data-tune-reset]").forEach((b) =>
-    b.addEventListener("click", () => {
-      dropTweaks(b.dataset.tuneReset as ElementKey);
-      sync();
-      b.closest(".tune")?.querySelector<HTMLInputElement>("input")?.focus();
-    }),
-  );
-
-  root.querySelector("[data-random]")!.addEventListener("click", () => {
-    const next = { ...sel };
-    for (const k of keys) {
-      const list = ELEMENTS[k];
-      next[k] = list[Math.floor(Math.random() * list.length)]!.id;
-    }
-    sel = next;
-    tweaks = {};
-    sync();
-  });
-  root.querySelector("[data-reset]")!.addEventListener("click", () => {
-    sel = { ...DEFAULT_SELECTION };
-    tweaks = {};
-    sync();
-  });
-
-  // the preview announces itself when loaded; send it the current selection
-  window.addEventListener("message", (e) => {
-    if (e.origin === location.origin && e.data?.type === "studio:ready") sync();
-  });
-
-  root.querySelectorAll<HTMLInputElement>('input[name="device"]').forEach((r) =>
-    r.addEventListener("change", () => {
-      wrap.style.setProperty("--frame-w", r.value === "100%" ? "100%" : `${r.value}px`);
-      wrap.dataset.device = r.id;
-    }),
-  );
-  root.querySelectorAll<HTMLInputElement>('input[name="plang"]').forEach((r) =>
-    r.addEventListener("change", () => {
-      frame.src = previewUrl() + encodeSelection(sel, tweaks);
-    }),
-  );
-
-  // export
-  const code = root.querySelector<HTMLElement>("[data-export]")!;
-  document.querySelector("[data-lk-dialog-open='export']")?.addEventListener("click", () => {
-    code.textContent = exportBrand(sel, "My Brand", tweaks);
-  });
-  const copyBtn = root.querySelector<HTMLButtonElement>("[data-copy]")!;
-  copyBtn.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(code.textContent ?? "");
-      const label = copyBtn.querySelector(".lk-btn__label")!;
-      const before = label.textContent;
-      label.textContent = copyBtn.dataset.copied!;
-      setTimeout(() => (label.textContent = before), 1500);
-    } catch {
-      getSelection()?.selectAllChildren(code);
-    }
-  });
-
-  frame.src = previewUrl() + encodeSelection(sel, tweaks);
-  sync();
+  import { startStudio } from "../studio/app";
+  startStudio(document.querySelector<HTMLElement>("[data-studio]")!);
 </script>

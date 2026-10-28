@@ -3,6 +3,7 @@
  * element, and every preset renders accessibly without overflow in both languages.
  */
 import AxeBuilder from "@axe-core/playwright";
+import { crc32, deflateSync } from "node:zlib";
 import { expect, test, type Page } from "@playwright/test";
 import { PRESETS } from "../../sites/studio/src/studio/options";
 
@@ -39,11 +40,15 @@ const radio = (page: Page, el: string, value: string) => page.locator(`input[nam
 
 test.describe("studio shell", () => {
   for (const path of ["/", "/en/"]) {
-    test(`axe ${path}`, async ({ page }) => {
+    test(`axe ${path}, every tab`, async ({ page }) => {
       await page.goto(BASE + path, { waitUntil: "networkidle" });
       // open every element so its cards and sliders are audited too
       await page.locator("details.opt:not([open]) summary").evaluateAll((els) => els.forEach((e) => (e as HTMLElement).click()));
       expect(await axe(page)).toEqual([]);
+      for (const tab of await page.getByRole("tab").all()) {
+        await tab.click();
+        expect(await axe(page)).toEqual([]);
+      }
     });
   }
 
@@ -162,16 +167,6 @@ test.describe("studio shell", () => {
     await expect(previewFrame(page).locator("html")).toHaveAttribute("dir", "rtl");
   });
 
-  test("export produces a brand.ts with the fine-tuning", async ({ page }) => {
-    await page.goto(BASE + "/en/?border=3", { waitUntil: "networkidle" });
-    await page.getByRole("link", { name: "Export style" }).click();
-    await expect(page.locator("#export")).toBeVisible();
-    await expect(page.locator("[data-export]")).toContainText("defineBrand(");
-    await expect(page.locator("[data-export]")).toContainText("Fine-tuning: border=3");
-    await page.keyboard.press("Escape");
-    await expect(page.locator("#export")).toBeHidden();
-  });
-
   test("selection survives a reload", async ({ page }) => {
     await page.goto(BASE + "/en/" + q({ palette: "forest", buttons: "pill", cardRadius: "24" }), { waitUntil: "networkidle" });
     await expect(radio(page, "palette", "forest")).toBeChecked();
@@ -184,6 +179,179 @@ test.describe("studio shell", () => {
     await page.goto(BASE + "/", { waitUntil: "networkidle" });
     await page.locator("details.opt:not([open]) summary").evaluateAll((els) => els.forEach((e) => (e as HTMLElement).click()));
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+  });
+});
+
+test.describe("studio projects and handoff", () => {
+  const png = (r: number, g: number, b: number) => {
+    // a 2×2 PNG in one colour
+    const raw = Buffer.from([0, r, g, b, r, g, b, 0, r, g, b, r, g, b]);
+    const chunk = (type: string, data: Buffer) => {
+      const len = Buffer.alloc(4);
+      len.writeUInt32BE(data.length);
+      const crc = Buffer.alloc(4);
+      crc.writeUInt32BE(crc32(Buffer.concat([Buffer.from(type), data])) >>> 0);
+      return Buffer.concat([len, Buffer.from(type), data, crc]);
+    };
+    const ihdr = Buffer.alloc(13);
+    ihdr.writeUInt32BE(2, 0);
+    ihdr.writeUInt32BE(2, 4);
+    ihdr.set([8, 2, 0, 0, 0], 8);
+    return Buffer.concat([
+      Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+      chunk("IHDR", ihdr),
+      chunk("IDAT", deflateSync(raw)),
+      chunk("IEND", Buffer.alloc(0)),
+    ]);
+  };
+
+  test("the business name replaces the placeholder name across the page", async ({ page }) => {
+    await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: "Content" }).click();
+    await page.fill("#info-nameEn", "Sunbula");
+    await expect(previewFrame(page).locator(".rlogo__name").first()).toHaveText("Sunbula");
+    await expect(previewFrame(page).locator("body")).not.toContainText("Rawaq");
+    await expect(previewFrame(page).locator(".lk-header a[aria-label]").first()).not.toHaveAttribute("aria-label", /Rawaq/);
+  });
+
+  test("logo upload, colour from the logo, and image slots", async ({ page }) => {
+    await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: "Content" }).click();
+    await page.setInputFiles('[data-upload="logo"]', { name: "logo.png", mimeType: "image/png", buffer: png(200, 30, 90) });
+    await expect(previewFrame(page).locator(".rlogo img.studio-img").first()).toBeVisible();
+    await page.click("[data-logo-color]");
+    await expect(page.locator("[data-status]")).toContainText("#C81E5A");
+    await expect
+      .poll(() =>
+        previewFrame(page)
+          .locator("html")
+          .evaluate((h) => getComputedStyle(h).getPropertyValue("--tone-accent").trim()),
+      )
+      .toBe("#c81e5a");
+
+    const slot = page.locator("[data-slots] li").first();
+    await slot.locator("input[type=file]").setInputFiles({ name: "hero.png", mimeType: "image/png", buffer: png(30, 140, 200) });
+    await expect(previewFrame(page).locator('[data-block="top"]:not([hidden]) img.studio-img')).toHaveCount(1);
+    await slot.getByRole("button", { name: /Remove/ }).click();
+    await expect(previewFrame(page).locator('[data-block="top"]:not([hidden]) img.studio-img')).toHaveCount(0);
+
+    await page.setInputFiles('[data-upload="logo"]', { name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("x") });
+    await expect(page.locator("[data-status]")).toHaveText("That file isn't an image.");
+  });
+
+  test("text edited on the page is kept, and Escape cancels", async ({ page }) => {
+    await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
+    await page.click("[data-edit]");
+    await expect(page.locator("[data-edit]")).toHaveAttribute("aria-pressed", "true");
+    const title = previewFrame(page).locator('[data-block="top"]:not([hidden]) .lk-hero__title [data-k]').first();
+    await title.click();
+    await page.keyboard.type("Fresh bread daily");
+    await page.keyboard.press("Enter");
+    await expect(title).toHaveText("Fresh bread daily");
+    await expect(page.locator("[data-texts-count]")).toContainText("1");
+
+    const lead = previewFrame(page).locator('[data-block="top"]:not([hidden]) .lk-hero__lead').first();
+    const before = await lead.innerText();
+    await lead.click();
+    await page.keyboard.type("discard me");
+    await page.keyboard.press("Escape");
+    await expect(lead).toHaveText(before);
+
+    // clicking a link in edit mode edits it instead of following it
+    const link = previewFrame(page).locator("footer a[data-k]").first();
+    await link.click();
+    await expect(link).toHaveAttribute("contenteditable", /.+/);
+    expect(page.url()).not.toContain("#");
+    await page.keyboard.press("Escape");
+
+    await page.reload({ waitUntil: "networkidle" });
+    await expect(previewFrame(page).locator('[data-block="top"]:not([hidden]) .lk-hero__title [data-k]').first()).toHaveText("Fresh bread daily");
+  });
+
+  test("sections can be reordered, removed, added and re-toned", async ({ page }) => {
+    await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: "Sections" }).click();
+    const names = page.locator("[data-sections] .sec__name");
+    const first = await names.first().innerText();
+    await page.getByRole("button", { name: `Move down: ${first}` }).click();
+    await expect(names.nth(1)).toHaveText(first);
+    await expect(page.getByRole("button", { name: `Move down: ${first}` })).toBeFocused();
+
+    await page.getByRole("button", { name: `Remove section: ${first}` }).click();
+    await expect(previewFrame(page).locator("#logos")).toHaveCount(0);
+
+    await page.selectOption("[data-add-section]", "contact:form");
+    await page.click("[data-add]");
+    await expect(previewFrame(page).locator("#contact")).toBeVisible();
+    // added before the closing call to action
+    await expect(names.last()).toHaveText("Closing call to action");
+
+    const row = page.locator("[data-sections] li").filter({ hasText: "Contact form" });
+    await row.locator("[data-sec-tone]").selectOption("inverse");
+    await expect(previewFrame(page).locator("#contact section").first()).toHaveAttribute("data-tone", "inverse");
+    await expect(page.locator('details[data-group="page"] [data-current]')).toContainText("modified");
+
+    await page.click("[data-sections-reset]");
+    await expect(previewFrame(page).locator("#contact")).toHaveCount(0);
+  });
+
+  test("projects: new, switch, duplicate, delete, and they persist", async ({ page }) => {
+    await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: "Content" }).click();
+    await page.fill("#info-title", "Bakery");
+    await page.click("[data-project-new]");
+    await expect(page.locator("[data-project] option")).toHaveCount(2);
+    // numbering reuses the first free number ("Project 1" was renamed to Bakery)
+    await expect(page.locator("#info-title")).toHaveValue("Project 1");
+    await page.getByRole("tab", { name: "Style" }).click();
+    await page.locator('label.choice:has(> input[name="el-palette"][value="forest"])').click();
+
+    await page.selectOption("[data-project]", { label: "Bakery" });
+    await expect(page.locator('input[name="el-palette"][value="ink"]')).toBeChecked();
+    await page.click("[data-project-dup]");
+    await expect(page.locator("[data-project] option")).toHaveCount(3);
+    await expect(page.locator("#info-title")).toHaveValue("Bakery (2)");
+
+    page.once("dialog", (d) => d.accept());
+    await page.click("[data-project-del]");
+    await expect(page.locator("[data-project] option")).toHaveCount(2);
+
+    await page.reload({ waitUntil: "networkidle" });
+    await expect(page.locator("[data-project] option")).toHaveCount(2);
+  });
+
+  test("handoff: readiness, brief, project file round trip", async ({ page }) => {
+    await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: "Content" }).click();
+    await page.fill("#info-nameEn", "Sunbula Kitchen");
+    await page.fill("#info-nameAr", "مطعم السنبلة");
+    await page.fill("#info-about", "Najdi food in Riyadh");
+    await page.setInputFiles('[data-upload="logo"]', { name: "logo.png", mimeType: "image/png", buffer: png(200, 30, 90) });
+
+    await page.getByRole("link", { name: "Build: prepare the order" }).click();
+    await expect(page.locator("[data-prompt]")).toContainText("pnpm new-site sunbula-kitchen", { timeout: 20_000 });
+    // both languages are captured, the Arabic one from a hidden preview
+    await expect(page.locator("[data-prompt]")).toContainText("### العربية (ar)");
+    await expect(page.locator("[data-prompt]")).toContainText("### الإنجليزية (en)");
+    // no contact detail and no page image yet: both flagged, everything else ready
+    await expect(page.locator("[data-checks] li[data-ok=false]")).toHaveText(["At least one contact detail: missing", /^Images: 0 of \d+: missing$/]);
+
+    const [dl] = await Promise.all([page.waitForEvent("download"), page.click("[data-download-file]")]);
+    expect(dl.suggestedFilename()).toBe("sunbula-kitchen.landing.json");
+    const file = await dl.path();
+    await page.keyboard.press("Escape");
+
+    await page.setInputFiles("[data-project-import]", file);
+    await expect(page.locator("[data-status]")).toContainText("Opened project");
+    await expect(page.locator("[data-project] option")).toHaveCount(2);
+    await expect(page.locator("#info-nameEn")).toHaveValue("Sunbula Kitchen");
+    await expect(previewFrame(page).locator(".rlogo img.studio-img").first()).toBeVisible();
+
+    // the full preview opens the project with its images
+    const href = await page.locator("[data-open]").getAttribute("href");
+    await page.goto(BASE + href!, { waitUntil: "networkidle" });
+    await expect(page.locator(".rlogo img.studio-img").first()).toBeVisible();
+    await expect(page.locator(".rlogo__name").first()).toHaveText("Sunbula Kitchen");
   });
 });
 

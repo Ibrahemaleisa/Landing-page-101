@@ -498,7 +498,7 @@ export const PAGES: Option<Block[]>[] = [
       ["quotes", "grid", "base"],
       ["pricing", "plans", "muted"],
       ["faq", "split", "base"],
-      ["cta", "band", "brand"],
+      ["close", "band", "brand"],
     ],
   },
   {
@@ -511,7 +511,7 @@ export const PAGES: Option<Block[]>[] = [
       ["narrative", "rows", "base"],
       ["steps", "timeline", "muted"],
       ["quotes", "featured", "inverse"],
-      ["cta", "split", "brand"],
+      ["close", "split", "brand"],
     ],
   },
   {
@@ -524,7 +524,7 @@ export const PAGES: Option<Block[]>[] = [
       ["narrative", "rows", "muted"],
       ["stats", "cards", "base"],
       ["faq", "split", "muted"],
-      ["cta", "panel", "base"],
+      ["close", "panel", "base"],
     ],
   },
   {
@@ -550,7 +550,7 @@ export const PAGES: Option<Block[]>[] = [
       ["compare", "table", "base"],
       ["pricing", "plans", "muted"],
       ["faq", "stacked", "base"],
-      ["cta", "band", "brand"],
+      ["close", "band", "brand"],
     ],
   },
   {
@@ -576,7 +576,7 @@ export const PAGES: Option<Block[]>[] = [
       ["stats", "cards", "inverse"],
       ["quotes", "featured", "base"],
       ["faq", "stacked", "muted"],
-      ["cta", "band", "brand"],
+      ["close", "band", "brand"],
     ],
   },
   {
@@ -592,6 +592,63 @@ export const PAGES: Option<Block[]>[] = [
     ],
   },
 ];
+
+/** Every section the preview can show, its variants, and the kit component that renders it (for the build brief). */
+export const BLOCKS: Record<string, { label: L; component: string; variants: Record<string, L> }> = {
+  statement: { label: { ar: "عبارة تعريفية", en: "Statement" }, component: "Statement", variants: { start: { ar: "عادية", en: "Standard" } } },
+  logos: {
+    label: { ar: "شعارات العملاء", en: "Client logos" },
+    component: "LogoCloud",
+    variants: { grid: { ar: "شبكة", en: "Grid" }, row: { ar: "صف", en: "Row" } },
+  },
+  showcase: { label: { ar: "جولة في المنتج", en: "Product tour" }, component: "Showcase", variants: { tabs: { ar: "تبويبات", en: "Tabs" } } },
+  features: {
+    label: { ar: "المزايا", en: "Features" },
+    component: "Features",
+    variants: {
+      grid: { ar: "شبكة", en: "Grid" },
+      list: { ar: "قائمة", en: "List" },
+      index: { ar: "فهرس مرقّم", en: "Numbered index" },
+      bento: { ar: "بطاقات متنوعة", en: "Bento" },
+    },
+  },
+  narrative: {
+    label: { ar: "مزايا بالصور", en: "Features with images" },
+    component: "FeatureNarrative",
+    variants: { rows: { ar: "صفوف متبادلة", en: "Alternating rows" } },
+  },
+  steps: {
+    label: { ar: "خطوات العمل", en: "How it works" },
+    component: "Steps",
+    variants: { cards: { ar: "بطاقات", en: "Cards" }, timeline: { ar: "خط زمني", en: "Timeline" } },
+  },
+  stats: { label: { ar: "أرقام", en: "Numbers" }, component: "Stats", variants: { row: { ar: "صف", en: "Row" }, cards: { ar: "بطاقات", en: "Cards" } } },
+  quotes: {
+    label: { ar: "آراء العملاء", en: "Testimonials" },
+    component: "Testimonials",
+    variants: { grid: { ar: "شبكة", en: "Grid" }, featured: { ar: "رأي بارز", en: "Featured" } },
+  },
+  compare: { label: { ar: "مقارنة", en: "Comparison" }, component: "Comparison", variants: { table: { ar: "جدول", en: "Table" } } },
+  pricing: { label: { ar: "الأسعار والباقات", en: "Pricing" }, component: "Pricing", variants: { plans: { ar: "باقات", en: "Plans" } } },
+  faq: {
+    label: { ar: "الأسئلة الشائعة", en: "FAQ" },
+    component: "FAQ",
+    variants: { split: { ar: "عمودين", en: "Two columns" }, stacked: { ar: "عمود واحد", en: "Stacked" } },
+  },
+  contact: { label: { ar: "نموذج تواصل", en: "Contact form" }, component: "Contact + Form", variants: { form: { ar: "نموذج", en: "Form" } } },
+  close: {
+    label: { ar: "دعوة ختامية", en: "Closing call to action" },
+    component: "CTA",
+    variants: { band: { ar: "شريط عريض", en: "Band" }, split: { ar: "عمودين", en: "Split" }, panel: { ar: "صندوق", en: "Panel" } },
+  },
+};
+
+export const TONES: Record<Block[2], L> = {
+  base: { ar: "الخلفية الأساسية", en: "Base" },
+  muted: { ar: "خلفية هادئة", en: "Muted" },
+  inverse: { ar: "خلفية معاكسة", en: "Inverse" },
+  brand: { ar: "لون العلامة", en: "Brand colour" },
+};
 
 // ----------------------------------------------------------------------------------- selection
 

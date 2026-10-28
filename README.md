@@ -16,10 +16,10 @@ The system makes the quality repeatable without making the sites look alike:
 
 ## Style Studio (private)
 
-`sites/studio` is a private playground: **14 ready-made styles**, picture cards for every element (colours,
-typography, type scale, buttons, corners and borders, shadows, spacing, motion, hero template, page template), sliders
-and a colour picker for fine-tuning, and a plain-language hint on every choice. The preview updates live in Arabic or
-English at phone, tablet or desktop size, and any mix exports as a `brand.ts`.
+`sites/studio` designs a client's whole landing page and hands it over: **14 ready-made styles**, picture cards and
+fine-tuning for every element, a section editor, the client's content (facts, logo, images, text typed directly on the
+preview), one project per client saved in the browser, and a **Build** button that produces a complete build brief and
+project file. Live at https://landing-style-studio.vercel.app.
 Run it with `pnpm --dir sites/studio dev` → http://localhost:4324/. Guide: [docs/guides/studio.md](docs/guides/studio.md).
 
 ## Quick start

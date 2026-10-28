@@ -1,13 +1,14 @@
 # استوديو الأنماط · Style Studio
 
-أداة خاصة لتجربة الأنماط: تبدأ بنمط جاهز من أربعة عشر، أو تختار كل عنصر بنفسك من بطاقات مرسومة تُريك شكل كل
-خيار، ثم تعدّله بدقة بأشرطة تمرير ومنتقي ألوان. كل خانة وكل خيار معه جملة بسيطة تشرح ماذا يغيّر. والمعاينة تتغيّر
-مباشرة بالعربية أو الإنجليزية، على مقاس الجوال أو التابلت أو الكمبيوتر.
+أداة لتصميم صفحة هبوط عميل كاملة ثم تسليمها للتنفيذ: الشكل (14 نمطاً جاهزاً، بطاقات مرسومة لكل عنصر، وتعديل دقيق
+بأشرطة ومنتقي ألوان)، والأقسام (ترتيب وإضافة وحذف وشكل وخلفية كل قسم)، والمحتوى (معلومات النشاط والتواصل، الشعار
+والصور، وأي نص تكتبه مباشرة فوق المعاينة). زر «تنفيذ» يطلع برومبت كامل وملف مشروع، يكفيان لبناء الموقع ونشره بدون
+أي سؤال.
 
-A private tool for exploring styles: start from one of fourteen ready-made styles, or pick every element yourself from
-picture cards that show what each choice looks like, then refine it with sliders and a colour picker. Every element and
-every option carries one plain sentence saying what it changes. The preview updates live, in Arabic or English, at
-phone, tablet or desktop size.
+A tool to design a client's whole landing page and hand it over for building: style (14 ready-made styles, picture
+cards for every element, sliders and a colour picker), sections (order, add, remove, layout and background of each),
+and content (business facts and contacts, logo and images, and any text typed directly on the preview). “Build”
+produces a complete brief and a project file, enough to build and publish the site without a single question.
 
 ## التشغيل · Run it
 
@@ -52,17 +53,32 @@ shows the live contrast result anyway.
   read, its shade is adjusted automatically (the panel says so), and the accent band is repainted around it. The unit
   tests try 54 colours on every palette and require every WCAG pair to pass.
 
+## المشاريع والمحتوى والتسليم · Projects, content and handoff
+
+- **مشروع لكل عميل · One project per client**: new, duplicate, delete, switch. Everything autosaves in this
+  browser (IndexedDB), images included. Nothing is uploaded to any server.
+- **تعديل مباشر · Edit on page**: turn it on above the preview, click any text and type (Enter saves, Esc cancels),
+  click any image or product mock to replace it. Links and buttons don't navigate while editing.
+- **اسم النشاط · Business name**: replaces the preview's placeholder name everywhere, including hidden text and labels.
+- **الشعار والصور · Logo and images**: upload from the Content tab (or click in edit mode). "Take the button colour from
+  the logo" finds the logo's brand colour and applies it, adjusted for contrast. Images up to 10 MB.
+- **الأقسام · Sections**: reorder with arrows, remove, add any section the kit offers, change each one's layout and
+  background. Picking a page template resets to its order.
+- **تنفيذ · Build**: a readiness checklist (name, description, contact, logo, images, how many placeholder texts will
+  be written) and the brief: build commands, business facts, contacts, domain, style, section order with kit
+  components, every visible text in every site language (placeholder copy marked ✱ for the developer to rewrite from
+  the description), images, and the full `brand.ts`. Copy it, or download it as `.md`, plus the project file
+  (`<slug>.landing.json`, images embedded) to send with it. Other languages are captured from a hidden preview.
+- **فتح ملف · Open file**: a project file opens as a new project, with its images, on any device.
+
 ## ميزات أخرى · Other features
 
 - **اقتراح عشوائي · Surprise me**: a random mix of every element.
 - **حجم المعاينة · Preview size**: phone (390 px), tablet (820 px), desktop.
 - **لغة المعاينة · Preview language**: Arabic (RTL) or English (LTR), independent of the studio's own language.
-- **افتح المعاينة كاملة · Open full preview**: the preview in its own tab. The URL holds the selection and any
-  fine-tuning (`/preview/?palette=…&type=…&btnRadius=…`), so you can bookmark or share it.
-- **الحفظ · Persistence**: the last selection is kept in the browser and in the address bar.
-- **تصدير النمط · Export style**: a ready `src/brand.ts` for the current mix, with the fonts it needs. Create a site with
-  `pnpm new-site <name>`, paste it into `src/brand.ts`, install the listed fonts and register them in
-  `astro.config.mjs` (`sites/studio/astro.config.ts` registers every family and is a working example).
+- **افتح المعاينة كاملة · Open full preview**: the project in its own tab, with its texts and images
+  (`/preview/?project=…`, same browser). A link with only style parameters (`/?palette=…&btnRadius=…`) opens as a new
+  project anywhere.
 
 ## How it works
 
@@ -70,6 +86,10 @@ shows the live contrast result anyway.
   `TWEAKS` (fine-tuning sliders). `buildBrand(selection, name, tweaks)` turns any selection into a standard Landing
   Kit `BrandConfig`, the same thing a real site's `brand.ts` contains.
 - `src/studio/color.ts`: derives the accent roles from a picked colour while keeping WCAG contrast.
+- `src/studio/project.ts`, `store.ts`: the project model and its storage (IndexedDB, project files).
+- `src/studio/brief.ts`: the build brief and readiness checks, from the project and preview snapshots.
+- `src/studio/logo-color.ts`: the brand colour of a logo.
+- `src/studio/app.ts`: the panel's behaviour.
 - `src/components/ChoiceArt.astro`: the small pictures on the choice cards.
 - `src/pages/[...locale]/preview.astro`: renders every section variant once. A small script compiles the brand in the
   browser with the kit's own `compileBrand()`, swaps the token stylesheet, then shows, orders and re-tones the blocks
