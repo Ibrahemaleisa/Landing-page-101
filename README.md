@@ -46,7 +46,7 @@ pnpm perf      # Lighthouse (lab)
 |                                         | Opera before (Next.js) | Opera on Landing Kit | Qitah     | Kitebase  |
 | --------------------------------------- | ---------------------- | -------------------- | --------- | --------- |
 | Lighthouse performance, mobile          | 79                     | 100                  | 100       | 100       |
-| LCP, mobile (simulated 4G)              | 5,442 ms               | 912 ms               | 1,111 ms  | 757 ms    |
+| LCP, mobile (simulated 4G)              | 5,442 ms               | 910 ms               | 1,042 ms  | 753 ms    |
 | JavaScript shipped                      | 260 KB                 | 0.9 KB gz (inline)   | 0.3 KB gz | 0.6 KB gz |
 | axe WCAG 2.2 AA violations              | 5 instances, 2 rules   | 0                    | 0         | 0         |
 | Separate URLs per language + `hreflang` | No                     | Yes                  | Yes       | Yes       |
