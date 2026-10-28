@@ -1,0 +1,171 @@
+---
+/**
+ * A strip above the header for one short message (an offer, an opening, news), with an optional
+ * link. `look` picks the colours from the brand's tones; `motion="marquee"` scrolls the message
+ * (static under reduced motion, paused on hover and focus). `dismissible` adds a close button and
+ * remembers the choice for the visit.
+ */
+import Icon from "../primitives/Icon.astro";
+
+export interface Props {
+  text: string;
+  link?: { label: string; href: string };
+  look?: "brand" | "inverse" | "muted" | "highlight";
+  motion?: "static" | "marquee";
+  dismissible?: boolean;
+  /** Accessible name of the region, e.g. "Announcement". */
+  label: string;
+  /** Accessible name of the close button, e.g. "Close announcement". */
+  dismissLabel?: string;
+  /** Key for remembering a dismissal; change it when the message changes. */
+  id?: string;
+  /** Render the marquee copies even when static, so `data-motion` can be switched live (previews). */
+  copies?: boolean;
+}
+
+const { text, link, look = "brand", motion = "static", dismissible = false, label, dismissLabel = "Close", id = "announce", copies = false } = Astro.props;
+const tone = look === "highlight" ? undefined : look;
+const key = `lk-announce-${id}`;
+---
+
+<div class="lk-announce" role="region" aria-label={label} data-look={look} data-motion={motion} data-tone={tone} data-key={key}>
+  <div class="lk-announce__viewport">
+    <p class="lk-announce__track">
+      <span class="lk-announce__msg">
+        <span>{text}</span>
+        {link && <a href={link.href}>{link.label}</a>}
+      </span>
+      {(motion === "marquee" || copies) &&
+        [1, 2, 3].map(() => (
+          <span class="lk-announce__msg" aria-hidden="true">
+            <span>{text}</span>
+            {link && <span class="lk-announce__fake-link">{link.label}</span>}
+          </span>
+        ))}
+    </p>
+  </div>
+  {dismissible && (
+    <button type="button" class="lk-announce__close" data-lk-announce-close>
+      <Icon name="x" size="1rem" />
+      <span class="lk-visually-hidden">{dismissLabel}</span>
+    </button>
+  )}
+</div>
+<script is:inline define:vars={{ key }}>
+  // hide before paint if dismissed earlier in this visit
+  try {
+    if (sessionStorage.getItem(key)) document.querySelector(`[data-key="${key}"]`)?.setAttribute("hidden", "");
+  } catch {
+    /* storage unavailable */
+  }
+</script>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".lk-announce").forEach((bar) =>
+    bar.querySelector("[data-lk-announce-close]")?.addEventListener("click", () => {
+      bar.hidden = true;
+      try {
+        sessionStorage.setItem(bar.dataset.key!, "1");
+      } catch {
+        /* not remembered */
+      }
+    }),
+  );
+</script>
+
+<style>
+  @layer components {
+    .lk-announce {
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-block-size: 2.5rem;
+      font-size: var(--step--1);
+      font-weight: 600;
+      text-align: center;
+    }
+    .lk-announce[data-look="highlight"] {
+      background: var(--tone-highlight, var(--tone-accent));
+      color: var(--tone-on-highlight, var(--tone-on-accent));
+    }
+    .lk-announce__viewport {
+      flex: 1;
+      min-inline-size: 0;
+      overflow: hidden;
+      padding-inline: var(--gutter);
+    }
+    .lk-announce__track {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      padding-block: 0.5rem;
+    }
+    .lk-announce__msg {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.25em 0.75em;
+    }
+    .lk-announce a,
+    .lk-announce__fake-link {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 0.25em;
+    }
+    .lk-announce a:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+    .lk-announce__close {
+      display: grid;
+      flex: none;
+      place-items: center;
+      inline-size: 2.5rem;
+      block-size: 2.5rem;
+      border: 0;
+      background: none;
+      color: inherit;
+      cursor: pointer;
+    }
+    .lk-announce__close:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: -4px;
+    }
+    .lk-announce[data-motion="marquee"] .lk-announce__msg {
+      flex-wrap: nowrap;
+      white-space: nowrap;
+    }
+    .lk-announce .lk-announce__msg[aria-hidden] {
+      display: none;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .lk-announce[data-motion="marquee"] .lk-announce__viewport {
+        padding-inline: 0;
+      }
+      .lk-announce[data-motion="marquee"] .lk-announce__track {
+        justify-content: start;
+        inline-size: max-content;
+        animation: lk-marquee 28s linear infinite;
+      }
+      .lk-announce[data-motion="marquee"] .lk-announce__msg[aria-hidden] {
+        display: inline-flex;
+      }
+      .lk-announce[data-motion="marquee"]:is(:hover, :focus-within) .lk-announce__track {
+        animation-play-state: paused;
+      }
+      .lk-announce[data-motion="marquee"]:dir(rtl) .lk-announce__track {
+        animation-name: lk-marquee-rtl;
+      }
+    }
+    @keyframes lk-marquee {
+      to {
+        transform: translateX(calc(-50% - 2rem));
+      }
+    }
+    @keyframes lk-marquee-rtl {
+      to {
+        transform: translateX(calc(50% + 2rem));
+      }
+    }
+  }
+</style>

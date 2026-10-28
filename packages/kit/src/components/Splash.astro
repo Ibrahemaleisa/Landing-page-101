@@ -1,0 +1,140 @@
+---
+/**
+ * An opening screen: the logo on the brand's ground for a moment, then the page. Pure CSS, so it
+ * also ends without JavaScript; skipped entirely under reduced motion, and (with `once`) shown only
+ * on the first page of a visit. Decorative: hidden from assistive technology, never traps focus.
+ * Put the logo in the default slot.
+ */
+export interface Props {
+  look?: "fade" | "zoom" | "curtain" | "line" | "reveal" | "pulse";
+  tone?: string;
+  /** How long the logo stays before the screen leaves (ms). */
+  duration?: number;
+  /** Show only once per visit. */
+  once?: boolean;
+}
+
+const { look = "fade", tone = "base", duration = 1200, once = true } = Astro.props;
+---
+
+<div class="lk-splash" data-look={look} data-tone={tone} aria-hidden="true" style={`--lk-splash: ${duration}ms`}>
+  <div class="lk-splash__mark">
+    <div class="lk-splash__in">
+      <slot />
+    </div>
+    {look === "line" && <span class="lk-splash__line"></span>}
+  </div>
+</div>
+{once && <script is:inline>
+  try {
+    if (sessionStorage.getItem("lk-splash")) document.documentElement.classList.add("lk-splash-seen");
+    else sessionStorage.setItem("lk-splash", "1");
+  } catch {
+    /* storage unavailable: show it */
+  }
+</script>}
+
+<style>
+  @layer components {
+    .lk-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      animation: lk-splash-out 0.55s var(--motion-ease) var(--lk-splash) forwards;
+    }
+    :global(.lk-splash-seen) .lk-splash {
+      display: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .lk-splash {
+        display: none;
+      }
+    }
+    .lk-splash__mark {
+      display: grid;
+      justify-items: center;
+      gap: var(--space-s);
+      scale: 1.6;
+    }
+    .lk-splash__in {
+      animation: lk-splash-in calc(var(--lk-splash) * 0.5) var(--motion-ease) both;
+    }
+    .lk-splash__line {
+      inline-size: 8rem;
+      block-size: 2px;
+      background: var(--tone-accent);
+      transform-origin: inline-start;
+      animation: lk-splash-line var(--lk-splash) var(--motion-ease) both;
+    }
+    .lk-splash:not([data-look="line"]) .lk-splash__line {
+      display: none;
+    }
+    .lk-splash[data-look="zoom"] .lk-splash__in {
+      animation-name: lk-splash-zoom;
+    }
+    .lk-splash[data-look="zoom"] {
+      animation-name: lk-splash-out-zoom;
+    }
+    .lk-splash[data-look="curtain"] {
+      animation-name: lk-splash-out-up;
+    }
+    .lk-splash[data-look="reveal"] {
+      animation-name: lk-splash-out-circle;
+    }
+    .lk-splash[data-look="pulse"] .lk-splash__in {
+      animation: lk-splash-pulse calc(var(--lk-splash) / 2) ease-in-out 2 both;
+    }
+    @keyframes lk-splash-in {
+      from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+      }
+    }
+    @keyframes lk-splash-zoom {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+    }
+    @keyframes lk-splash-pulse {
+      50% {
+        transform: scale(1.08);
+      }
+    }
+    @keyframes lk-splash-line {
+      from {
+        transform: scaleX(0);
+      }
+    }
+    @keyframes lk-splash-out {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+    @keyframes lk-splash-out-zoom {
+      to {
+        opacity: 0;
+        transform: scale(1.1);
+        visibility: hidden;
+      }
+    }
+    @keyframes lk-splash-out-up {
+      to {
+        transform: translateY(-100%);
+        visibility: hidden;
+      }
+    }
+    @keyframes lk-splash-out-circle {
+      from {
+        clip-path: circle(150% at 50% 50%);
+      }
+      to {
+        clip-path: circle(0% at 50% 50%);
+        visibility: hidden;
+      }
+    }
+  }
+</style>

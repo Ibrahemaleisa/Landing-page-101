@@ -1,0 +1,76 @@
+---
+/**
+ * One studio element: a collapsible group with its plain-language hint, a card per option, the
+ * current choice explained, and the element's fine-tuning sliders if it has any.
+ */
+import Icon from "@landing/kit/primitives/Icon.astro";
+import { DEFAULT_SELECTION, ELEMENTS, ELEMENT_INFO, TWEAKS, type ElementKey } from "../studio/options";
+import ChoiceArt from "./ChoiceArt.astro";
+
+interface Props {
+  k: ElementKey;
+  locale: "ar" | "en";
+  open?: boolean;
+  t: { now: string; tune: string; tuneReset: string; off: string; adjusted: string };
+}
+const { k, locale, open = false, t } = Astro.props;
+const lbl = (l: { ar: string; en: string }) => l[locale];
+const current = ELEMENTS[k].find((o) => o.id === DEFAULT_SELECTION[k])!;
+const tweaks = TWEAKS.filter((tw) => tw.group === k);
+const wide = ["palette", "type", "page", "headerLayout", "footerLayout", "announce", "splash", "whatsapp"].includes(k);
+---
+
+<details class="opt" data-group={k} open={open}>
+  <summary>
+    <span class="opt__title">{lbl(ELEMENT_INFO[k].label)}</span>
+    <span class="opt__current" data-current>
+      {lbl(current.label)}
+    </span>
+    <Icon name="chevron-down" class="opt__chev" />
+  </summary>
+  <div class="opt__body">
+    <p class="opt__hint" id={`h-${k}`}>
+      {lbl(ELEMENT_INFO[k].hint)}
+    </p>
+    <fieldset class="choices" data-el={k} data-cols={wide ? "2" : "3"} aria-describedby={`h-${k}`}>
+      <legend class="lk-visually-hidden">{lbl(ELEMENT_INFO[k].label)}</legend>
+      {ELEMENTS[k].map((o) => (
+        <label class="choice">
+          <input type="radio" name={`el-${k}`} value={o.id} checked={DEFAULT_SELECTION[k] === o.id} />
+          <ChoiceArt element={k} id={o.id} locale={locale} />
+          <span class="choice__name">{lbl(o.label)}</span>
+        </label>
+      ))}
+    </fieldset>
+    <p class="opt__now" data-now>
+      <strong>{t.now}</strong> <span data-now-text>{lbl(current.hint)}</span>
+    </p>
+    {tweaks.length > 0 && (
+      <div class="tune" role="group" aria-labelledby={`tune-${k}`}>
+        <div class="tune__head">
+          <h3 id={`tune-${k}`}>{t.tune}</h3>
+          <button type="button" class="tune__reset" data-tune-reset={k} hidden>
+            {t.tuneReset}
+          </button>
+        </div>
+        {tweaks.map((tw) => (
+          <div class="tune__row" data-tweak={tw.id}>
+            <div class="tune__label">
+              <label for={`tw-${tw.id}`}>{lbl(tw.label)}</label>
+              <output for={`tw-${tw.id}`} data-out />
+            </div>
+            {tw.kind === "color" ? (
+              <input type="color" id={`tw-${tw.id}`} aria-describedby={`twh-${tw.id}`} data-adjusted={t.adjusted} />
+            ) : (
+              <input type="range" id={`tw-${tw.id}`} min={tw.min} max={tw.max} step={tw.step} aria-describedby={`twh-${tw.id}`} />
+            )}
+            <p class="tune__hint" id={`twh-${tw.id}`}>
+              <span data-hint>{lbl(tw.hint)}</span>
+              <span data-note data-off={t.off} />
+            </p>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</details>

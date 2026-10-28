@@ -4,6 +4,7 @@
  * accent band). Every required pair is gated by WCAG contrast in test/studio.test.ts.
  */
 import type { Tone } from "@landing/kit/brand";
+import { GENERATED_PALETTES } from "./palette-gen";
 
 export interface Palette {
   id: string;
@@ -13,7 +14,7 @@ export interface Palette {
   tones: { base: Tone; muted: Tone; inverse: Tone; brand: Tone };
 }
 
-export const PALETTES: Palette[] = [
+const HANDMADE: Palette[] = [
   {
     id: "ink",
     label: { ar: "حبر وورق", en: "Ink & Paper" },
@@ -801,3 +802,6 @@ export const PALETTES: Palette[] = [
     },
   },
 ];
+
+/** Twelve hand-made palettes, then the generated library (palette-gen.ts). */
+export const PALETTES: Palette[] = [...HANDMADE, ...GENERATED_PALETTES];

@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { buildBrief, readiness, type Snapshot } from "../src/studio/brief";
 import { dominantColor } from "../src/studio/logo-color";
 import { BLOCKS, PAGES, PRESETS } from "../src/studio/options";
-import { langsOf, nameFor, newProject, normalizeProject, sectionsOf, slugOf } from "../src/studio/project";
+import { langsOf, nameFor, newProject, normalizeProject, sectionsOf, sitePayload, slugOf, socialLinks, waLink } from "../src/studio/project";
+import { GENERATED_PALETTES, makePalette } from "../src/studio/palette-gen";
+import { checkBrandContrast } from "@landing/kit/brand";
+import { buildBrand, DEFAULT_SELECTION } from "../src/studio/options";
 
 const snap = (lang: "ar" | "en"): Snapshot => ({
   lang,
@@ -122,5 +125,57 @@ describe("logo colour", () => {
   it("falls back to the darkest common grey for a black logo, and null when empty", () => {
     expect(dominantColor([...px([255, 255, 255, 255], 100), ...px([17, 17, 17, 255], 50)])).toBe("#111111");
     expect(dominantColor(px([200, 30, 90, 0], 50))).toBeNull();
+  });
+});
+
+describe("site parts", () => {
+  it("turns profiles into links and phone numbers into wa.me", () => {
+    expect(waLink("+966 50-000 0000")).toBe("https://wa.me/966500000000");
+    const p = newProject("x");
+    p.info = { ...p.info, instagram: "@sunbula", x: "https://x.com/sun", whatsapp: "0500" };
+    expect(socialLinks(p.info)).toEqual([
+      { icon: "instagram", label: "Instagram", href: "https://instagram.com/sunbula" },
+      { icon: "brand-x", label: "X", href: "https://x.com/sun" },
+      { icon: "whatsapp", label: "WhatsApp", href: "https://wa.me/0500" },
+    ]);
+    expect(sitePayload(p).whatsapp).toBe("https://wa.me/0500");
+  });
+  it("describes the site parts in the brief with kit props", () => {
+    const p = newProject("x", {
+      ...PRESETS[0]!.selection,
+      headerLayout: "centered",
+      headerLook: "dark",
+      announce: "marquee",
+      splash: "zoom",
+      whatsapp: "pill-start",
+      footerLayout: "brand",
+    });
+    p.info = { ...p.info, whatsapp: "+966500000000" };
+    p.site = { ...p.site, backToTop: true, progress: true, announceLink: "#pricing" };
+    const brief = buildBrief(p, [snap("ar")]);
+    expect(brief).toContain('<SiteHeader layout="centered" look="solid" mode="sticky" nav="plain" tone="inverse">');
+    expect(brief).toContain('<AnnouncementBar look="brand" motion="marquee" dismissible link={{ href: "#pricing" }}>');
+    expect(brief).toContain('<Splash look="zoom">');
+    expect(brief).toContain('<Footer layout="brand" tone="base" wordmark={اسم النشاط}>');
+    expect(brief).toContain('whatsapp={{ href: "https://wa.me/966500000000", style: "pill" }} side="start" top={{ label }}');
+    expect(brief).toContain("<ScrollProgress />");
+  });
+});
+
+describe("generated palettes", () => {
+  it("any colour on any ground passes every required pair", () => {
+    const grounds = ["paper", "cool", "warm", "tint", "dark", "night"] as const;
+    const colours = ["#ff0000", "#ffee00", "#00ff88", "#0044ff", "#9900ff", "#888888", "#222222", "#f5f5f5"] as const;
+    for (const g of grounds)
+      for (const c of colours) {
+        const pal = makePalette("t", { ar: "", en: "" }, { ar: "", en: "" }, c, g);
+        const brand = { ...buildBrand(DEFAULT_SELECTION), color: { tones: pal.tones } };
+        const fails = checkBrandContrast(brand).filter((x) => x.level === "required" && !x.pass);
+        expect(fails.map((f) => `${g} ${c} ${f.tone} ${f.pair} ${f.ratio}`)).toEqual([]);
+      }
+  });
+  it("has 24 entries with Arabic and English names", () => {
+    expect(GENERATED_PALETTES).toHaveLength(24);
+    for (const p of GENERATED_PALETTES) expect(p.label.ar && p.label.en && p.hint.ar).toBeTruthy();
   });
 });

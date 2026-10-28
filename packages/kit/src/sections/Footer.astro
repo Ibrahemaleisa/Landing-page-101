@@ -1,8 +1,22 @@
 ---
-/** Site footer: brand block, link groups, language switch and legal line. */
+/**
+ * Site footer: brand block, link groups, language switch and legal line.
+ *
+ * Layouts: `columns` (brand beside link groups, the default), `simple` (one row of links), `brand`
+ * (a large wordmark above the columns), `centered` (everything on the centre line), `minimal`
+ * (logo, social links and legal line only). Optional social links (icons) and contact details.
+ */
 import type { LinkGroup } from "../types";
 import type { SiteConfig } from "../i18n";
+import type { IconName } from "../primitives/icons";
 import LocaleSwitch from "../components/LocaleSwitch.astro";
+import Icon from "../primitives/Icon.astro";
+
+export interface FooterLink {
+  label: string;
+  href: string;
+  icon: IconName;
+}
 
 export interface Props {
   site: SiteConfig;
@@ -13,19 +27,66 @@ export interface Props {
   groups?: LinkGroup[];
   /** e.g. "© 2026 Opera. All rights reserved." */
   legal: string;
+  layout?: "columns" | "simple" | "brand" | "centered" | "minimal";
+  /** Large decorative name for the `brand` layout (hidden from assistive technology; the logo names the site). */
+  wordmark?: string;
+  /** Icon links to social profiles. `label` is the accessible name, e.g. "Instagram". */
+  social?: FooterLink[];
+  /** Phone, email, address… shown with their icons. */
+  contact?: (Omit<FooterLink, "href"> & { href?: string })[];
   /** Accessible names. */
-  labels: { nav: string; language: string };
+  labels: { nav: string; language: string; social?: string; contact?: string };
   class?: string;
 }
 
-const { site, locale, path = "/", tone, tagline, groups = [], legal, labels, class: cls } = Astro.props;
+const {
+  site,
+  locale,
+  path = "/",
+  tone,
+  tagline,
+  groups = [],
+  legal,
+  layout = "columns",
+  wordmark,
+  social = [],
+  contact = [],
+  labels,
+  class: cls,
+} = Astro.props;
 ---
 
-<footer class:list={["lk-footer", cls]} data-tone={tone}>
+<footer class:list={["lk-footer", cls]} data-tone={tone} data-layout={layout}>
   <div class="lk-container lk-footer__inner">
+    {wordmark && (
+      <p class="lk-footer__wordmark" aria-hidden="true">
+        {wordmark}
+      </p>
+    )}
     <div class="lk-footer__brand">
       <slot name="logo" />
       {tagline && <p class="lk-footer__tagline">{tagline}</p>}
+      {contact.length > 0 && (
+        <ul class="lk-footer__contact" role="list" aria-label={labels.contact}>
+          {contact.map((c) => (
+            <li>
+              <Icon name={c.icon} />
+              {c.href ? <a href={c.href}>{c.label}</a> : <span>{c.label}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+      {social.length > 0 && (
+        <ul class="lk-footer__social" role="list" aria-label={labels.social}>
+          {social.map((s) => (
+            <li>
+              <a href={s.href} target="_blank" rel="noopener" aria-label={s.label}>
+                <Icon name={s.icon} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
     {groups.length > 0 && (
       <nav class="lk-footer__nav" aria-label={labels.nav}>
@@ -72,6 +133,51 @@ const { site, locale, path = "/", tone, tagline, groups = [], legal, labels, cla
       max-inline-size: 36ch;
       color: var(--tone-fg-muted);
     }
+    .lk-footer__wordmark {
+      display: none;
+      overflow-wrap: anywhere;
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 13vw, 11rem);
+      font-weight: var(--weight-display);
+      line-height: 0.95;
+      letter-spacing: var(--tracking-display);
+      color: var(--tone-heading);
+    }
+    .lk-footer__contact {
+      display: grid;
+      gap: var(--space-3xs);
+      color: var(--tone-fg-muted);
+    }
+    .lk-footer__contact li {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .lk-footer__contact a {
+      color: var(--tone-fg);
+    }
+    .lk-footer__social {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2xs);
+    }
+    .lk-footer__social a {
+      display: grid;
+      place-items: center;
+      inline-size: 2.75rem;
+      block-size: 2.75rem;
+      border: var(--border-width) solid var(--tone-line);
+      border-radius: 999px;
+      color: var(--tone-fg);
+      transition:
+        background-color var(--motion-fast) var(--motion-ease),
+        color var(--motion-fast) var(--motion-ease);
+    }
+    .lk-footer__social a:hover {
+      background: var(--tone-accent);
+      border-color: var(--tone-accent);
+      color: var(--tone-on-accent);
+    }
     .lk-footer__nav {
       display: grid;
       gap: var(--space-m);
@@ -109,8 +215,64 @@ const { site, locale, path = "/", tone, tagline, groups = [], legal, labels, cla
       .lk-footer__inner {
         grid-template-columns: 5fr 7fr;
       }
-      .lk-footer__base {
+      .lk-footer__base,
+      .lk-footer__wordmark {
         grid-column: 1 / -1;
+      }
+    }
+
+    /* ---------------------------------------------------------------- layouts */
+    .lk-footer[data-layout="brand"] .lk-footer__wordmark {
+      display: block;
+    }
+    /* simple and centered: group headings stay for screen readers, links sit in rows */
+    .lk-footer:is([data-layout="simple"], [data-layout="centered"]) .lk-footer__heading {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .lk-footer:is([data-layout="simple"], [data-layout="centered"]) .lk-footer__nav,
+    .lk-footer:is([data-layout="simple"], [data-layout="centered"]) .lk-footer__group ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2xs) var(--space-m);
+    }
+    .lk-footer[data-layout="simple"] .lk-footer__tagline {
+      display: none;
+    }
+    .lk-footer[data-layout="centered"] .lk-footer__inner,
+    .lk-footer[data-layout="centered"] .lk-footer__brand {
+      justify-items: center;
+      text-align: center;
+    }
+    .lk-footer[data-layout="centered"] .lk-footer__nav,
+    .lk-footer[data-layout="centered"] .lk-footer__group ul,
+    .lk-footer[data-layout="centered"] .lk-footer__base,
+    .lk-footer[data-layout="centered"] .lk-footer__social {
+      justify-content: center;
+    }
+    .lk-footer[data-layout="minimal"] :is(.lk-footer__nav, .lk-footer__tagline, .lk-footer__contact) {
+      display: none;
+    }
+    .lk-footer[data-layout="minimal"] .lk-footer__brand {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+    @media (min-width: 64rem) {
+      .lk-footer:is([data-layout="simple"], [data-layout="minimal"], [data-layout="centered"]) .lk-footer__inner {
+        grid-template-columns: 1fr;
+      }
+      .lk-footer[data-layout="simple"] .lk-footer__inner {
+        grid-template-columns: auto 1fr;
+        align-items: center;
+      }
+      .lk-footer[data-layout="simple"] .lk-footer__nav {
+        justify-content: end;
       }
     }
   }

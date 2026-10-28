@@ -146,6 +146,36 @@ export interface ControlConfig {
   family?: "body" | "display" | "mono";
 }
 
+/**
+ * Optional component styles: how buttons, headings, section edges, backgrounds, images, icons and
+ * inputs look across the whole site. Each key is applied as a `data-lk-*` attribute on `<html>`
+ * and styled by `styles/variants.css`. Leave a key out for the kit's default look.
+ */
+export interface ComponentsConfig {
+  /** Primary button fill. */
+  button?: "solid" | "outline" | "soft" | "gradient" | "raised" | "glow";
+  /** Button hover effect. */
+  hover?: "default" | "lift" | "grow" | "shine" | "arrow" | "none";
+  /** Section heading alignment. */
+  headingAlign?: "start" | "center";
+  /** Eyebrow (small label above headings) style. */
+  eyebrow?: "text" | "pill" | "line" | "dot";
+  /** Decoration on section titles. */
+  titleMark?: "none" | "bar" | "underline" | "accent";
+  /** Shape where two sections of different tones meet. */
+  divider?: "none" | "line" | "wave" | "slant" | "curve" | "zigzag";
+  /** Background pattern. */
+  pattern?: "none" | "dots" | "grid" | "lines" | "grain" | "glow" | "rings";
+  /** Where the pattern shows. */
+  patternScope?: "hero" | "page";
+  /** Image treatment. */
+  image?: "natural" | "rounded" | "framed" | "offset" | "grayscale" | "duotone";
+  /** Feature icon container. */
+  icon?: "filled" | "soft" | "circle" | "ring" | "plain";
+  /** Form inputs. */
+  input?: "outlined" | "filled" | "underline";
+}
+
 export interface BrandConfig {
   name: string;
   /** Theme colour for browser UI (usually the base tone background). */
@@ -161,6 +191,7 @@ export interface BrandConfig {
   motion: MotionConfig;
   layout: LayoutConfig;
   control: ControlConfig;
+  components?: ComponentsConfig;
 }
 
 /** Identity function that gives brand files full type checking and inference. */

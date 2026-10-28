@@ -24,6 +24,10 @@ import Footer from "@landing/kit/sections/Footer.astro";
 import Form from "@landing/kit/components/Form.astro";
 import Field from "@landing/kit/components/Field.astro";
 import Button from "@landing/kit/components/Button.astro";
+import AnnouncementBar from "@landing/kit/components/AnnouncementBar.astro";
+import Splash from "@landing/kit/components/Splash.astro";
+import FloatingActions from "@landing/kit/components/FloatingActions.astro";
+import ScrollProgress from "@landing/kit/components/ScrollProgress.astro";
 import { localeHref, localePaths } from "@landing/kit/i18n";
 import { site, type Locale } from "../../site";
 import { previewContent } from "../../content/preview";
@@ -45,6 +49,46 @@ const home = localeHref(site, locale, "/preview/");
 const initial = new Set(["top:" + DEFAULT_SELECTION.hero, ...PAGES.find((p) => p.id === DEFAULT_SELECTION.page)!.value.map(([b, v]) => `${b}:${v}`)]);
 const show = (block: string, variant: string) => !initial.has(`${block}:${variant}`);
 const f = t.contact.form;
+const chrome =
+  locale === "ar"
+    ? {
+        announce: "🎉 عرض الإطلاق: خصم 20٪ على كل الباقات هذا الأسبوع",
+        announceLink: "اعرف أكثر",
+        announceLabel: "إعلان",
+        announceClose: "إغلاق الإعلان",
+        whatsapp: "تواصل معنا",
+        top: "العودة إلى الأعلى",
+        bar: "تواصل سريع",
+        call: "اتصل",
+        social: "حساباتنا",
+        contact: "معلومات التواصل",
+        phone: "+966 50 000 0000",
+        email: "hello@example.com",
+        address: "الرياض، المملكة العربية السعودية",
+      }
+    : {
+        announce: "🎉 Launch offer: 20% off every plan this week",
+        announceLink: "Learn more",
+        announceLabel: "Announcement",
+        announceClose: "Close announcement",
+        whatsapp: "Chat with us",
+        top: "Back to top",
+        bar: "Quick contact",
+        call: "Call",
+        social: "Our profiles",
+        contact: "Contact details",
+        phone: "+966 50 000 0000",
+        email: "hello@example.com",
+        address: "Riyadh, Saudi Arabia",
+      };
+const social = [
+  { icon: "instagram", label: "Instagram", href: "#" },
+  { icon: "brand-x", label: "X", href: "#" },
+  { icon: "tiktok", label: "TikTok", href: "#" },
+  { icon: "snapchat", label: "Snapchat", href: "#" },
+  { icon: "linkedin", label: "LinkedIn", href: "#" },
+  { icon: "whatsapp", label: "WhatsApp", href: "#" },
+] as const;
 ---
 
 <BaseLayout
@@ -59,6 +103,26 @@ const f = t.contact.form;
   noindex
   fonts={FONT_FAMILIES.map((ff) => ({ cssVariable: cssVar(ff.id) }))}
 >
+  <!-- site parts: always rendered, switched on and off by the studio -->
+  <div data-part="progress" hidden>
+    <ScrollProgress />
+  </div>
+  <div data-part="splash" hidden>
+    <Splash look="line" once={false}>
+      <Logo name={name} />
+    </Splash>
+  </div>
+  <div data-part="announce" hidden>
+    <AnnouncementBar
+      text={chrome.announce}
+      link={{ label: chrome.announceLink, href: "#close" }}
+      label={chrome.announceLabel}
+      dismissLabel={chrome.announceClose}
+      dismissible
+      copies
+      id="preview"
+    />
+  </div>
   <SiteHeader
     site={site}
     locale={locale}
@@ -268,17 +332,37 @@ const f = t.contact.form;
     tagline={t.footer.tagline}
     groups={t.footer.groups}
     legal={t.footer.legal}
-    labels={{ nav: t.ui.footerNav, language: t.ui.language }}
+    labels={{ nav: t.ui.footerNav, language: t.ui.language, social: chrome.social, contact: chrome.contact }}
+    wordmark={name}
+    social={[...social]}
+    contact={[
+      { icon: "phone", label: chrome.phone, href: "tel:+966500000000" },
+      { icon: "mail", label: chrome.email, href: "mailto:hello@example.com" },
+      { icon: "map-pin", label: chrome.address },
+    ]}
   >
     <Logo slot="logo" name={name} />
   </Footer>
+  <div data-part="float">
+    <FloatingActions
+      whatsapp={{ href: "#", label: chrome.whatsapp, style: "circle" }}
+      top={{ label: chrome.top }}
+      bar={{
+        label: chrome.bar,
+        items: [
+          { href: "tel:+966500000000", label: chrome.call, icon: "phone" },
+          { href: "#", label: "WhatsApp", icon: "whatsapp" },
+        ],
+      }}
+    />
+  </div>
 </BaseLayout>
 
 <script>
-  import { compileBrand } from "@landing/kit/brand";
+  import { COMPONENT_ATTRS, compileBrand, componentAttrs } from "@landing/kit/brand";
   import { PAGES, buildBrand, type Block, type Selection, type Tweaks } from "../../studio/options";
   import { decodeState, encodeSelection } from "../../studio/state";
-  import { PLACEHOLDER_NAME, nameFor, type Lang } from "../../studio/project";
+  import { PLACEHOLDER_NAME, nameFor, sitePayload, type Lang } from "../../studio/project";
   import { getProject, mediaUrls } from "../../studio/store";
   import type { SnapItem, Snapshot } from "../../studio/brief";
 
@@ -291,12 +375,27 @@ const f = t.contact.form;
     name?: string;
     media?: Record<string, string>;
     editing?: boolean;
+    site?: SitePayload;
+  }
+  /** Site-part switches and the client's real links. */
+  interface SitePayload {
+    announceLink: string;
+    announceDismiss: boolean;
+    backToTop: boolean;
+    mobileBar: boolean;
+    progress: boolean;
+    footerSocial: boolean;
+    footerContact: boolean;
+    /** The client's profiles; empty shows the placeholder set. */
+    social: { icon: string; href: string }[];
+    whatsapp: string;
   }
 
   const lang: Lang = document.documentElement.lang.startsWith("ar") ? "ar" : "en";
   const main = document.querySelector<HTMLElement>("[data-studio-main]")!;
   const tokens = Array.from(document.querySelectorAll("style")).find((s) => s.textContent?.startsWith("@layer tokens"))!;
-  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+  // in-page section links (bare "#" placeholders, like the WhatsApp button before a number is set, aren't)
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]:not([href="#"])'));
   links.forEach((a) => (a.dataset.href = a.getAttribute("href")!));
   const embedded = window.parent !== window;
   const post = (msg: object) => embedded && window.parent.postMessage(msg, location.origin);
@@ -304,7 +403,8 @@ const f = t.contact.form;
   // ---------------------------------------------------------------- editable texts and image slots
   const norm = (s: string | null) => (s ?? "").replace(/\s+/g, " ").trim();
   const SKIP = "svg, script, style, template, input, textarea, select, option, .lk-visually-hidden, .lk-tabs__fallback-title";
-  const scopes = [document.querySelector("header"), main, document.querySelector("footer")].filter(Boolean) as HTMLElement[];
+  const part = (n: string) => document.querySelector<HTMLElement>(`[data-part="${n}"]`)!;
+  const scopes = [part("announce"), document.querySelector("header"), main, document.querySelector("footer"), part("splash")].filter(Boolean) as HTMLElement[];
   const leaves = scopes.flatMap((root) =>
     Array.from(root.querySelectorAll<HTMLElement>("*")).filter((el) => el.children.length === 0 && norm(el.textContent) && !el.closest(SKIP)),
   );
@@ -369,9 +469,97 @@ const f = t.contact.form;
     });
   }
 
+  const SOCIAL_ICON: Record<string, string> = {
+    Instagram: "instagram",
+    X: "brand-x",
+    TikTok: "tiktok",
+    Snapchat: "snapchat",
+    LinkedIn: "linkedin",
+    WhatsApp: "whatsapp",
+  };
+
+  function applyParts(sel: Selection, site?: SitePayload) {
+    // announcement bar
+    const ann = part("announce");
+    const bar = ann.querySelector<HTMLElement>(".lk-announce")!;
+    ann.hidden = sel.announce === "none";
+    if (!ann.hidden) {
+      const look = sel.announce === "marquee" ? "brand" : sel.announce;
+      bar.hidden = false;
+      bar.dataset.look = look;
+      bar.dataset.motion = sel.announce === "marquee" ? "marquee" : "static";
+      if (look === "highlight") bar.removeAttribute("data-tone");
+      else bar.setAttribute("data-tone", look);
+      bar.querySelector<HTMLElement>(".lk-announce__close")!.hidden = site ? !site.announceDismiss : false;
+      bar.querySelector("a")?.setAttribute("href", site?.announceLink || "#close");
+    }
+
+    // opening screen: replays whenever its look changes
+    const sp = part("splash");
+    const splash = sp.querySelector<HTMLElement>(".lk-splash")!;
+    if (sel.splash === "none") sp.hidden = true;
+    else if (sp.hidden || splash.dataset.look !== sel.splash) {
+      splash.dataset.look = sel.splash;
+      replaySplash();
+    }
+
+    // header
+    const header = document.querySelector<HTMLElement>(".lk-header")!;
+    header.dataset.layout = sel.headerLayout;
+    header.dataset.look = sel.headerLook === "dark" ? "solid" : sel.headerLook;
+    header.dataset.mode = sel.headerBehavior;
+    header.dataset.nav = sel.navStyle;
+    if (sel.headerLook === "dark") header.setAttribute("data-tone", "inverse");
+    else header.removeAttribute("data-tone");
+
+    // footer
+    const footer = document.querySelector<HTMLElement>(".lk-footer")!;
+    footer.dataset.layout = sel.footerLayout;
+    footer.setAttribute("data-tone", sel.footerTone);
+    const socialList = footer.querySelector<HTMLElement>(".lk-footer__social");
+    if (socialList) {
+      socialList.hidden = site ? !site.footerSocial : false;
+      const real = site?.social ?? [];
+      socialList.querySelectorAll<HTMLAnchorElement>("a").forEach((a) => {
+        const icon = SOCIAL_ICON[a.getAttribute("aria-label") ?? ""];
+        const match = real.find((r) => r.icon === icon);
+        a.closest("li")!.hidden = real.length > 0 && !match;
+        a.href = match?.href ?? "#";
+      });
+    }
+    const contactList = footer.querySelector<HTMLElement>(".lk-footer__contact");
+    if (contactList) contactList.hidden = site ? !site.footerContact : true;
+
+    // floating actions
+    const float = document.querySelector<HTMLElement>(".lk-float")!;
+    const wa = float.querySelector<HTMLAnchorElement>(".lk-float__wa")!;
+    wa.hidden = sel.whatsapp === "none";
+    const [style, side] = sel.whatsapp.split("-");
+    wa.dataset.style = style ?? "circle";
+    float.dataset.side = side ?? "end";
+    wa.href = site?.whatsapp || "#";
+    float.querySelector<HTMLElement>("[data-lk-top]")?.toggleAttribute("data-off", !site?.backToTop);
+    const mbar = document.querySelector<HTMLElement>(".lk-mbar");
+    if (mbar) mbar.hidden = !site?.mobileBar;
+    float.toggleAttribute("data-bar", !!site?.mobileBar);
+    part("progress").hidden = !site?.progress;
+  }
+
+  function replaySplash() {
+    const sp = part("splash");
+    sp.hidden = true;
+    void sp.offsetWidth;
+    sp.hidden = false;
+  }
+
   function apply(next: Apply) {
     state = next;
-    tokens.textContent = compileBrand(buildBrand(next.selection, "Studio", next.tweaks ?? {}), { locales: ["ar", "en"] });
+    const brand = buildBrand(next.selection, "Studio", next.tweaks ?? {});
+    tokens.textContent = compileBrand(brand, { locales: ["ar", "en"] });
+    const root = document.documentElement;
+    COMPONENT_ATTRS.forEach((a) => root.removeAttribute(a));
+    Object.entries(componentAttrs(brand)).forEach(([a, v]) => root.setAttribute(a, v));
+    applyParts(next.selection, next.site);
 
     const blocks = Array.from(main.querySelectorAll<HTMLElement>("[data-block]"));
     blocks.forEach((b) => {
@@ -495,7 +683,11 @@ const f = t.contact.form;
 
   // ---------------------------------------------------------------- snapshot for the build brief
   function snapshot(): Snapshot {
-    const shown = (el: Element) => !el.closest("[data-block][hidden], li[hidden]");
+    // hidden means switched off, except inactive tab panels: their content is part of the page
+    const shown = (el: Element) => {
+      for (let h = el.closest("[hidden]"); h; h = h.parentElement?.closest("[hidden]") ?? null) if (!h.matches('[role="tabpanel"]')) return false;
+      return true;
+    };
     const item = (el: HTMLElement): SnapItem => ({
       role: el.classList.contains("lk-btn__label") ? "btn" : el.closest(".lk-eyebrow") ? "eyebrow" : el.tagName.toLowerCase(),
       text: norm(el.textContent),
@@ -505,6 +697,7 @@ const f = t.contact.form;
     const within = (root: Element | null) => (root ? leaves.filter((l) => root.contains(l) && shown(l)).map(item) : []);
     return {
       lang,
+      announce: part("announce").hidden ? [] : within(part("announce")).filter((i, n, all) => all.findIndex((x) => x.text === i.text) === n),
       header: within(document.querySelector("header")),
       footer: within(document.querySelector("footer")),
       sections: Array.from(main.querySelectorAll<HTMLElement>("[data-block]:not([hidden])")).map((w) => ({
@@ -523,12 +716,19 @@ const f = t.contact.form;
     if (e.data?.type === "studio:apply") {
       apply(e.data as Apply);
       history.replaceState(null, "", encodeSelection(e.data.selection, e.data.tweaks ?? {}) + location.hash);
+    } else if (e.data?.type === "studio:replay") {
+      if (state.selection.splash !== "none") replaySplash();
     } else if (e.data?.type === "studio:snapshot") {
       post({ type: "studio:snapshot", id: e.data.id, snapshot: snapshot() });
     }
   });
 
   async function boot() {
+    try {
+      sessionStorage.removeItem("lk-announce-preview");
+    } catch {
+      /* storage unavailable */
+    }
     const q = new URLSearchParams(location.search);
     const id = q.get("project");
     const project = id && !embedded ? await getProject(id) : undefined;
@@ -540,6 +740,7 @@ const f = t.contact.form;
         content: project.content[lang],
         name: nameFor(project.info, lang),
         media: await mediaUrls(project),
+        site: sitePayload(project),
       });
     } else {
       const initial = decodeState(location.search);
@@ -558,6 +759,9 @@ const f = t.contact.form;
     }
     [data-slot] {
       position: relative;
+    }
+    [data-off] {
+      display: none !important;
     }
     .studio-img {
       position: absolute;

@@ -1,0 +1,174 @@
+---
+/**
+ * Always-at-hand actions: a WhatsApp button, a back-to-top button, and on phones an optional bar
+ * of contact actions along the bottom edge. Each is optional.
+ */
+import Icon from "../primitives/Icon.astro";
+import type { IconName } from "../primitives/icons";
+
+export interface Props {
+  /** WhatsApp chat link (`https://wa.me/9665…`) and its visible or accessible label. */
+  whatsapp?: { href: string; label: string; style?: "circle" | "pill" };
+  side?: "start" | "end";
+  /** Back-to-top button with its accessible name. */
+  top?: { label: string };
+  /** Phone-only bottom bar, e.g. call and WhatsApp. Replaces the floating WhatsApp button on phones. */
+  bar?: { label: string; items: { href: string; label: string; icon: IconName }[] };
+}
+
+const { whatsapp, side = "end", top, bar } = Astro.props;
+---
+
+<div class="lk-float" data-side={side} data-bar={bar ? "" : undefined}>
+  {top && (
+    <button type="button" class="lk-float__top" data-lk-top hidden>
+      <Icon name="arrow-up" />
+      <span class="lk-visually-hidden">{top.label}</span>
+    </button>
+  )}
+  {whatsapp && (
+    <a class="lk-float__wa" href={whatsapp.href} target="_blank" rel="noopener" data-style={whatsapp.style ?? "circle"}>
+      <Icon name="whatsapp" size="1.6rem" />
+      <span class="lk-float__label">{whatsapp.label}</span>
+    </a>
+  )}
+</div>
+{bar && (
+  <nav class="lk-mbar" aria-label={bar.label}>
+    {bar.items.map((i) => (
+      <a href={i.href}>
+        <Icon name={i.icon} />
+        <span>{i.label}</span>
+      </a>
+    ))}
+  </nav>
+)}
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>("[data-lk-top]");
+  if (btn) {
+    const update = () => (btn.hidden = scrollY < innerHeight);
+    addEventListener("scroll", update, { passive: true });
+    update();
+    btn.addEventListener("click", () => {
+      scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      document.querySelector<HTMLElement>("a, button, [tabindex]")?.focus({ preventScroll: true });
+    });
+  }
+</script>
+
+<style>
+  @layer components {
+    .lk-float {
+      position: fixed;
+      inset-block-end: max(1rem, env(safe-area-inset-bottom));
+      inset-inline-end: 1rem;
+      z-index: 40;
+      display: grid;
+      justify-items: end;
+      gap: 0.75rem;
+    }
+    .lk-float[data-side="start"] {
+      inset-inline: 1rem auto;
+      justify-items: start;
+    }
+    .lk-float__wa,
+    .lk-float__top {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-inline-size: 3.25rem;
+      block-size: 3.25rem;
+      border: 0;
+      border-radius: 999px;
+      box-shadow: 0 0.5rem 1.5rem -0.5rem rgb(0 0 0 / 0.45);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    /* a darker WhatsApp green that keeps 4.5:1 with white */
+    .lk-float__wa {
+      background: #0f7a40;
+      color: #fff;
+    }
+    .lk-float__wa[data-style="pill"] {
+      padding-inline: 1rem 1.25rem;
+    }
+    /* the circle keeps its label for screen readers only */
+    .lk-float__wa:not([data-style="pill"]) .lk-float__label {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .lk-float__top {
+      inline-size: 2.75rem;
+      min-inline-size: 0;
+      block-size: 2.75rem;
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      border: var(--border-width) solid var(--tone-surface-line, var(--tone-line));
+    }
+    .lk-float__top[hidden] {
+      display: none;
+    }
+    .lk-float :is(a, button):focus-visible {
+      outline: 3px solid var(--tone-ring);
+      outline-offset: 3px;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .lk-float__wa {
+        transition: transform var(--motion-fast) var(--motion-ease);
+      }
+      .lk-float__wa:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    .lk-mbar {
+      display: none;
+    }
+    @media (max-width: 39.99rem) {
+      .lk-float[data-bar] .lk-float__wa {
+        display: none;
+      }
+      .lk-float[data-bar] {
+        inset-block-end: 5rem;
+      }
+      .lk-mbar {
+        position: fixed;
+        inset-inline: 0;
+        inset-block-end: 0;
+        z-index: 40;
+        display: flex;
+        padding-block-end: env(safe-area-inset-bottom);
+        border-block-start: var(--border-width) solid var(--tone-line);
+        background: var(--tone-bg);
+      }
+      .lk-mbar a {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-block-size: 3.5rem;
+        color: var(--tone-fg);
+        font-weight: 700;
+        text-decoration: none;
+      }
+      .lk-mbar a + a {
+        border-inline-start: var(--border-width) solid var(--tone-line);
+      }
+      .lk-mbar a:focus-visible {
+        outline: 2px solid var(--tone-ring);
+        outline-offset: -4px;
+      }
+      :global(body:has(.lk-mbar)) {
+        padding-block-end: 3.5rem;
+      }
+    }
+  }
+</style>

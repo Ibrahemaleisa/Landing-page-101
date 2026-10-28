@@ -9,6 +9,7 @@ import {
   BLOCKS,
   DEFAULT_SELECTION,
   ELEMENTS,
+  ELEMENT_INFO,
   PRESETS,
   TWEAKS,
   buildBrand,
@@ -19,7 +20,7 @@ import {
   type Selection,
 } from "./options";
 import { decodeState, encodeSelection, hasSelection } from "./state";
-import { langsOf, nameFor, newProject, sectionsOf, slugOf, uid, type Lang, type Project, type ProjectInfo } from "./project";
+import { langsOf, nameFor, newProject, sectionsOf, sitePayload, slugOf, uid, type Lang, type Project, type ProjectInfo, type SiteOptions } from "./project";
 import {
   deleteAsset,
   deleteProject,
@@ -105,25 +106,34 @@ export async function startStudio(root: HTMLElement) {
     for (let i = 1; ; i++) if (!used.has(`${ui.untitled} ${i}`)) return `${ui.untitled} ${i}`;
   }
 
+  /** Address bar and "last project" memory follow the active project. */
+  function syncUrl() {
+    history.replaceState(null, "", `?project=${project.id}&${encodeSelection(project.selection, project.tweaks).slice(1)}`);
+    try {
+      localStorage.setItem(ACTIVE, project.id);
+    } catch {
+      /* not remembered */
+    }
+  }
+
+  // writes are debounced: sliders fire many input events per second
   let saveTimer: number | undefined;
   function saveSoon() {
     project.updatedAt = Date.now();
     clearTimeout(saveTimer);
     saveTimer = window.setTimeout(() => {
+      // never resurrect a project deleted while this save was pending
+      if (!projects.some((p) => p.id === project.id)) return;
       saveProject(project);
-      const q = `?project=${project.id}&${encodeSelection(project.selection, project.tweaks).slice(1)}`;
-      history.replaceState(null, "", q);
-      try {
-        localStorage.setItem(ACTIVE, project.id);
-      } catch {
-        /* not remembered */
-      }
+      syncUrl();
     }, 300);
   }
 
   async function switchTo(p: Project) {
     revokeUrls(urls);
     project = p;
+    // immediately: a reload must never land on a project that was just deleted or left
+    syncUrl();
     urls = await mediaUrls(p);
     fillContent();
     renderProjects();
@@ -144,6 +154,7 @@ export async function startStudio(root: HTMLElement) {
     name: nameFor(project.info, l),
     media: urls,
     editing,
+    site: sitePayload(project),
   });
   const send = () => frame.contentWindow?.postMessage(payload(previewLang()), location.origin);
 
@@ -319,8 +330,10 @@ export async function startStudio(root: HTMLElement) {
   );
 
   $("[data-random]").addEventListener("click", () => {
+    // a new look, not a new site: header, footer and the other site parts stay as chosen
     const next = { ...project.selection };
     for (const k of Object.keys(ELEMENTS) as ElementKey[]) {
+      if (ELEMENT_INFO[k].tab === "site") continue;
       const list = ELEMENTS[k];
       next[k] = list[Math.floor(Math.random() * list.length)]!.id;
     }
@@ -452,6 +465,11 @@ export async function startStudio(root: HTMLElement) {
     for (const name of ["languages", "defaultLang", "domainStatus"] as const)
       $$<HTMLInputElement>(`input[name="info-${name}"]`).forEach((r) => (r.checked = r.value === project.info[name]));
     $("[data-default-lang]").hidden = project.info.languages !== "both";
+    for (const input of $$<HTMLInputElement>("[data-site]")) {
+      const v = project.site[input.dataset.site as keyof SiteOptions];
+      if (input.type === "checkbox") input.checked = !!v;
+      else input.value = String(v);
+    }
     renderLogo();
     renderSlots();
     renderTextCount();
@@ -478,6 +496,18 @@ export async function startStudio(root: HTMLElement) {
     $("[data-default-lang]").hidden = project.info.languages !== "both";
     saveSoon();
   });
+
+  for (const input of $$<HTMLInputElement>("[data-site]")) {
+    input.addEventListener(input.type === "checkbox" ? "change" : "input", () => {
+      project.site = { ...project.site, [input.dataset.site!]: input.type === "checkbox" ? input.checked : input.value.trim() };
+      send();
+      saveSoon();
+    });
+  }
+  $("[data-replay]").addEventListener("click", () => frame.contentWindow?.postMessage({ type: "studio:replay" }, location.origin));
+  // contact details feed the footer and the WhatsApp button live
+  for (const input of infoInputs)
+    if (/^(whatsapp|instagram|x|tiktok|snapchat|linkedin)$/.test(input.dataset.info!)) input.addEventListener("input", () => send());
 
   async function addImage(slot: string, file: File | Blob | undefined) {
     if (!file) return;
@@ -626,8 +656,10 @@ export async function startStudio(root: HTMLElement) {
   });
   $("[data-project-del]").addEventListener("click", async () => {
     if (!confirm(ui.confirmDelete)) return;
-    await deleteProject(project);
-    projects = projects.filter((p) => p.id !== project.id);
+    clearTimeout(saveTimer);
+    const gone = project;
+    projects = projects.filter((p) => p.id !== gone.id);
+    await deleteProject(gone);
     switchTo(projects[0] ?? (await create(newProject(nextTitle()))));
   });
   $<HTMLInputElement>("[data-project-import]").addEventListener("change", async (e) => {

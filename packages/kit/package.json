@@ -11,6 +11,7 @@
     "./i18n": "./src/i18n/index.ts",
     "./types": "./src/types.ts",
     "./styles/global.css": "./src/styles/global.css",
+    "./styles/variants.css": "./src/styles/variants.css",
     "./layouts/*": "./src/layouts/*",
     "./seo/*": "./src/seo/*",
     "./primitives/*": "./src/primitives/*",

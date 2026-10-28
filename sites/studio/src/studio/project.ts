@@ -29,7 +29,31 @@ export interface Project {
   media: Record<string, string>;
   assets: Record<string, AssetRef>;
   info: ProjectInfo;
+  site: SiteOptions;
 }
+
+/** Switches and details for the site parts (their looks are in the selection). */
+export interface SiteOptions {
+  /** Where the announcement's link goes (empty: no link). */
+  announceLink: string;
+  announceDismiss: boolean;
+  backToTop: boolean;
+  /** Phone-only bottom bar with call and WhatsApp. */
+  mobileBar: boolean;
+  progress: boolean;
+  footerSocial: boolean;
+  footerContact: boolean;
+}
+
+export const DEFAULT_SITE: SiteOptions = {
+  announceLink: "",
+  announceDismiss: true,
+  backToTop: false,
+  mobileBar: false,
+  progress: false,
+  footerSocial: true,
+  footerContact: false,
+};
 
 export interface ProjectInfo {
   nameAr: string;
@@ -165,6 +189,7 @@ export function newProject(title: string, selection: Selection = DEFAULT_SELECTI
     media: {},
     assets: {},
     info: { ...EMPTY_INFO },
+    site: { ...DEFAULT_SITE },
   };
 }
 
@@ -200,6 +225,32 @@ export function normalizeProject(raw: Partial<Project> & { id: string }): Projec
     media: { ...raw.media },
     assets: { ...raw.assets },
     info: { ...EMPTY_INFO, ...raw.info },
+    site: { ...DEFAULT_SITE, ...raw.site },
     sections: Array.isArray(raw.sections) ? raw.sections : null,
   };
 }
+
+/** Social profiles from the facts form, as footer icon links. */
+export function socialLinks(info: ProjectInfo): { icon: string; label: string; href: string }[] {
+  const handle = (v: string) => v.trim().replace(/^@/, "");
+  const out: { icon: string; label: string; href: string }[] = [];
+  const add = (icon: string, label: string, v: string, href: (h: string) => string) =>
+    v.trim() && out.push({ icon, label, href: /^https?:/.test(v.trim()) ? v.trim() : href(handle(v)) });
+  add("instagram", "Instagram", info.instagram, (h) => `https://instagram.com/${h}`);
+  add("brand-x", "X", info.x, (h) => `https://x.com/${h}`);
+  add("tiktok", "TikTok", info.tiktok, (h) => `https://tiktok.com/@${h}`);
+  add("snapchat", "Snapchat", info.snapchat, (h) => `https://snapchat.com/add/${h}`);
+  add("linkedin", "LinkedIn", info.linkedin, (h) => `https://linkedin.com/in/${h}`);
+  add("whatsapp", "WhatsApp", info.whatsapp, (h) => waLink(h));
+  return out;
+}
+
+/** wa.me link from any way of writing a phone number. */
+export const waLink = (phone: string) => `https://wa.me/${phone.replace(/[^0-9]/g, "")}`;
+
+/** What the preview needs to show the site parts with the client's real links. */
+export const sitePayload = (p: Pick<Project, "site" | "info">) => ({
+  ...p.site,
+  social: socialLinks(p.info).map(({ icon, href }) => ({ icon, href })),
+  whatsapp: p.info.whatsapp.trim() ? waLink(p.info.whatsapp) : "",
+});

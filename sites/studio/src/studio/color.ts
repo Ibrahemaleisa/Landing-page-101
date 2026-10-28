@@ -28,7 +28,7 @@ export function mix(a: string, b: string, t: number): Hex {
 }
 
 /** Moves `c` toward `toward` in small steps until it reaches `min` contrast against every colour in `against`. */
-function reach(c: Hex, against: string[], min: number, toward: Hex): Hex {
+export function reach(c: Hex, against: string[], min: number, toward: Hex): Hex {
   for (let i = 0; i <= 20; i++) {
     const v = mix(c, toward, i / 20);
     if (against.every((bg) => contrast(v, bg) >= min)) return v;

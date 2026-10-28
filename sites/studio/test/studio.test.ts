@@ -17,9 +17,10 @@ import { FONT_FAMILIES } from "../src/studio/fonts";
 import { decodeSelection, decodeState, encodeSelection } from "../src/studio/state";
 
 describe("studio palettes", () => {
-  it("has twelve palettes and fourteen presets", () => {
-    expect(PALETTES).toHaveLength(12);
-    expect(PRESETS).toHaveLength(14);
+  it("has 36 palettes (12 hand-made, 24 generated) and 30 presets", () => {
+    expect(PALETTES).toHaveLength(36);
+    expect(new Set(PALETTES.map((p) => p.id)).size).toBe(36);
+    expect(PRESETS).toHaveLength(30);
   });
   describe.each(PALETTES.map((p) => [p.id, p] as const))("%s", (id, palette) => {
     const checks = checkBrandContrast(buildBrand({ ...DEFAULT_SELECTION, palette: id }));
@@ -53,13 +54,13 @@ describe("studio elements", () => {
       expect(matchPreset(p.selection)?.id).toBe(p.id);
     }
   });
-  it("every element offers at least three choices, each with a plain-language hint", () => {
+  it("every element offers choices, each with a plain-language hint", () => {
     for (const key of Object.keys(ELEMENTS) as ElementKey[]) {
-      expect(ELEMENTS[key].length, key).toBeGreaterThanOrEqual(3);
+      expect(ELEMENTS[key].length, key).toBeGreaterThanOrEqual(2);
       for (const o of ELEMENTS[key]) expect(o.hint.ar && o.hint.en, `${key}=${o.id}`).toBeTruthy();
     }
-    expect(ELEMENTS.palette).toHaveLength(12);
-    expect(ELEMENTS.type).toHaveLength(12);
+    expect(ELEMENTS.palette).toHaveLength(36);
+    expect(ELEMENTS.type).toHaveLength(24);
     expect(ELEMENTS.buttons).toHaveLength(10);
     expect(ELEMENTS.motion).toHaveLength(8);
     expect(ELEMENTS.page).toHaveLength(8);

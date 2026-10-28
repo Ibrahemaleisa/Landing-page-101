@@ -4,9 +4,11 @@
  * SEO, and the skip link. Header, main and footer are the page's to compose.
  */
 import "../styles/global.css";
+import "../styles/variants.css";
 import { Font } from "astro:assets";
 import type { BrandConfig } from "../brand/types";
 import { compileBrand } from "../brand/compile";
+import { componentAttrs } from "../brand/components";
 import { alternates, dirOf, langOf, localeHref, type SiteConfig } from "../i18n";
 import Seo, { type SeoImage } from "../seo/Seo.astro";
 
@@ -48,7 +50,7 @@ const ogAlternates = codes.filter((c) => c !== locale).flatMap((c) => site.local
 ---
 
 <!doctype html>
-<html lang={lang} dir={dir}>
+<html lang={lang} dir={dir} {...componentAttrs(brand)}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

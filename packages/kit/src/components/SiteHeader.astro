@@ -7,6 +7,13 @@
  *  - `overlay`: transparent over the first section, turning solid as the page scrolls (CSS
  *    scroll timeline; solid where unsupported). Pair with a hero that sets `underHeader`.
  *  - `static`: scrolls away with the page.
+ *  - `hide`: sticky, but slides away while scrolling down and returns on the way up.
+ *
+ * Desktop arrangement (`layout`): `standard` (logo, then navigation at the end), `start` (navigation
+ * next to the logo), `centered` (logo in the middle), `stacked` (navigation on a second row),
+ * `minimal` (menu button only, at every size). `look`: `solid`, `clean` (no rule), `glass`
+ * (translucent blur), `floating` (a rounded bar inset from the edges), `transparent` (no ground
+ * until the page scrolls). `nav`: link style.
  */
 import type { SiteConfig } from "../i18n";
 import type { Action } from "../types";
@@ -29,17 +36,35 @@ export interface Props {
   cta?: Action;
   /** Secondary action, e.g. "Sign in". */
   secondary?: Action;
-  mode?: "sticky" | "overlay" | "static";
+  mode?: "sticky" | "overlay" | "static" | "hide";
+  layout?: "standard" | "start" | "centered" | "stacked" | "minimal";
+  look?: "solid" | "clean" | "glass" | "floating" | "transparent";
+  nav?: "plain" | "underline" | "pill" | "caps";
   tone?: string;
   labels: { nav: string; menu: string; close: string; language: string };
 }
 
-const { site, locale, path = "/", homeHref, homeLabel, links, cta, secondary, mode = "sticky", tone, labels } = Astro.props;
+const {
+  site,
+  locale,
+  path = "/",
+  homeHref,
+  homeLabel,
+  links,
+  cta,
+  secondary,
+  mode = "sticky",
+  layout = "standard",
+  look = "solid",
+  nav = "plain",
+  tone,
+  labels,
+} = Astro.props;
 // rendered once, reused in the bar and the menu sheet
 const logo = await Astro.slots.render("logo");
 ---
 
-<header class="lk-header" data-mode={mode} data-tone={tone}>
+<header class="lk-header" data-mode={mode} data-layout={layout} data-look={look} data-nav={nav} data-tone={tone}>
   <div class="lk-container lk-header__bar">
     <a href={homeHref} class="lk-header__home" aria-label={homeLabel}>
       <Fragment set:html={logo} />
@@ -148,8 +173,29 @@ const logo = await Astro.slots.render("logo");
         opener.focus({ preventScroll: true });
       }
     });
-    // the menu is for small screens only; never leave it open past the breakpoint
-    matchMedia("(min-width: 64rem)").addEventListener("change", (e) => e.matches && dialog.open && dialog.close());
+    // the menu is for small screens only (unless the header is minimal); never leave it open past the breakpoint
+    matchMedia("(min-width: 64rem)").addEventListener(
+      "change",
+      (e) => e.matches && dialog.open && dialog.closest<HTMLElement>(".lk-header")?.dataset.layout !== "minimal" && dialog.close(),
+    );
+  }
+
+  // mode="hide": slide away while scrolling down, come back on the way up or when focused
+  const header = document.querySelector<HTMLElement>(".lk-header");
+  if (header) {
+    let last = scrollY;
+    addEventListener(
+      "scroll",
+      () => {
+        if (header.dataset.mode !== "hide") return header.removeAttribute("data-hidden");
+        const y = scrollY;
+        if (Math.abs(y - last) < 6) return;
+        header.toggleAttribute("data-hidden", y > last && y > header.offsetHeight * 2 && !header.contains(document.activeElement));
+        last = y;
+      },
+      { passive: true },
+    );
+    header.addEventListener("focusin", () => header.removeAttribute("data-hidden"));
   }
 </script>
 
@@ -262,6 +308,139 @@ const logo = await Astro.slots.render("logo");
       }
       .lk-header__actions > .lk-header__menu {
         display: none;
+      }
+    }
+
+    /* ---------------------------------------------------------------- behaviour */
+    .lk-header[data-mode="hide"] {
+      position: sticky;
+      transition: transform var(--motion-base) var(--motion-ease);
+    }
+    .lk-header[data-mode="hide"][data-hidden] {
+      transform: translateY(-100%);
+    }
+
+    /* ---------------------------------------------------------------- looks */
+    .lk-header[data-look="clean"] {
+      border-block-end-color: transparent;
+    }
+    .lk-header[data-look="glass"] {
+      background-color: color-mix(in srgb, var(--tone-bg) 78%, transparent);
+      backdrop-filter: blur(14px) saturate(1.4);
+      -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    }
+    .lk-header[data-look="floating"] {
+      border-block-end-color: transparent;
+      background: transparent;
+      padding-block-start: 0.6rem;
+    }
+    .lk-header[data-look="floating"] .lk-header__bar {
+      /* the container's gutter becomes the gap around the bar */
+      inline-size: calc(100% - 2 * var(--gutter));
+      max-inline-size: var(--container);
+      block-size: calc(var(--header-height) - 0.6rem);
+      padding-inline: var(--space-s) var(--space-xs);
+      border: var(--border-width) solid var(--tone-line);
+      border-radius: calc(var(--radius-card) + 0.5rem);
+      background: var(--tone-bg);
+      box-shadow: var(--shadow-raised);
+    }
+    .lk-header[data-look="transparent"] {
+      background-color: transparent;
+      border-block-end-color: transparent;
+    }
+    @supports (animation-timeline: scroll()) {
+      .lk-header[data-look="transparent"] {
+        background-color: var(--tone-bg);
+        border-block-end-color: var(--tone-line);
+        animation: lk-header-solid linear both;
+        animation-timeline: scroll(root);
+        animation-range: 0 8rem;
+      }
+    }
+
+    /* ---------------------------------------------------------------- link styles */
+    .lk-header[data-nav="underline"] .lk-header__nav a {
+      text-decoration: underline;
+      text-decoration-color: transparent;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.45em;
+    }
+    .lk-header[data-nav="underline"] .lk-header__nav a:hover {
+      text-decoration-color: var(--tone-accent);
+    }
+    .lk-header[data-nav="pill"] .lk-header__nav a {
+      border-radius: 999px;
+    }
+    .lk-header[data-nav="pill"] .lk-header__nav a:hover {
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      text-decoration: none;
+    }
+    .lk-header[data-nav="caps"] .lk-header__nav a {
+      font-size: max(var(--step--2), 0.75rem);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .lk-header[data-nav="caps"] .lk-header__nav a:lang(ar) {
+      font-size: var(--step--1);
+      letter-spacing: 0;
+    }
+
+    /* ---------------------------------------------------------------- layouts */
+    .lk-header[data-layout="centered"] .lk-header__bar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+    }
+    .lk-header[data-layout="centered"] .lk-header__home {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .lk-header[data-layout="centered"] .lk-header__nav {
+      grid-column: 1;
+      grid-row: 1;
+      margin: 0;
+    }
+    .lk-header[data-layout="centered"] .lk-header__actions {
+      grid-column: 3;
+      grid-row: 1;
+      justify-self: end;
+    }
+    .lk-header[data-layout="minimal"] .lk-header__nav {
+      display: none !important;
+    }
+    @media (min-width: 64rem) {
+      .lk-header[data-layout="start"] .lk-header__nav {
+        margin-inline-start: var(--space-l);
+      }
+      .lk-header[data-layout="start"] .lk-header__actions {
+        margin-inline-start: auto;
+      }
+      .lk-header[data-layout="stacked"] .lk-header__bar {
+        flex-wrap: wrap;
+        block-size: auto;
+        row-gap: 0;
+        padding-block-start: var(--space-2xs);
+      }
+      .lk-header[data-layout="stacked"] .lk-header__home {
+        min-block-size: calc(var(--header-height) - var(--space-2xs));
+      }
+      .lk-header[data-layout="stacked"] .lk-header__nav {
+        order: 3;
+        flex-basis: 100%;
+        margin: 0;
+        border-block-start: var(--border-width) solid var(--tone-line);
+      }
+      .lk-header[data-layout="stacked"] .lk-header__nav ul {
+        justify-content: center;
+      }
+      .lk-header[data-layout="minimal"] .lk-header__actions > .lk-header__menu {
+        display: grid;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .lk-header[data-mode="hide"] {
+        transition: none;
       }
     }
 

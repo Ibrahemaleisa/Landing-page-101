@@ -19,24 +19,22 @@ pnpm --dir sites/studio dev        # http://localhost:4324/   (English: /en/)
 
 The studio is not indexed (`noindex`). It is deployed on Vercel from `master` (project `landing-style-studio`, root `sites/studio`): https://landing-style-studio.vercel.app
 
-## العناصر · The elements
+## المكتبة · The library
 
-| العنصر · Element                    | الخيارات · Options                                                                                                                                                                                                             | تعديل دقيق · Fine-tune             |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------- |
-| النمط الجاهز · Ready-made style     | 14: استوديو بسيط، فخامة الليل، ساحلي، أتيليه، شروق، نيون، نجد، سوق، خام، سكينة، زهر، طرفية، مهرجان، معرض                                                                                                                       |                                    |
-| الألوان · Colours                   | 12 palettes, each with four tones (page, alternate band, contrasting band, accent band), all WCAG AA                                                                                                                           | Any button/link colour (picker)    |
-| الخطوط · Typography                 | 12 Latin + Arabic pairings (Inter/Plex, Space Grotesk/Readex, Fraunces/Naskh, Playfair/Amiri, DM Sans/Cairo, Outfit/Alexandria, Sora/Changa, Plex/Kufi, Bricolage/Messiri, Baloo/Tajawal, Fraunces/Amiri, JetBrains Mono/Kufi) | Heading weight                     |
-| حجم العناوين · Type scale           | Modest, balanced, dramatic, huge                                                                                                                                                                                               | Body text size, hero headline size |
-| الأزرار · Buttons                   | Soft, pill, square, all caps, monospace, big & bold, compact, rounded, headline font, wide caps pill                                                                                                                           | Roundness, height, text weight     |
-| الزوايا والحدود · Corners & borders | Sharp hairline, subtle, rounded, extra round, sharp bold lines, borderless, mixed                                                                                                                                              | Card & image roundness, border     |
-| الظلال · Shadows                    | Flat, soft, tinted, small offset, hard offset, deep offset                                                                                                                                                                     |                                    |
-| المسافات · Spacing                  | Compact, comfortable, airy                                                                                                                                                                                                     | Content width                      |
-| الحركة · Motion                     | None, calm, smooth, snappy, bouncy, cinematic, gentle fade, quick rise                                                                                                                                                         | Speed, reveal distance             |
-| قالب الواجهة · Hero template        | Full display, split with a figure, centred over product, statement only                                                                                                                                                        |                                    |
-| قالب الصفحة · Page template         | SaaS product, editorial company, marketplace, portfolio/studio, product launch, services agency, mobile app, event                                                                                                             |                                    |
+Five tabs. Every option is a card with a picture drawn from its real values and a one-line hint; every option is a real
+kit feature, so whatever is chosen can be built.
 
-Any combination works: every palette passes contrast in every tone, so mixing can't produce unreadable text. The panel
-shows the live contrast result anyway.
+| Tab · Element              | Options                                                                                                                                                                                                                                                                                                                |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **الشكل · Style**          | 30 ready-made designs (restaurant, clinic, boutique, fintech, academy, real estate, roastery, gym, kids, law firm, cloud, perfume, travel, agency…)                                                                                                                                                                    |
+| Colours                    | 36 palettes: 12 hand-made and 24 generated from a brand colour on six grounds (paper, cool, warm, tinted, dark, night); plus a colour picker for any colour                                                                                                                                                            |
+| Typography                 | 24 Latin + Arabic pairings                                                                                                                                                                                                                                                                                             |
+| Type scale, buttons, …     | 4 scales, 10 button shapes, 7 corner styles, 6 shadow styles, 3 densities, 8 motions, 4 hero templates, 8 page templates                                                                                                                                                                                               |
+| **المكوّنات · Components** | Button fill (6), button hover (6), heading alignment (2), eyebrow (4), title decoration (4), section dividers (6), background pattern (7) and where it shows (2), image treatment (6), icons (5), form fields (3)                                                                                                      |
+| **الموقع · Site**          | Opening screen (7), announcement bar (6), header layout (5), header look (6), header behaviour (3), menu links (4), footer layout (5), footer colour (4), floating WhatsApp (5); extras: announcement link and close button, back-to-top, phone contact bar, reading progress, footer social icons and contact details |
+
+Plus the fine-tuning sliders under each element, the section editor, and the content tab. Every palette, generated or
+not, passes WCAG AA in every tone; the tests also try every generator ground with eight extreme colours.
 
 ## التحكم · Controls
 

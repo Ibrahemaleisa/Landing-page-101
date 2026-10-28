@@ -28,7 +28,8 @@ const settle = (page: Page) =>
     Promise.all(
       document
         .getAnimations()
-        .filter((a) => a.timeline instanceof DocumentTimeline)
+        // a looping marquee never finishes
+        .filter((a) => a.timeline instanceof DocumentTimeline && a.effect?.getComputedTiming().endTime !== Infinity)
         .map((a) => a.finished),
     ),
   );
@@ -36,11 +37,15 @@ const settle = (page: Page) =>
 const previewFrame = (page: Page) => page.frameLocator("[data-frame]");
 /** Clicks the choice card for one option (the radio inside is visually hidden). */
 const choose = (page: Page, el: string, value: string) => page.locator(`label:has(> input[name="el-${el}"][value="${value}"])`).click();
+/** Opens an element's group (some start open). */
+const openGroup = (page: Page, el: string) => page.locator(`details[data-group="${el}"]`).evaluate((d: HTMLDetailsElement) => (d.open = true));
 const radio = (page: Page, el: string, value: string) => page.locator(`input[name="el-${el}"][value="${value}"]`);
 
 test.describe("studio shell", () => {
   for (const path of ["/", "/en/"]) {
     test(`axe ${path}, every tab`, async ({ page }) => {
+      // five tabs and ~250 choice cards: each scan is heavy
+      test.setTimeout(120_000);
       await page.goto(BASE + path, { waitUntil: "networkidle" });
       // open every element so its cards and sliders are audited too
       await page.locator("details.opt:not([open]) summary").evaluateAll((els) => els.forEach((e) => (e as HTMLElement).click()));
@@ -209,7 +214,7 @@ test.describe("studio projects and handoff", () => {
     await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
     await page.getByRole("tab", { name: "Content" }).click();
     await page.fill("#info-nameEn", "Sunbula");
-    await expect(previewFrame(page).locator(".rlogo__name").first()).toHaveText("Sunbula");
+    await expect(previewFrame(page).locator(".lk-header .rlogo__name").first()).toHaveText("Sunbula");
     await expect(previewFrame(page).locator("body")).not.toContainText("Rawaq");
     await expect(previewFrame(page).locator(".lk-header a[aria-label]").first()).not.toHaveAttribute("aria-label", /Rawaq/);
   });
@@ -218,7 +223,7 @@ test.describe("studio projects and handoff", () => {
     await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
     await page.getByRole("tab", { name: "Content" }).click();
     await page.setInputFiles('[data-upload="logo"]', { name: "logo.png", mimeType: "image/png", buffer: png(200, 30, 90) });
-    await expect(previewFrame(page).locator(".rlogo img.studio-img").first()).toBeVisible();
+    await expect(previewFrame(page).locator(".lk-header .rlogo img.studio-img").first()).toBeVisible();
     await page.click("[data-logo-color]");
     await expect(page.locator("[data-status]")).toContainText("#C81E5A");
     await expect
@@ -258,7 +263,7 @@ test.describe("studio projects and handoff", () => {
     await expect(lead).toHaveText(before);
 
     // clicking a link in edit mode edits it instead of following it
-    const link = previewFrame(page).locator("footer a[data-k]").first();
+    const link = previewFrame(page).locator(".lk-footer__group a[data-k]").first();
     await link.click();
     await expect(link).toHaveAttribute("contenteditable", /.+/);
     expect(page.url()).not.toContain("#");
@@ -317,7 +322,7 @@ test.describe("studio projects and handoff", () => {
     await expect(page.locator("[data-project] option")).toHaveCount(2);
 
     await page.reload({ waitUntil: "networkidle" });
-    await expect(page.locator("[data-project] option")).toHaveCount(2);
+    await expect(page.locator("[data-project] option")).toHaveText(["Bakery", "Project 1"]);
   });
 
   test("handoff: readiness, brief, project file round trip", async ({ page }) => {
@@ -345,13 +350,96 @@ test.describe("studio projects and handoff", () => {
     await expect(page.locator("[data-status]")).toContainText("Opened project");
     await expect(page.locator("[data-project] option")).toHaveCount(2);
     await expect(page.locator("#info-nameEn")).toHaveValue("Sunbula Kitchen");
-    await expect(previewFrame(page).locator(".rlogo img.studio-img").first()).toBeVisible();
+    await expect(previewFrame(page).locator(".lk-header .rlogo img.studio-img").first()).toBeVisible();
 
     // the full preview opens the project with its images
     const href = await page.locator("[data-open]").getAttribute("href");
     await page.goto(BASE + href!, { waitUntil: "networkidle" });
-    await expect(page.locator(".rlogo img.studio-img").first()).toBeVisible();
-    await expect(page.locator(".rlogo__name").first()).toHaveText("Sunbula Kitchen");
+    await expect(page.locator(".lk-header .rlogo img.studio-img").first()).toBeVisible();
+    await expect(page.locator(".lk-header .rlogo__name").first()).toHaveText("Sunbula Kitchen");
+  });
+});
+
+test.describe("studio site parts and component styles", () => {
+  test("component styles reach the preview as kit attributes", async ({ page }) => {
+    await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: "Components" }).click();
+    for (const [k, v, attr] of [
+      ["btnFill", "outline", "data-lk-btn"],
+      ["divider", "wave", "data-lk-divider"],
+      ["pattern", "grid", "data-lk-pattern"],
+      ["image", "duotone", "data-lk-image"],
+    ] as const) {
+      await openGroup(page, k);
+      await choose(page, k, v);
+      await expect(previewFrame(page).locator("html")).toHaveAttribute(attr, v);
+    }
+    // the outline button really is an outline
+    const btn = previewFrame(page).locator('[data-block="top"]:not([hidden]) .lk-btn[data-variant="primary"]').first();
+    await expect.poll(() => btn.evaluate((b) => getComputedStyle(b).backgroundColor)).toBe("rgba(0, 0, 0, 0)");
+  });
+
+  test("header, announcement, footer and floating buttons switch live", async ({ page }) => {
+    await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: "Site" }).click();
+    const f = previewFrame(page);
+    await expect(f.locator(".lk-announce")).toBeHidden();
+
+    await openGroup(page, "announce");
+    await choose(page, "announce", "marquee");
+    await expect(f.locator(".lk-announce")).toBeVisible();
+    await expect(f.locator(".lk-announce")).toHaveAttribute("data-motion", "marquee");
+
+    await openGroup(page, "headerLayout");
+    await choose(page, "headerLayout", "centered");
+    await expect(f.locator(".lk-header")).toHaveAttribute("data-layout", "centered");
+    await openGroup(page, "headerLook");
+    await choose(page, "headerLook", "dark");
+    await expect(f.locator(".lk-header")).toHaveAttribute("data-tone", "inverse");
+
+    await openGroup(page, "footerLayout");
+    await choose(page, "footerLayout", "brand");
+    await expect(f.locator(".lk-footer__wordmark")).toBeVisible();
+
+    await openGroup(page, "whatsapp");
+    await choose(page, "whatsapp", "pill-start");
+    await expect(f.locator(".lk-float__wa")).toBeVisible();
+    await expect(f.locator(".lk-float")).toHaveAttribute("data-side", "start");
+
+    // the client's number becomes the WhatsApp link
+    await page.getByRole("tab", { name: "Content" }).click();
+    await page.fill("#info-whatsapp", "+966 50 123 4567");
+    await expect(f.locator(".lk-float__wa")).toHaveAttribute("href", "https://wa.me/966501234567");
+
+    await page.getByRole("tab", { name: "Site" }).click();
+    await page.getByRole("switch", { name: /Reading progress line/ }).check();
+    await expect(f.locator('[data-part="progress"]')).not.toHaveAttribute("hidden", /.*/);
+    await page.getByRole("switch", { name: /Contact details in the footer/ }).check();
+    await expect(f.locator(".lk-footer__contact")).toBeVisible();
+
+    // random keeps the site parts
+    await page.getByRole("tab", { name: "Style" }).click();
+    await page.locator("[data-random]").click();
+    await expect(f.locator(".lk-header")).toHaveAttribute("data-layout", "centered");
+  });
+
+  test("the opening screen plays and leaves", async ({ page }) => {
+    await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: "Site" }).click();
+    await openGroup(page, "splash");
+    await choose(page, "splash", "curtain");
+    const splash = previewFrame(page).locator(".lk-splash");
+    await expect(splash).toHaveAttribute("data-look", "curtain");
+    await expect(splash).toBeHidden({ timeout: 5000 });
+  });
+
+  test("site parts are in the brief", async ({ page }) => {
+    await page.goto(BASE + "/en/", { waitUntil: "networkidle" });
+    await page.locator('label.preset:has(input[value="festival"])').click();
+    await page.getByRole("link", { name: "Build: prepare the order" }).click();
+    await expect(page.locator("[data-prompt]")).toContainText('<AnnouncementBar look="brand" motion="marquee"', { timeout: 20_000 });
+    await expect(page.locator("[data-prompt]")).toContainText("#### شريط الإعلان");
+    await expect(page.locator("[data-prompt]")).toContainText('button: "gradient"');
   });
 });
 

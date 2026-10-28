@@ -35,9 +35,14 @@ function run<T>(store: "projects" | "assets", mode: IDBTransactionMode, fn: (s: 
       new Promise<T | undefined>((resolve) => {
         if (!db) return resolve(undefined);
         try {
-          const req = fn(db.transaction(store, mode).objectStore(store));
-          req.onsuccess = () => resolve(req.result as T);
-          req.onerror = () => resolve(undefined);
+          // resolve on commit, not on request success: a page closed right after an uncommitted
+          // write loses it (a deleted project would come back after a reload)
+          const tx = db.transaction(store, mode);
+          const req = fn(tx.objectStore(store));
+          let result: T | undefined;
+          req.onsuccess = () => (result = req.result as T);
+          tx.oncomplete = () => resolve(result);
+          tx.onerror = tx.onabort = () => resolve(undefined);
         } catch {
           resolve(undefined);
         }

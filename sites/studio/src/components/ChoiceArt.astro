@@ -148,4 +148,122 @@ const still = element === "motion" && find(MOTIONS).value.reveal === "none";
       ))}
     </span>
   )}
+  {/* component styles */}
+  {(element === "btnFill" || element === "btnHover") && (
+    <span class="art__btn2" data-fill={element === "btnFill" ? id : "solid"} data-hover={element === "btnHover" ? id : undefined}>
+      {ar ? "ابدأ" : "Start"} <span aria-hidden="true">{ar ? "←" : "→"}</span>
+    </span>
+  )}
+  {element === "headAlign" && (
+    <span class="art__head" data-align={id}>
+      <span class="a-eb" />
+      <span class="a-t" />
+      <span class="a-l" />
+    </span>
+  )}
+  {element === "eyebrow" && (
+    <span class="art__head" data-eb={id}>
+      <span class="art__eb">{ar ? "المزايا" : "FEATURES"}</span>
+      <span class="a-t" />
+    </span>
+  )}
+  {element === "titleMark" && (
+    <span class="art__title" data-mark={id}>
+      {ar ? "عنوان" : "Title"}
+    </span>
+  )}
+  {element === "divider" && (
+    <span class="art__div" data-div={id}>
+      <span />
+    </span>
+  )}
+  {element === "pattern" && <span class="art__pat" data-pat={id} />}
+  {element === "patternScope" && (
+    <span class="art__mini" data-scope={id}>
+      <span class="m-top" />
+      <span class="m-rest" />
+    </span>
+  )}
+  {element === "image" && (
+    <span class="art__img" data-img={id}>
+      <span />
+    </span>
+  )}
+  {element === "icon" && (
+    <span class="art__ico" data-ico={id}>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
+      </svg>
+    </span>
+  )}
+  {element === "input" && (
+    <span class="art__input" data-in={id}>
+      <span>{ar ? "الاسم" : "Name"}</span>
+    </span>
+  )}
+  {/* site parts */}
+  {element === "splash" && (
+    <span class="art__screen" data-splash={id}>
+      <span class="s-logo" />
+      {id === "line" && <span class="s-line" />}
+    </span>
+  )}
+  {element === "announce" && (
+    <span class="art__mini" data-announce={id}>
+      <span class="m-strip">{id === "marquee" && <span class="m-dash" />}</span>
+      <span class="m-header" />
+      <span class="m-rest" />
+    </span>
+  )}
+  {element === "headerLayout" && (
+    <span class="art__hdr" data-hl={id}>
+      <span class="h-logo" />
+      <span class="h-nav">
+        <span />
+        <span />
+        <span />
+      </span>
+      <span class="h-btn" />
+      <span class="h-menu" />
+    </span>
+  )}
+  {element === "headerLook" && (
+    <span class="art__mini" data-look={id}>
+      <span class="m-header" data-tone={id === "dark" ? "inverse" : undefined} />
+      <span class="m-rest" />
+    </span>
+  )}
+  {element === "headerBehavior" && (
+    <span class="art__mini" data-behavior={id}>
+      <span class="m-header" />
+      <span class="m-rest" />
+      <span class="m-scroll" />
+    </span>
+  )}
+  {element === "navStyle" && (
+    <span class="art__nav" data-nav={id}>
+      <span>{ar ? "من" : "About"}</span>
+      <span class="is-on">{ar ? "خدمات" : "Work"}</span>
+    </span>
+  )}
+  {element === "footerLayout" && (
+    <span class="art__ftr" data-fl={id}>
+      <span class="f-big" />
+      <span class="f-logo" />
+      <span class="f-cols">
+        <span />
+        <span />
+        <span />
+      </span>
+      <span class="f-base" />
+    </span>
+  )}
+  {element === "footerTone" && <span class="art__tone" data-tone={id} />}
+  {element === "whatsapp" && (
+    <span class="art__mini" data-wa={id}>
+      <span class="m-header" />
+      <span class="m-rest" />
+      {id !== "none" && <span class="m-wa" />}
+    </span>
+  )}
 </span>

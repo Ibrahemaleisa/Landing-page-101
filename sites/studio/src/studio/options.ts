@@ -193,6 +193,165 @@ export const TYPOGRAPHY: Option<TypeChoice>[] = [
       arLeading: { display: 1.4, heading: 1.45, body: 1.8 },
     },
   },
+  {
+    id: "modern-serif",
+    hint: { ar: "عناوين كلاسيكية فوق نص عصري نظيف", en: "Classic headlines over clean modern text" },
+    label: { ar: "سيريف حديث — Playfair + Inter", en: "Modern serif — Playfair + Inter" },
+    value: {
+      latin: { display: "playfair", body: "inter" },
+      arabic: { display: "amiri", body: "plex-ar" },
+      display: { weight: 600, leading: 1.04, tracking: "-0.02em" },
+      heading: { weight: 600, leading: 1.14, tracking: "-0.01em" },
+      label: { weight: 600, leading: 1.3, tracking: "0.1em", transform: "uppercase", step: -2 },
+      arLeading: { display: 1.5, heading: 1.55, body: 1.8 },
+      generic: "serif",
+    },
+  },
+  {
+    id: "rounded",
+    hint: { ar: "حروف مستديرة ولطيفة وقريبة من القلب", en: "Soft, rounded, warm letters" },
+    label: { ar: "دائري — Baloo + DM Sans", en: "Rounded — Baloo + DM Sans" },
+    value: {
+      latin: { display: "baloo-latin", body: "dm-sans" },
+      arabic: { display: "baloo-ar", body: "cairo" },
+      display: { weight: 700, leading: 1.04, tracking: "-0.02em" },
+      heading: { weight: 650, leading: 1.14, tracking: "-0.01em" },
+      label: { weight: 600, leading: 1.3, step: -1 },
+      arLeading: { display: 1.4, heading: 1.45, body: 1.8 },
+    },
+  },
+  {
+    id: "swiss",
+    hint: { ar: "عناوين ثقيلة جداً ومتراصة، طابع تصميم سويسري", en: "Very heavy, tight headlines; a Swiss design feel" },
+    label: { ar: "سويسري — Inter عريض + كوفي", en: "Swiss — heavy Inter + Kufi" },
+    value: {
+      latin: { display: "inter", body: "inter" },
+      arabic: { display: "kufi", body: "plex-ar" },
+      display: { weight: 800, leading: 0.98, tracking: "-0.05em" },
+      heading: { weight: 750, leading: 1.08, tracking: "-0.03em" },
+      label: { weight: 600, leading: 1.3, tracking: "0.1em", transform: "uppercase", step: -2 },
+      arLeading: { display: 1.4, heading: 1.45, body: 1.8 },
+    },
+  },
+  {
+    id: "magazine",
+    hint: { ar: "مزيج مجلات فاخرة بخط نسخ عربي", en: "Upmarket magazine mix with an Arabic Naskh" },
+    label: { ar: "مجلة — Fraunces + Manrope", en: "Magazine — Fraunces + Manrope" },
+    value: {
+      latin: { display: "fraunces", body: "manrope" },
+      arabic: { display: "naskh", body: "tajawal" },
+      display: { weight: 400, leading: 1.0, tracking: "-0.03em" },
+      heading: { weight: 500, leading: 1.12, tracking: "-0.015em" },
+      label: { weight: 600, leading: 1.3, tracking: "0.1em", transform: "uppercase", step: -2 },
+      arLeading: { display: 1.45, heading: 1.5, body: 1.85 },
+      generic: "serif",
+    },
+  },
+  {
+    id: "startup",
+    hint: { ar: "واضح وعصري، مناسب للشركات الناشئة", en: "Clear and current; made for start-ups" },
+    label: { ar: "ناشئ — Outfit + Inter", en: "Start-up — Outfit + Inter" },
+    value: {
+      latin: { display: "outfit", body: "inter" },
+      arabic: { display: "readex", body: "plex-ar" },
+      display: { weight: 650, leading: 1.02, tracking: "-0.035em" },
+      heading: { weight: 600, leading: 1.12, tracking: "-0.02em" },
+      label: { weight: 600, leading: 1.3, step: -1 },
+      arLeading: { display: 1.3, heading: 1.4, body: 1.8 },
+    },
+  },
+  {
+    id: "bold-grotesk",
+    hint: { ar: "عناوين عريضة بشخصية قوية فوق نص هادئ", en: "Wide headlines with character over calm text" },
+    label: { ar: "جروتسك جريء — Bricolage + Inter", en: "Bold grotesk — Bricolage + Inter" },
+    value: {
+      latin: { display: "bricolage", body: "inter" },
+      arabic: { display: "changa", body: "cairo" },
+      display: { weight: 800, leading: 0.96, tracking: "-0.045em" },
+      heading: { weight: 700, leading: 1.08, tracking: "-0.025em" },
+      label: { weight: 600, leading: 1.3, step: -1 },
+      arLeading: { display: 1.3, heading: 1.4, body: 1.8 },
+    },
+  },
+  {
+    id: "elegant",
+    hint: { ar: "خفيف ورشيق ومتباعد قليلاً", en: "Light, graceful and airy" },
+    label: { ar: "أنيق — Manrope + تجوال", en: "Elegant — Manrope + Tajawal" },
+    value: {
+      latin: { display: "manrope", body: "manrope" },
+      arabic: { display: "tajawal", body: "tajawal" },
+      display: { weight: 500, leading: 1.06, tracking: "-0.02em" },
+      heading: { weight: 600, leading: 1.16, tracking: "-0.01em" },
+      label: { weight: 600, leading: 1.3, tracking: "0.1em", transform: "uppercase", step: -2 },
+      arLeading: { display: 1.4, heading: 1.45, body: 1.85 },
+    },
+  },
+  {
+    id: "tech-mono",
+    hint: { ar: "عناوين تقنية مع تفاصيل بخط برمجي", en: "Technical headlines with code-font details" },
+    label: { ar: "تقني برمجي — Space Grotesk + Mono", en: "Tech mono — Space Grotesk + Mono" },
+    value: {
+      latin: { display: "space-grotesk", body: "inter", mono: "jetbrains" },
+      arabic: { display: "kufi", body: "plex-ar" },
+      display: { weight: 600, leading: 1.0, tracking: "-0.04em" },
+      heading: { weight: 600, leading: 1.1, tracking: "-0.02em" },
+      label: { weight: 500, leading: 1.3, tracking: "0.05em", transform: "uppercase", family: "mono", step: -2 },
+      arLeading: { display: 1.4, heading: 1.45, body: 1.8 },
+    },
+  },
+  {
+    id: "soft",
+    hint: { ar: "هادئ وواضح، مريح للقراءة", en: "Calm and clear; easy to read" },
+    label: { ar: "ناعم — Sora + DM Sans", en: "Soft — Sora + DM Sans" },
+    value: {
+      latin: { display: "sora", body: "dm-sans" },
+      arabic: { display: "alexandria", body: "tajawal" },
+      display: { weight: 600, leading: 1.04, tracking: "-0.03em" },
+      heading: { weight: 600, leading: 1.14, tracking: "-0.015em" },
+      label: { weight: 600, leading: 1.3, step: -1 },
+      arLeading: { display: 1.35, heading: 1.45, body: 1.85 },
+    },
+  },
+  {
+    id: "heritage",
+    hint: { ar: "طابع عريق يناسب المطاعم والتراث والعطور", en: "A time-honoured feel for restaurants, heritage and perfume" },
+    label: { ar: "تراثي — Playfair + المسيري", en: "Heritage — Playfair + Messiri" },
+    value: {
+      latin: { display: "playfair", body: "plex-sans" },
+      arabic: { display: "messiri", body: "naskh" },
+      display: { weight: 700, leading: 1.04, tracking: "-0.015em" },
+      heading: { weight: 600, leading: 1.14, tracking: "0" },
+      label: { weight: 600, leading: 1.3, tracking: "0.1em", transform: "uppercase", step: -2 },
+      arLeading: { display: 1.45, heading: 1.5, body: 1.85 },
+      generic: "serif",
+    },
+  },
+  {
+    id: "corporate-clean",
+    hint: { ar: "رسمي بسيط بخط واحد متناسق", en: "Simple and formal with one consistent family" },
+    label: { ar: "مؤسسي نظيف — Plex + Inter", en: "Clean corporate — Plex + Inter" },
+    value: {
+      latin: { display: "plex-sans", body: "inter" },
+      arabic: { display: "plex-ar", body: "plex-ar" },
+      display: { weight: 600, leading: 1.08, tracking: "-0.02em" },
+      heading: { weight: 600, leading: 1.18, tracking: "-0.01em" },
+      label: { weight: 600, leading: 1.3, step: -1 },
+      arLeading: { display: 1.4, heading: 1.5, body: 1.8 },
+    },
+  },
+  {
+    id: "fun",
+    hint: { ar: "حروف مرحة في كل مكان، للأطفال والألعاب", en: "Playful letters everywhere; for kids and games" },
+    label: { ar: "مرح جداً — Baloo كامل", en: "Fun — Baloo throughout" },
+    value: {
+      latin: { display: "baloo-latin", body: "baloo-latin" },
+      arabic: { display: "baloo-ar", body: "baloo-ar" },
+      display: { weight: 800, leading: 1.0, tracking: "-0.02em" },
+      heading: { weight: 700, leading: 1.1, tracking: "-0.01em" },
+      label: { weight: 600, leading: 1.3, step: -1 },
+      arLeading: { display: 1.35, heading: 1.45, body: 1.75 },
+    },
+  },
 ];
 
 // ----------------------------------------------------------------------------------- scale
@@ -593,6 +752,174 @@ export const PAGES: Option<Block[]>[] = [
   },
 ];
 
+// ----------------------------------------------------------------------------------- components
+
+type C = NonNullable<BrandConfig["components"]>;
+const opt = <T>(id: string, ar: string, en: string, har: string, hen: string, value: T): Option<T> => ({
+  id,
+  label: { ar, en },
+  hint: { ar: har, en: hen },
+  value,
+});
+
+export const BTN_FILLS: Option<C["button"]>[] = [
+  opt("solid", "مصمت", "Solid", "زر بلون العلامة كاملاً", "A button filled with the brand colour", "solid"),
+  opt("outline", "إطار", "Outline", "إطار ملوّن بدون تعبئة، يمتلئ عند المرور", "A coloured outline that fills on hover", "outline"),
+  opt("soft", "ناعم", "Soft", "تعبئة خفيفة من لون العلامة", "A light tint of the brand colour", "soft"),
+  opt("gradient", "تدرّج", "Gradient", "تدرّج بين درجتين من لون العلامة", "A gradient between two brand shades", "gradient"),
+  opt("raised", "بارز", "Raised", "زر ثلاثي الأبعاد له قاعدة، ينضغط عند الضغط", "A 3D button with a base that presses in", "raised"),
+  opt("glow", "متوهج", "Glow", "هالة ملونة ناعمة حول الزر", "A soft coloured glow around the button", "glow"),
+];
+
+export const BTN_HOVERS: Option<C["hover"]>[] = [
+  opt("default", "يغمق", "Darken", "يغمق اللون قليلاً عند المرور", "Darkens slightly on hover", "default"),
+  opt("lift", "يرتفع", "Lift", "يرتفع الزر قليلاً مع ظل", "Lifts up a little with a shadow", "lift"),
+  opt("grow", "يكبر", "Grow", "يكبر الزر قليلاً", "Grows slightly", "grow"),
+  opt("shine", "لمعة", "Shine", "لمعة ضوء تمر على الزر", "A glint of light sweeps across", "shine"),
+  opt("arrow", "سهم يتحرك", "Arrow nudge", "السهم داخل الزر يتقدم للأمام", "The arrow inside moves forward", "arrow"),
+  opt("none", "ثابت", "Still", "لا يتغير شيء عند المرور", "Nothing changes on hover", "none"),
+];
+
+export const HEADING_ALIGNS: Option<C["headingAlign"]>[] = [
+  opt("start", "من البداية", "Start", "العناوين تبدأ من طرف الصفحة", "Headings start at the edge", "start"),
+  opt("center", "في المنتصف", "Centred", "العناوين في منتصف الصفحة", "Headings sit in the centre", "center"),
+];
+
+export const EYEBROWS: Option<C["eyebrow"]>[] = [
+  opt("text", "نص صغير", "Text", "عنوان صغير بسيط فوق العنوان", "A simple small label above the heading", "text"),
+  opt("pill", "كبسولة", "Pill", "العنوان الصغير داخل كبسولة", "The label inside a pill", "pill"),
+  opt("line", "خط قبله", "Line", "خط ملون قبل العنوان الصغير", "A coloured line before the label", "line"),
+  opt("dot", "نقطة قبله", "Dot", "نقطة ملونة قبل العنوان الصغير", "A coloured dot before the label", "dot"),
+];
+
+export const TITLE_MARKS: Option<C["titleMark"]>[] = [
+  opt("none", "بدون", "None", "العنوان كما هو", "The title as it is", "none"),
+  opt("bar", "شرطة ملونة", "Accent bar", "شرطة قصيرة بلون العلامة فوق العنوان", "A short brand-coloured bar above the title", "bar"),
+  opt("underline", "خط تحته", "Underline", "خط بلون العلامة تحت العنوان", "A brand-coloured line under the title", "underline"),
+  opt("accent", "عنوان ملوّن", "Coloured title", "العنوان كله بلون العلامة", "The whole title in the brand colour", "accent"),
+];
+
+export const DIVIDERS: Option<C["divider"]>[] = [
+  opt("none", "بدون", "None", "الأقسام تلتقي بحافة مستقيمة", "Sections meet at a straight edge", "none"),
+  opt("line", "خط رفيع", "Hairline", "خط رفيع بين كل قسمين", "A hairline between sections", "line"),
+  opt("wave", "موجة", "Wave", "حافة متموجة بين الأقسام الملونة", "A wavy edge between coloured sections", "wave"),
+  opt("slant", "مائل", "Slant", "حافة مائلة بزاوية", "An angled edge", "slant"),
+  opt("curve", "منحنى", "Curve", "حافة مقوسة ناعمة", "A soft curved edge", "curve"),
+  opt("zigzag", "متعرج", "Zigzag", "حافة مسننة مرحة", "A playful zigzag edge", "zigzag"),
+];
+
+export const PATTERNS: Option<C["pattern"]>[] = [
+  opt("none", "بدون", "None", "خلفية سادة", "A plain background", "none"),
+  opt("dots", "نقاط", "Dots", "شبكة نقاط خفيفة", "A light dot grid", "dots"),
+  opt("grid", "مربعات", "Grid", "خطوط مربعات كورق الرسم", "Graph-paper lines", "grid"),
+  opt("lines", "خطوط مائلة", "Diagonal lines", "خطوط مائلة رفيعة", "Thin diagonal lines", "lines"),
+  opt("grain", "حبيبات", "Grain", "ملمس حبيبي كالورق المطبوع", "A printed-paper grain", "grain"),
+  opt("glow", "توهج", "Glow", "بقع ضوء ناعمة بلون العلامة", "Soft pools of brand-coloured light", "glow"),
+  opt("rings", "حلقات", "Rings", "دوائر متتالية من الزاوية", "Concentric rings from a corner", "rings"),
+];
+
+export const PATTERN_SCOPES: Option<C["patternScope"]>[] = [
+  opt("hero", "الواجهة فقط", "Hero only", "النقش يظهر في أول الصفحة فقط", "The pattern shows at the top only", "hero"),
+  opt("page", "كل الصفحة", "Whole page", "النقش يظهر خلف كل الأقسام", "The pattern shows behind every section", "page"),
+];
+
+export const IMAGES: Option<C["image"]>[] = [
+  opt("natural", "طبيعية", "Natural", "الصور كما هي", "Images as they are", "natural"),
+  opt("rounded", "زوايا مستديرة", "Rounded", "صور بزوايا مستديرة كبيرة", "Images with large rounded corners", "rounded"),
+  opt("framed", "بإطار", "Framed", "إطار رفيع حول كل صورة كالبرواز", "A thin frame around each image", "framed"),
+  opt("offset", "ظل ملون", "Offset", "ظل مصمت بلون العلامة خلف الصورة", "A solid brand-coloured shadow behind", "offset"),
+  opt("grayscale", "أبيض وأسود", "Black & white", "كل الصور بالأبيض والأسود", "Every image in black and white", "grayscale"),
+  opt("duotone", "لون العلامة", "Duotone", "الصور ملوّنة بلون العلامة", "Images tinted with the brand colour", "duotone"),
+];
+
+export const ICON_STYLES: Option<C["icon"]>[] = [
+  opt("filled", "مربع ملوّن", "Filled", "أيقونة بيضاء داخل مربع بلون العلامة", "A light icon in a brand-coloured square", "filled"),
+  opt("soft", "مربع فاتح", "Soft", "أيقونة داخل مربع فاتح", "An icon in a light tinted square", "soft"),
+  opt("circle", "دائرة ملوّنة", "Circle", "أيقونة داخل دائرة بلون العلامة", "An icon in a brand-coloured circle", "circle"),
+  opt("ring", "حلقة", "Ring", "أيقونة داخل حلقة ملوّنة", "An icon inside a coloured ring", "ring"),
+  opt("plain", "بدون خلفية", "Plain", "أيقونة ملوّنة فقط بدون خلفية", "Just the coloured icon", "plain"),
+];
+
+export const INPUTS: Option<C["input"]>[] = [
+  opt("outlined", "بإطار", "Outlined", "حقول الكتابة بإطار كامل", "Fields with a full outline", "outlined"),
+  opt("filled", "معبأة", "Filled", "حقول بخلفية رمادية وخط سفلي", "Tinted fields with a bottom line", "filled"),
+  opt("underline", "خط سفلي", "Underline", "حقول بخط سفلي فقط، بسيطة جداً", "Just a bottom line; very minimal", "underline"),
+];
+
+// ----------------------------------------------------------------------------------- site parts
+
+export const SPLASHES: Option<"none" | "fade" | "zoom" | "curtain" | "line" | "reveal" | "pulse">[] = [
+  opt("none", "بدون", "None", "الصفحة تظهر مباشرة", "The page shows straight away", "none"),
+  opt("fade", "ظهور هادئ", "Fade", "الشعار يظهر بهدوء ثم تختفي الشاشة", "The logo fades in, then the screen fades away", "fade"),
+  opt("zoom", "تقريب", "Zoom", "الشعار يقترب ثم تتلاشى الشاشة", "The logo zooms in, then the screen dissolves", "zoom"),
+  opt("curtain", "ستارة", "Curtain", "الشاشة ترتفع للأعلى كالستارة", "The screen lifts away like a curtain", "curtain"),
+  opt("line", "خط تحميل", "Loading line", "خط يمتلئ تحت الشعار", "A line fills under the logo", "line"),
+  opt("reveal", "دائرة", "Circle reveal", "الشاشة تنكمش في دائرة وتكشف الصفحة", "The screen shrinks into a circle to reveal the page", "reveal"),
+  opt("pulse", "نبض", "Pulse", "الشعار ينبض مرتين", "The logo pulses twice", "pulse"),
+];
+
+export const ANNOUNCES: Option<"none" | "brand" | "inverse" | "muted" | "highlight" | "marquee">[] = [
+  opt("none", "بدون", "None", "لا يوجد شريط إعلان", "No announcement bar", "none"),
+  opt("brand", "لون العلامة", "Brand", "شريط بلون العلامة فوق الهيدر", "A brand-coloured strip above the header", "brand"),
+  opt("inverse", "داكن", "Dark", "شريط داكن هادئ", "A calm dark strip", "inverse"),
+  opt("muted", "هادئ", "Subtle", "شريط فاتح بالكاد يلاحظ", "A light, understated strip", "muted"),
+  opt("highlight", "لافت", "Highlight", "شريط بلون التمييز، للعروض", "A highlight-coloured strip, for offers", "highlight"),
+  opt("marquee", "متحرك", "Scrolling", "النص يتحرك أفقياً بلا توقف", "The message scrolls sideways", "marquee"),
+];
+
+export const HEADER_LAYOUTS: Option<"standard" | "start" | "centered" | "stacked" | "minimal">[] = [
+  opt("standard", "قياسي", "Standard", "الشعار في البداية والقائمة في النهاية", "Logo at the start, menu at the end", "standard"),
+  opt("start", "القائمة بجانب الشعار", "Menu by logo", "القائمة بجانب الشعار والزر في النهاية", "Menu next to the logo, button at the end", "start"),
+  opt("centered", "الشعار في المنتصف", "Centred logo", "الشعار في المنتصف والقائمة على الجانب", "Logo in the middle, menu to the side", "centered"),
+  opt("stacked", "سطرين", "Two rows", "الشعار في سطر والقائمة في سطر تحته", "Logo on one row, menu on the next", "stacked"),
+  opt("minimal", "زر قائمة فقط", "Menu button", "شعار وزر قائمة فقط حتى على الكمبيوتر", "Just a logo and a menu button, even on desktop", "minimal"),
+];
+
+export const HEADER_LOOKS: Option<"solid" | "clean" | "glass" | "floating" | "transparent" | "dark">[] = [
+  opt("solid", "مصمت بخط", "Solid", "خلفية مصمتة وخط رفيع تحتها", "A solid ground with a hairline below", "solid"),
+  opt("clean", "نظيف", "Clean", "خلفية مصمتة بدون خط", "A solid ground, no line", "clean"),
+  opt("glass", "زجاجي", "Glass", "شفاف ضبابي يظهر ما خلفه", "Frosted glass that blurs what's behind", "glass"),
+  opt("floating", "عائم", "Floating", "شريط مستدير عائم بعيداً عن الأطراف", "A rounded bar floating off the edges", "floating"),
+  opt("transparent", "شفاف", "Transparent", "بلا خلفية حتى تبدأ بالتمرير", "No ground until you scroll", "transparent"),
+  opt("dark", "داكن", "Dark", "هيدر داكن فوق صفحة فاتحة", "A dark header over a light page", "dark"),
+];
+
+export const HEADER_BEHAVIORS: Option<"sticky" | "static" | "hide">[] = [
+  opt("sticky", "ثابت في الأعلى", "Sticky", "يبقى ظاهراً أعلى الشاشة دائماً", "Always stays at the top", "sticky"),
+  opt("hide", "يختفي ويظهر", "Hide on scroll", "يختفي عند النزول ويظهر عند الصعود", "Hides scrolling down, returns scrolling up", "hide"),
+  opt("static", "يتحرك مع الصفحة", "Static", "يختفي مع التمرير مثل باقي الصفحة", "Scrolls away with the page", "static"),
+];
+
+export const NAV_STYLES: Option<"plain" | "underline" | "pill" | "caps">[] = [
+  opt("plain", "بسيطة", "Plain", "روابط عادية", "Plain links", "plain"),
+  opt("underline", "خط ملون", "Underline", "خط بلون العلامة عند المرور", "A brand-coloured line on hover", "underline"),
+  opt("pill", "كبسولة", "Pill", "خلفية كبسولة عند المرور", "A pill background on hover", "pill"),
+  opt("caps", "حروف كبيرة", "Caps", "روابط صغيرة بحروف كبيرة (للإنجليزي)", "Small capitals (for Latin text)", "caps"),
+];
+
+export const FOOTER_LAYOUTS: Option<"columns" | "simple" | "brand" | "centered" | "minimal">[] = [
+  opt("columns", "أعمدة", "Columns", "الشعار بجانب أعمدة الروابط", "Logo beside columns of links", "columns"),
+  opt("simple", "سطر واحد", "Simple", "الشعار والروابط في سطر واحد", "Logo and links in one row", "simple"),
+  opt("brand", "اسم ضخم", "Big name", "اسم النشاط بخط ضخم أعلى الفوتر", "The business name, huge, at the top", "brand"),
+  opt("centered", "في المنتصف", "Centred", "كل شيء في منتصف الصفحة", "Everything on the centre line", "centered"),
+  opt("minimal", "مختصر", "Minimal", "الشعار والحسابات وحقوق النشر فقط", "Logo, social links and the legal line only", "minimal"),
+];
+
+export const FOOTER_TONES: Option<Block[2]>[] = [
+  opt("base", "مثل الصفحة", "Like the page", "نفس خلفية الصفحة", "The same ground as the page", "base"),
+  opt("muted", "هادئ", "Muted", "خلفية أهدأ قليلاً", "A slightly quieter ground", "muted"),
+  opt("inverse", "داكن", "Inverse", "خلفية معاكسة (داكنة على صفحة فاتحة)", "The opposite ground (dark on a light page)", "inverse"),
+  opt("brand", "لون العلامة", "Brand", "خلفية بلون العلامة", "The brand colour", "brand"),
+];
+
+export const WHATSAPPS: Option<"none" | "circle-end" | "circle-start" | "pill-end" | "pill-start">[] = [
+  opt("none", "بدون", "None", "لا يوجد زر واتساب عائم", "No floating WhatsApp button", "none"),
+  opt("circle-end", "دائرة · النهاية", "Circle · end", "زر دائري في زاوية النهاية", "A round button in the end corner", "circle-end"),
+  opt("circle-start", "دائرة · البداية", "Circle · start", "زر دائري في زاوية البداية", "A round button in the start corner", "circle-start"),
+  opt("pill-end", "مع نص · النهاية", "Labelled · end", "زر بنص «تواصل معنا» في زاوية النهاية", "A labelled button in the end corner", "pill-end"),
+  opt("pill-start", "مع نص · البداية", "Labelled · start", "زر بنص في زاوية البداية", "A labelled button in the start corner", "pill-start"),
+];
+
 /** Every section the preview can show, its variants, and the kit component that renders it (for the build brief). */
 export const BLOCKS: Record<string, { label: L; component: string; variants: Record<string, L> }> = {
   statement: { label: { ar: "عبارة تعريفية", en: "Statement" }, component: "Statement", variants: { start: { ar: "عادية", en: "Standard" } } },
@@ -663,13 +990,36 @@ export const ELEMENTS = {
   motion: MOTIONS,
   hero: HEROES,
   page: PAGES,
+  btnFill: BTN_FILLS,
+  btnHover: BTN_HOVERS,
+  headAlign: HEADING_ALIGNS,
+  eyebrow: EYEBROWS,
+  titleMark: TITLE_MARKS,
+  divider: DIVIDERS,
+  pattern: PATTERNS,
+  patternScope: PATTERN_SCOPES,
+  image: IMAGES,
+  icon: ICON_STYLES,
+  input: INPUTS,
+  splash: SPLASHES,
+  announce: ANNOUNCES,
+  headerLayout: HEADER_LAYOUTS,
+  headerLook: HEADER_LOOKS,
+  headerBehavior: HEADER_BEHAVIORS,
+  navStyle: NAV_STYLES,
+  footerLayout: FOOTER_LAYOUTS,
+  footerTone: FOOTER_TONES,
+  whatsapp: WHATSAPPS,
 } as const;
 
 export type ElementKey = keyof typeof ELEMENTS;
 export type Selection = Record<ElementKey, string>;
 
+/** Where an element's cards live in the studio. */
+export type ElementTab = "style" | "components" | "site";
+
 /** Each element's name and one plain sentence saying what it changes, for people who don't speak design. */
-export const ELEMENT_INFO: Record<ElementKey, { label: L; hint: L }> = {
+export const ELEMENT_INFO: Record<ElementKey, { label: L; hint: L; tab?: ElementTab }> = {
   palette: {
     label: { ar: "الألوان", en: "Colours" },
     hint: { ar: "ألوان الخلفيات والنصوص والأزرار في الصفحة كلها", en: "The colours of backgrounds, text and buttons across the page" },
@@ -709,6 +1059,106 @@ export const ELEMENT_INFO: Record<ElementKey, { label: L; hint: L }> = {
   page: {
     label: { ar: "قالب الصفحة", en: "Page template" },
     hint: { ar: "الأقسام التي تظهر في الصفحة وترتيبها حسب نوع مشروعك", en: "Which sections the page has, and their order, for your kind of project" },
+  },
+  btnFill: {
+    tab: "components",
+    label: { ar: "تعبئة الأزرار", en: "Button fill" },
+    hint: { ar: "شكل الزر الرئيسي: مصمت أو إطار أو تدرّج…", en: "The main button's look: solid, outline, gradient…" },
+  },
+  btnHover: {
+    tab: "components",
+    label: { ar: "حركة الأزرار", en: "Button hover" },
+    hint: { ar: "ماذا يحدث للزر عندما يمر عليه المؤشر", en: "What a button does when the pointer is over it" },
+  },
+  headAlign: {
+    tab: "components",
+    label: { ar: "محاذاة العناوين", en: "Heading alignment" },
+    hint: { ar: "هل عناوين الأقسام في البداية أم في المنتصف", en: "Whether section headings start at the edge or sit in the centre" },
+  },
+  eyebrow: {
+    tab: "components",
+    label: { ar: "العنوان الصغير", en: "Eyebrow" },
+    hint: { ar: "شكل الكلمة الصغيرة فوق كل عنوان قسم", en: "The small word above each section heading" },
+  },
+  titleMark: {
+    tab: "components",
+    label: { ar: "زخرفة العناوين", en: "Title decoration" },
+    hint: { ar: "لمسة بلون العلامة على عناوين الأقسام", en: "A brand-coloured touch on section titles" },
+  },
+  divider: {
+    tab: "components",
+    label: { ar: "الفواصل بين الأقسام", en: "Section dividers" },
+    hint: { ar: "شكل الحافة حيث يلتقي قسمان بلونين مختلفين", en: "The edge where two differently coloured sections meet" },
+  },
+  pattern: {
+    tab: "components",
+    label: { ar: "نقش الخلفية", en: "Background pattern" },
+    hint: { ar: "نقش خفيف خلف المحتوى يعطي الصفحة ملمساً", en: "A light pattern behind the content that gives the page texture" },
+  },
+  patternScope: {
+    tab: "components",
+    label: { ar: "مكان النقش", en: "Pattern area" },
+    hint: { ar: "أين يظهر نقش الخلفية", en: "Where the background pattern shows" },
+  },
+  image: {
+    tab: "components",
+    label: { ar: "معالجة الصور", en: "Image treatment" },
+    hint: { ar: "كيف تظهر الصور: إطار، زوايا، ألوان…", en: "How images look: frame, corners, colour…" },
+  },
+  icon: {
+    tab: "components",
+    label: { ar: "الأيقونات", en: "Icons" },
+    hint: { ar: "شكل الأيقونات في أقسام المزايا", en: "The look of icons in feature sections" },
+  },
+  input: {
+    tab: "components",
+    label: { ar: "حقول النماذج", en: "Form fields" },
+    hint: { ar: "شكل خانات الكتابة في نموذج التواصل", en: "The look of the boxes people type into" },
+  },
+  splash: {
+    tab: "site",
+    label: { ar: "الشاشة الافتتاحية", en: "Opening screen" },
+    hint: { ar: "شاشة بالشعار تظهر لحظة عند فتح الموقع، أول مرة في الزيارة", en: "A logo screen shown for a moment when the site opens, once per visit" },
+  },
+  announce: {
+    tab: "site",
+    label: { ar: "شريط الإعلان", en: "Announcement bar" },
+    hint: { ar: "شريط أعلى الصفحة لرسالة قصيرة: عرض، افتتاح، خبر", en: "A strip at the top for one short message: an offer, an opening, news" },
+  },
+  headerLayout: {
+    tab: "site",
+    label: { ar: "ترتيب الهيدر", en: "Header layout" },
+    hint: { ar: "مكان الشعار والقائمة والزر في أعلى الصفحة", en: "Where the logo, menu and button sit at the top" },
+  },
+  headerLook: {
+    tab: "site",
+    label: { ar: "شكل الهيدر", en: "Header look" },
+    hint: { ar: "خلفية الهيدر: مصمت، زجاجي، عائم، شفاف…", en: "The header's ground: solid, glass, floating, transparent…" },
+  },
+  headerBehavior: {
+    tab: "site",
+    label: { ar: "سلوك الهيدر", en: "Header behaviour" },
+    hint: { ar: "ماذا يفعل الهيدر عندما ينزل الزائر في الصفحة", en: "What the header does as visitors scroll" },
+  },
+  navStyle: {
+    tab: "site",
+    label: { ar: "روابط القائمة", en: "Menu links" },
+    hint: { ar: "شكل روابط القائمة في الهيدر", en: "The look of the menu links in the header" },
+  },
+  footerLayout: {
+    tab: "site",
+    label: { ar: "ترتيب الفوتر", en: "Footer layout" },
+    hint: { ar: "ترتيب أسفل الصفحة: الشعار والروابط والحسابات", en: "The bottom of the page: logo, links and social profiles" },
+  },
+  footerTone: {
+    tab: "site",
+    label: { ar: "لون الفوتر", en: "Footer colour" },
+    hint: { ar: "لون خلفية أسفل الصفحة", en: "The ground colour at the bottom of the page" },
+  },
+  whatsapp: {
+    tab: "site",
+    label: { ar: "زر واتساب عائم", en: "Floating WhatsApp" },
+    hint: { ar: "زر واتساب ثابت في زاوية الشاشة يظهر دائماً", en: "A WhatsApp button that stays in a corner of the screen" },
   },
 };
 
@@ -926,12 +1376,45 @@ export interface Preset {
   selection: Selection;
 }
 
+type CoreKey = "palette" | "type" | "scale" | "buttons" | "shape" | "elevation" | "density" | "motion" | "hero" | "page";
+
+/** Component and site-part choices that keep the kit's default look. */
+export const DEFAULT_EXTRAS: Omit<Selection, CoreKey> = {
+  btnFill: "solid",
+  btnHover: "default",
+  headAlign: "start",
+  eyebrow: "text",
+  titleMark: "none",
+  divider: "none",
+  pattern: "none",
+  patternScope: "hero",
+  image: "natural",
+  icon: "filled",
+  input: "outlined",
+  splash: "none",
+  announce: "none",
+  headerLayout: "standard",
+  headerLook: "solid",
+  headerBehavior: "sticky",
+  navStyle: "plain",
+  footerLayout: "columns",
+  footerTone: "base",
+  whatsapp: "none",
+};
+
+const preset = (id: string, label: L, description: L, core: Pick<Selection, CoreKey>, extras: Partial<Selection> = {}): Preset => ({
+  id,
+  label,
+  description,
+  selection: { ...core, ...DEFAULT_EXTRAS, ...extras },
+});
+
 export const PRESETS: Preset[] = [
-  {
-    id: "studio",
-    label: { ar: "استوديو بسيط", en: "Studio Minimal" },
-    description: { ar: "نظيف ومحايد لمنتج رقمي", en: "Clean and neutral for a digital product" },
-    selection: {
+  preset(
+    "studio",
+    { ar: "استوديو بسيط", en: "Studio Minimal" },
+    { ar: "نظيف ومحايد لمنتج رقمي", en: "Clean and neutral for a digital product" },
+    {
       palette: "ink",
       type: "neutral",
       scale: "balanced",
@@ -943,12 +1426,12 @@ export const PRESETS: Preset[] = [
       hero: "centered",
       page: "saas",
     },
-  },
-  {
-    id: "luxe",
-    label: { ar: "فخامة الليل", en: "Midnight Luxe" },
-    description: { ar: "داكن وذهبي، تحريري هادئ", en: "Dark and gold, calm and editorial" },
-    selection: {
+  ),
+  preset(
+    "luxe",
+    { ar: "فخامة الليل", en: "Midnight Luxe" },
+    { ar: "داكن وذهبي، تحريري هادئ", en: "Dark and gold, calm and editorial" },
+    {
       palette: "midnight",
       type: "luxury",
       scale: "dramatic",
@@ -960,12 +1443,22 @@ export const PRESETS: Preset[] = [
       hero: "display",
       page: "editorial",
     },
-  },
-  {
-    id: "coastal",
-    label: { ar: "ساحلي", en: "Coastal" },
-    description: { ar: "منعش وودود لخدمة استهلاكية", en: "Fresh and friendly for a consumer service" },
-    selection: {
+    {
+      splash: "fade",
+      headerLayout: "centered",
+      headerLook: "transparent",
+      navStyle: "caps",
+      footerLayout: "brand",
+      footerTone: "inverse",
+      eyebrow: "line",
+      btnFill: "outline",
+    },
+  ),
+  preset(
+    "coastal",
+    { ar: "ساحلي", en: "Coastal" },
+    { ar: "منعش وودود لخدمة استهلاكية", en: "Fresh and friendly for a consumer service" },
+    {
       palette: "ocean",
       type: "friendly",
       scale: "balanced",
@@ -977,12 +1470,13 @@ export const PRESETS: Preset[] = [
       hero: "split",
       page: "launch",
     },
-  },
-  {
-    id: "atelier",
-    label: { ar: "أتيليه", en: "Atelier" },
-    description: { ar: "طبيعي وأدبي لاستوديو أو صفحة شخصية", en: "Natural and literary for a studio or portfolio" },
-    selection: {
+    { btnHover: "lift", divider: "wave", headerLook: "glass", eyebrow: "pill", icon: "circle", footerTone: "muted", whatsapp: "circle-end", announce: "brand" },
+  ),
+  preset(
+    "atelier",
+    { ar: "أتيليه", en: "Atelier" },
+    { ar: "طبيعي وأدبي لاستوديو أو صفحة شخصية", en: "Natural and literary for a studio or portfolio" },
+    {
       palette: "forest",
       type: "editorial",
       scale: "dramatic",
@@ -994,12 +1488,13 @@ export const PRESETS: Preset[] = [
       hero: "statement",
       page: "portfolio",
     },
-  },
-  {
-    id: "sunrise",
-    label: { ar: "شروق", en: "Sunrise" },
-    description: { ar: "دافئ وحيوي لإطلاق جريء", en: "Warm and energetic for a bold launch" },
-    selection: {
+    { headerLayout: "stacked", eyebrow: "line", image: "framed", footerLayout: "centered", pattern: "grain", patternScope: "page" },
+  ),
+  preset(
+    "sunrise",
+    { ar: "شروق", en: "Sunrise" },
+    { ar: "دافئ وحيوي لإطلاق جريء", en: "Warm and energetic for a bold launch" },
+    {
       palette: "sunset",
       type: "expressive",
       scale: "dramatic",
@@ -1011,12 +1506,13 @@ export const PRESETS: Preset[] = [
       hero: "centered",
       page: "launch",
     },
-  },
-  {
-    id: "neon",
-    label: { ar: "نيون", en: "Neon" },
-    description: { ar: "ليلي وتقني لمنتج للمطورين", en: "Nocturnal and technical for a developer product" },
-    selection: {
+    { btnFill: "gradient", btnHover: "shine", divider: "curve", pattern: "glow", eyebrow: "pill", announce: "marquee", headerLook: "floating" },
+  ),
+  preset(
+    "neon",
+    { ar: "نيون", en: "Neon" },
+    { ar: "ليلي وتقني لمنتج للمطورين", en: "Nocturnal and technical for a developer product" },
+    {
       palette: "neon",
       type: "futuristic",
       scale: "dramatic",
@@ -1028,12 +1524,25 @@ export const PRESETS: Preset[] = [
       hero: "display",
       page: "saas",
     },
-  },
-  {
-    id: "najd",
-    label: { ar: "نجد", en: "Najd" },
-    description: { ar: "ألوان الأرض لشركة سعودية راسخة", en: "Earth tones for an established Saudi company" },
-    selection: {
+    {
+      btnFill: "glow",
+      btnHover: "grow",
+      pattern: "grid",
+      patternScope: "page",
+      headerLook: "glass",
+      navStyle: "caps",
+      eyebrow: "dot",
+      icon: "ring",
+      input: "underline",
+      splash: "line",
+      divider: "slant",
+    },
+  ),
+  preset(
+    "najd",
+    { ar: "نجد", en: "Najd" },
+    { ar: "ألوان الأرض لشركة سعودية راسخة", en: "Earth tones for an established Saudi company" },
+    {
       palette: "desert",
       type: "geometric",
       scale: "balanced",
@@ -1045,12 +1554,13 @@ export const PRESETS: Preset[] = [
       hero: "split",
       page: "editorial",
     },
-  },
-  {
-    id: "souq",
-    label: { ar: "سوق", en: "Souq" },
-    description: { ar: "واضح وموثوق لسوق إلكتروني", en: "Clear and trustworthy for a marketplace" },
-    selection: {
+    { pattern: "rings", eyebrow: "line", image: "rounded", footerTone: "inverse", whatsapp: "pill-end", headerLayout: "start" },
+  ),
+  preset(
+    "souq",
+    { ar: "سوق", en: "Souq" },
+    { ar: "واضح وموثوق لسوق إلكتروني", en: "Clear and trustworthy for a marketplace" },
+    {
       palette: "royal",
       type: "corporate",
       scale: "modest",
@@ -1062,12 +1572,13 @@ export const PRESETS: Preset[] = [
       hero: "split",
       page: "marketplace",
     },
-  },
-  {
-    id: "brutal",
-    label: { ar: "خام", en: "Brutal" },
-    description: { ar: "أبيض وأسود بحدود صلبة وجريئة", en: "Black and white with hard, honest edges" },
-    selection: {
+    { announce: "highlight", icon: "soft", btnHover: "lift", whatsapp: "circle-end", input: "filled" },
+  ),
+  preset(
+    "brutal",
+    { ar: "خام", en: "Brutal" },
+    { ar: "أبيض وأسود بحدود صلبة وجريئة", en: "Black and white with hard, honest edges" },
+    {
       palette: "mono",
       type: "tech",
       scale: "dramatic",
@@ -1079,12 +1590,13 @@ export const PRESETS: Preset[] = [
       hero: "statement",
       page: "portfolio",
     },
-  },
-  {
-    id: "calm",
-    label: { ar: "سكينة", en: "Calm" },
-    description: { ar: "ناعم ومطمئن لتطبيق صحي أو تعليمي", en: "Soft and reassuring for a wellbeing or learning app" },
-    selection: {
+    { btnFill: "raised", divider: "zigzag", image: "offset", navStyle: "underline", titleMark: "bar", footerLayout: "brand" },
+  ),
+  preset(
+    "calm",
+    { ar: "سكينة", en: "Calm" },
+    { ar: "ناعم ومطمئن لتطبيق صحي أو تعليمي", en: "Soft and reassuring for a wellbeing or learning app" },
+    {
       palette: "pastel",
       type: "playful",
       scale: "modest",
@@ -1096,12 +1608,13 @@ export const PRESETS: Preset[] = [
       hero: "centered",
       page: "app",
     },
-  },
-  {
-    id: "bloom",
-    label: { ar: "زهر", en: "Bloom" },
-    description: { ar: "وردي راقٍ لعلامة جمال أو وكالة إبداعية", en: "Refined rose for a beauty brand or creative agency" },
-    selection: {
+    { btnFill: "soft", divider: "wave", pattern: "dots", icon: "circle", headAlign: "center", footerLayout: "centered", footerTone: "muted", splash: "pulse" },
+  ),
+  preset(
+    "bloom",
+    { ar: "زهر", en: "Bloom" },
+    { ar: "وردي راقٍ لعلامة جمال أو وكالة إبداعية", en: "Refined rose for a beauty brand or creative agency" },
+    {
       palette: "rose",
       type: "classic",
       scale: "balanced",
@@ -1113,12 +1626,23 @@ export const PRESETS: Preset[] = [
       hero: "split",
       page: "agency",
     },
-  },
-  {
-    id: "terminal",
-    label: { ar: "طرفية", en: "Terminal" },
-    description: { ar: "داكن وبرمجي لأداة مطورين أو تطبيق", en: "Dark and code-like for a developer tool or app" },
-    selection: {
+    {
+      splash: "zoom",
+      headerLayout: "centered",
+      headerLook: "clean",
+      image: "rounded",
+      divider: "curve",
+      eyebrow: "dot",
+      titleMark: "underline",
+      footerLayout: "centered",
+      whatsapp: "pill-start",
+    },
+  ),
+  preset(
+    "terminal",
+    { ar: "طرفية", en: "Terminal" },
+    { ar: "داكن وبرمجي لأداة مطورين أو تطبيق", en: "Dark and code-like for a developer tool or app" },
+    {
       palette: "graphite",
       type: "mono",
       scale: "modest",
@@ -1130,12 +1654,23 @@ export const PRESETS: Preset[] = [
       hero: "display",
       page: "app",
     },
-  },
-  {
-    id: "festival",
-    label: { ar: "مهرجان", en: "Festival" },
-    description: { ar: "صاخب ومبهج لفعالية أو مؤتمر", en: "Loud and joyful for an event or conference" },
-    selection: {
+    {
+      pattern: "grid",
+      patternScope: "page",
+      headerLook: "glass",
+      navStyle: "caps",
+      eyebrow: "dot",
+      input: "underline",
+      splash: "line",
+      btnHover: "arrow",
+      image: "grayscale",
+    },
+  ),
+  preset(
+    "festival",
+    { ar: "مهرجان", en: "Festival" },
+    { ar: "صاخب ومبهج لفعالية أو مؤتمر", en: "Loud and joyful for an event or conference" },
+    {
       palette: "sunset",
       type: "expressive",
       scale: "huge",
@@ -1147,12 +1682,25 @@ export const PRESETS: Preset[] = [
       hero: "statement",
       page: "event",
     },
-  },
-  {
-    id: "gallery",
-    label: { ar: "معرض", en: "Gallery" },
-    description: { ar: "مساحات واسعة وعناوين ضخمة لمعرض أو مصمم", en: "Wide space and huge headlines for a gallery or designer" },
-    selection: {
+    {
+      announce: "marquee",
+      splash: "reveal",
+      btnFill: "gradient",
+      btnHover: "grow",
+      divider: "zigzag",
+      pattern: "dots",
+      patternScope: "page",
+      headAlign: "center",
+      titleMark: "bar",
+      footerLayout: "brand",
+      footerTone: "brand",
+    },
+  ),
+  preset(
+    "gallery",
+    { ar: "معرض", en: "Gallery" },
+    { ar: "مساحات واسعة وعناوين ضخمة لمعرض أو مصمم", en: "Wide space and huge headlines for a gallery or designer" },
+    {
       palette: "ink",
       type: "editorial",
       scale: "huge",
@@ -1164,7 +1712,316 @@ export const PRESETS: Preset[] = [
       hero: "display",
       page: "agency",
     },
-  },
+    { headerLayout: "minimal", headerBehavior: "hide", image: "grayscale", footerLayout: "brand", eyebrow: "line", splash: "curtain" },
+  ),
+  preset(
+    "harvest",
+    { ar: "حصاد", en: "Harvest" },
+    { ar: "دافئ وشهي لمطعم أو مقهى", en: "Warm and appetising for a restaurant or café" },
+    {
+      palette: "crimson",
+      type: "heritage",
+      scale: "dramatic",
+      buttons: "rounded",
+      shape: "rounded",
+      elevation: "soft",
+      density: "comfortable",
+      motion: "gentle",
+      hero: "display",
+      page: "agency",
+    },
+    {
+      splash: "fade",
+      announce: "highlight",
+      headerLayout: "centered",
+      headerLook: "transparent",
+      footerLayout: "brand",
+      footerTone: "inverse",
+      whatsapp: "pill-end",
+      image: "rounded",
+      divider: "wave",
+      eyebrow: "line",
+    },
+  ),
+  preset(
+    "clinic",
+    { ar: "عيادة", en: "Clinic" },
+    { ar: "نظيف ومطمئن لعيادة أو مركز صحي", en: "Clean and reassuring for a clinic or health centre" },
+    {
+      palette: "teal",
+      type: "corporate-clean",
+      scale: "balanced",
+      buttons: "soft",
+      shape: "rounded",
+      elevation: "soft",
+      density: "comfortable",
+      motion: "smooth",
+      hero: "split",
+      page: "marketplace",
+    },
+    { icon: "soft", headAlign: "center", whatsapp: "circle-end", announce: "muted", footerTone: "muted", btnHover: "lift" },
+  ),
+  preset(
+    "boutique",
+    { ar: "بوتيك", en: "Boutique" },
+    { ar: "رقيق وأنيق لمتجر أزياء أو مجوهرات", en: "Delicate and elegant for a fashion or jewellery shop" },
+    {
+      palette: "blush",
+      type: "elegant",
+      scale: "modest",
+      buttons: "wide",
+      shape: "mixed",
+      elevation: "flat",
+      density: "airy",
+      motion: "gentle",
+      hero: "statement",
+      page: "portfolio",
+    },
+    { splash: "zoom", headerLayout: "centered", headerLook: "clean", navStyle: "caps", image: "framed", footerLayout: "centered", eyebrow: "line" },
+  ),
+  preset(
+    "fintech",
+    { ar: "فنتك", en: "Fintech" },
+    { ar: "واثق وحديث لتطبيق مالي", en: "Confident and modern for a finance app" },
+    {
+      palette: "indigo",
+      type: "startup",
+      scale: "dramatic",
+      buttons: "pill",
+      shape: "rounded",
+      elevation: "tinted",
+      density: "comfortable",
+      motion: "smooth",
+      hero: "centered",
+      page: "saas",
+    },
+    { btnFill: "gradient", btnHover: "shine", pattern: "glow", eyebrow: "pill", headerLook: "floating", icon: "circle", divider: "curve" },
+  ),
+  preset(
+    "academy",
+    { ar: "أكاديمية", en: "Academy" },
+    { ar: "ودود ومشجع لمنصة تعليمية أو دورة", en: "Friendly and encouraging for a course or school" },
+    {
+      palette: "amber",
+      type: "soft",
+      scale: "balanced",
+      buttons: "rounded",
+      shape: "soft-xl",
+      elevation: "soft",
+      density: "comfortable",
+      motion: "bouncy",
+      hero: "split",
+      page: "launch",
+    },
+    { eyebrow: "pill", divider: "wave", icon: "circle", whatsapp: "pill-end", announce: "brand", btnFill: "raised" },
+  ),
+  preset(
+    "nocturne",
+    { ar: "ليلي", en: "Nocturne" },
+    { ar: "داكن وجريء لاستوديو إبداعي", en: "Dark and bold for a creative studio" },
+    {
+      palette: "violet-night",
+      type: "bold-grotesk",
+      scale: "huge",
+      buttons: "square",
+      shape: "sharp",
+      elevation: "hard",
+      density: "comfortable",
+      motion: "dramatic",
+      hero: "display",
+      page: "agency",
+    },
+    {
+      pattern: "grain",
+      patternScope: "page",
+      headerLook: "glass",
+      navStyle: "underline",
+      image: "duotone",
+      eyebrow: "dot",
+      splash: "line",
+      titleMark: "accent",
+    },
+  ),
+  preset(
+    "eco",
+    { ar: "طبيعة", en: "Eco" },
+    { ar: "أخضر وهادئ لمشروع بيئي أو زراعي", en: "Green and calm for an eco or farming project" },
+    {
+      palette: "emerald",
+      type: "soft",
+      scale: "balanced",
+      buttons: "pill",
+      shape: "rounded",
+      elevation: "flat",
+      density: "airy",
+      motion: "calm",
+      hero: "split",
+      page: "launch",
+    },
+    { pattern: "dots", divider: "wave", icon: "ring", image: "rounded", footerTone: "muted", eyebrow: "dot" },
+  ),
+  preset(
+    "estate",
+    { ar: "عقار", en: "Estate" },
+    { ar: "فخم ورصين لمكتب عقاري", en: "Upscale and composed for a real-estate office" },
+    {
+      palette: "slate",
+      type: "swiss",
+      scale: "dramatic",
+      buttons: "square",
+      shape: "sharp",
+      elevation: "flat",
+      density: "airy",
+      motion: "smooth",
+      hero: "display",
+      page: "editorial",
+    },
+    { headerLook: "transparent", navStyle: "caps", image: "framed", footerLayout: "brand", footerTone: "inverse", whatsapp: "circle-end", eyebrow: "line" },
+  ),
+  preset(
+    "roastery",
+    { ar: "محمصة", en: "Roastery" },
+    { ar: "دافئ وحِرفي لمحمصة قهوة", en: "Warm and crafted for a coffee roastery" },
+    {
+      palette: "cocoa",
+      type: "magazine",
+      scale: "balanced",
+      buttons: "caps",
+      shape: "subtle",
+      elevation: "flat",
+      density: "comfortable",
+      motion: "gentle",
+      hero: "split",
+      page: "agency",
+    },
+    { pattern: "grain", patternScope: "page", eyebrow: "line", image: "offset", footerLayout: "centered", footerTone: "inverse", announce: "highlight" },
+  ),
+  preset(
+    "pulse",
+    { ar: "نبض", en: "Pulse" },
+    { ar: "طاقة عالية لنادٍ رياضي أو فعالية", en: "High energy for a gym or an event" },
+    {
+      palette: "red-night",
+      type: "bold-grotesk",
+      scale: "huge",
+      buttons: "bold",
+      shape: "bold",
+      elevation: "hard-xl",
+      density: "compact",
+      motion: "snappy",
+      hero: "statement",
+      page: "event",
+    },
+    { btnFill: "raised", divider: "slant", titleMark: "bar", navStyle: "caps", announce: "marquee", headerBehavior: "hide" },
+  ),
+  preset(
+    "playground",
+    { ar: "ملعب", en: "Playground" },
+    { ar: "مرح وملوّن لمنتج للأطفال", en: "Playful and colourful for a kids' product" },
+    {
+      palette: "saffron",
+      type: "fun",
+      scale: "dramatic",
+      buttons: "pill",
+      shape: "soft-xl",
+      elevation: "soft",
+      density: "airy",
+      motion: "bouncy",
+      hero: "centered",
+      page: "app",
+    },
+    { btnFill: "raised", divider: "zigzag", pattern: "dots", patternScope: "page", icon: "circle", headAlign: "center", splash: "pulse", btnHover: "grow" },
+  ),
+  preset(
+    "counsel",
+    { ar: "محاماة", en: "Counsel" },
+    { ar: "رصين وموثوق لمكتب محاماة أو استشارات", en: "Composed and trustworthy for a law or advisory firm" },
+    {
+      palette: "plum",
+      type: "heritage",
+      scale: "modest",
+      buttons: "square",
+      shape: "sharp",
+      elevation: "flat",
+      density: "airy",
+      motion: "calm",
+      hero: "display",
+      page: "editorial",
+    },
+    { headerLayout: "stacked", footerLayout: "brand", footerTone: "inverse", eyebrow: "line", titleMark: "bar" },
+  ),
+  preset(
+    "cloud",
+    { ar: "سحابة", en: "Cloud" },
+    { ar: "تقني وليلي لمنصة برمجية", en: "Technical and nocturnal for a software platform" },
+    {
+      palette: "cyan-night",
+      type: "tech-mono",
+      scale: "dramatic",
+      buttons: "mono",
+      shape: "subtle",
+      elevation: "hard-sm",
+      density: "compact",
+      motion: "quick",
+      hero: "centered",
+      page: "saas",
+    },
+    { btnFill: "glow", pattern: "grid", patternScope: "page", headerLook: "glass", eyebrow: "dot", icon: "ring", input: "underline", btnHover: "arrow" },
+  ),
+  preset(
+    "oud",
+    { ar: "عود", en: "Oud" },
+    { ar: "فاخر وغامض لعطور أو منتج راقٍ", en: "Luxurious and mysterious for perfume or a fine product" },
+    {
+      palette: "gold-night",
+      type: "heritage",
+      scale: "dramatic",
+      buttons: "wide",
+      shape: "sharp",
+      elevation: "flat",
+      density: "airy",
+      motion: "dramatic",
+      hero: "display",
+      page: "portfolio",
+    },
+    { splash: "curtain", headerLayout: "centered", headerLook: "transparent", image: "grayscale", footerLayout: "brand", navStyle: "caps", eyebrow: "line" },
+  ),
+  preset(
+    "voyage",
+    { ar: "رحلة", en: "Voyage" },
+    { ar: "مشرق ومنعش لوكالة سفر أو سياحة", en: "Bright and fresh for travel or tourism" },
+    {
+      palette: "sky",
+      type: "rounded",
+      scale: "dramatic",
+      buttons: "pill",
+      shape: "soft-xl",
+      elevation: "tinted",
+      density: "comfortable",
+      motion: "smooth",
+      hero: "split",
+      page: "agency",
+    },
+    { divider: "wave", pattern: "glow", headerLook: "floating", image: "rounded", whatsapp: "pill-end", eyebrow: "pill" },
+  ),
+  preset(
+    "loud",
+    { ar: "صاخب", en: "Loud" },
+    { ar: "جريء ومختلف لوكالة إبداعية", en: "Bold and different for a creative agency" },
+    {
+      palette: "coral",
+      type: "bold-grotesk",
+      scale: "huge",
+      buttons: "bold",
+      shape: "mixed",
+      elevation: "hard",
+      density: "comfortable",
+      motion: "bouncy",
+      hero: "statement",
+      page: "agency",
+    },
+    { btnHover: "arrow", divider: "slant", eyebrow: "pill", titleMark: "underline", footerLayout: "brand", footerTone: "brand", announce: "marquee" },
+  ),
 ];
 
 export const DEFAULT_SELECTION: Selection = PRESETS[0]!.selection;
@@ -1261,6 +2118,19 @@ export function buildBrand(s: Selection, name = "Studio", tweaks: Tweaks = {}): 
     motion: motionOut,
     layout: { container: num(tw.width) ?? 1200, gutter: { min: 20, max: 44 }, header: 68 },
     control,
+    components: {
+      button: pick(BTN_FILLS, s.btnFill),
+      hover: pick(BTN_HOVERS, s.btnHover),
+      headingAlign: pick(HEADING_ALIGNS, s.headAlign),
+      eyebrow: pick(EYEBROWS, s.eyebrow),
+      titleMark: pick(TITLE_MARKS, s.titleMark),
+      divider: pick(DIVIDERS, s.divider),
+      pattern: pick(PATTERNS, s.pattern),
+      patternScope: pick(PATTERN_SCOPES, s.patternScope),
+      image: pick(IMAGES, s.image),
+      icon: pick(ICON_STYLES, s.icon),
+      input: pick(INPUTS, s.input),
+    },
   };
 }
 

@@ -1,0 +1,40 @@
+---
+/**
+ * A thin accent line along the top edge that fills as the page is read. CSS scroll timeline only:
+ * where unsupported, or under reduced motion, it isn't shown. Decorative.
+ */
+---
+
+<div class="lk-progress" aria-hidden="true"></div>
+
+<style>
+  @layer components {
+    .lk-progress {
+      display: none;
+    }
+    @supports (animation-timeline: scroll()) {
+      @media (prefers-reduced-motion: no-preference) {
+        .lk-progress {
+          position: fixed;
+          inset-block-start: 0;
+          inset-inline: 0;
+          z-index: 60;
+          display: block;
+          block-size: 3px;
+          background: var(--tone-accent);
+          transform-origin: left;
+          animation: lk-progress linear both;
+          animation-timeline: scroll(root);
+        }
+        .lk-progress:dir(rtl) {
+          transform-origin: right;
+        }
+      }
+    }
+    @keyframes lk-progress {
+      from {
+        transform: scaleX(0);
+      }
+    }
+  }
+</style>

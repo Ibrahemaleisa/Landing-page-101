@@ -1,0 +1,281 @@
+/*
+ * Component styles, switched by `data-lk-*` attributes on <html> (see brand/components.ts).
+ * Without an attribute every component keeps its default look, so existing sites are unchanged.
+ * Colours only ever come from tone roles that are contrast-gated, or are decorative.
+ */
+@layer utilities {
+  /* ---------------------------------------------------------------- primary button fill */
+  :root[data-lk-btn="outline"] .lk-btn[data-variant="primary"] {
+    background: transparent;
+    color: var(--tone-accent-text);
+    border-color: currentColor;
+    border-width: max(2px, var(--border-width));
+    box-shadow: none;
+  }
+  :root[data-lk-btn="outline"] .lk-btn[data-variant="primary"]:hover {
+    background: var(--tone-accent);
+    border-color: var(--tone-accent);
+    color: var(--tone-on-accent);
+  }
+  :root[data-lk-btn="soft"] .lk-btn[data-variant="primary"] {
+    background: color-mix(in srgb, var(--tone-accent) 14%, var(--tone-bg));
+    color: var(--tone-fg);
+    border-color: color-mix(in srgb, var(--tone-accent) 30%, var(--tone-bg));
+    box-shadow: none;
+  }
+  :root[data-lk-btn="soft"] .lk-btn[data-variant="primary"]:hover {
+    background: var(--tone-accent);
+    color: var(--tone-on-accent);
+  }
+  :root[data-lk-btn="gradient"] .lk-btn[data-variant="primary"] {
+    background: linear-gradient(135deg, var(--tone-accent) 0%, var(--tone-accent-hover) 100%);
+  }
+  :root[data-lk-btn="gradient"] .lk-btn[data-variant="primary"]:hover {
+    background: var(--tone-accent-hover);
+  }
+  :root[data-lk-btn="raised"] .lk-btn[data-variant="primary"] {
+    box-shadow: 0 0.3em 0 var(--tone-accent-hover);
+    margin-block-end: 0.3em;
+  }
+  :root[data-lk-btn="raised"] .lk-btn[data-variant="primary"]:active {
+    box-shadow: 0 0.1em 0 var(--tone-accent-hover);
+    transform: translateY(0.2em);
+  }
+  :root[data-lk-btn="glow"] .lk-btn[data-variant="primary"] {
+    box-shadow: 0 0.6em 1.6em -0.5em color-mix(in srgb, var(--tone-accent) 75%, transparent);
+  }
+
+  /* ---------------------------------------------------------------- button hover */
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) {
+    :root[data-lk-hover="lift"] .lk-btn:not([data-variant="link"]):hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-raised);
+    }
+    :root[data-lk-hover="grow"] .lk-btn:not([data-variant="link"]):hover {
+      transform: scale(1.04);
+    }
+    :root[data-lk-hover="arrow"] .lk-btn:hover .lk-icon {
+      translate: 0.35em 0 !important;
+    }
+    :root[data-lk-hover="arrow"]:dir(rtl) .lk-btn:hover .lk-icon {
+      translate: -0.35em 0 !important;
+    }
+    :root[data-lk-hover="shine"] .lk-btn[data-variant="primary"] {
+      position: relative;
+      overflow: hidden;
+    }
+    :root[data-lk-hover="shine"] .lk-btn[data-variant="primary"]::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+      translate: -120% 0;
+      transition: translate 0.6s var(--motion-ease);
+      pointer-events: none;
+    }
+    :root[data-lk-hover="shine"] .lk-btn[data-variant="primary"]:hover::after {
+      translate: 120% 0;
+    }
+  }
+  :root[data-lk-hover="none"] .lk-btn[data-variant="primary"]:hover {
+    background: var(--tone-accent);
+  }
+
+  /* ---------------------------------------------------------------- section headings */
+  :root[data-lk-heading="center"] .lk-sh[data-layout="stack"] {
+    justify-items: center;
+    text-align: center;
+  }
+  :root[data-lk-heading="center"] .lk-sh[data-layout="stack"] .lk-sh__lead {
+    margin-inline: auto;
+  }
+  :root[data-lk-eyebrow="pill"] .lk-sh .lk-eyebrow {
+    display: inline-block;
+    padding: 0.35em 0.9em;
+    border: var(--border-width) solid var(--tone-line);
+    border-radius: 999px;
+    background: var(--tone-surface);
+    color: var(--tone-surface-fg-muted);
+  }
+  :root[data-lk-eyebrow="line"] .lk-sh .lk-eyebrow,
+  :root[data-lk-eyebrow="dot"] .lk-sh .lk-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+  }
+  :root[data-lk-eyebrow="line"] .lk-sh .lk-eyebrow::before {
+    content: "";
+    inline-size: 2em;
+    block-size: 2px;
+    background: var(--tone-accent);
+  }
+  :root[data-lk-eyebrow="dot"] .lk-sh .lk-eyebrow::before {
+    content: "";
+    inline-size: 0.5em;
+    block-size: 0.5em;
+    border-radius: 50%;
+    background: var(--tone-accent);
+  }
+  :root[data-lk-mark="bar"] .lk-sh__title::before {
+    content: "";
+    display: block;
+    inline-size: 3rem;
+    block-size: 0.25rem;
+    margin-block-end: var(--space-s);
+    border-radius: 999px;
+    background: var(--tone-accent);
+  }
+  :root[data-lk-mark="bar"] .lk-sh[data-layout="center"] .lk-sh__title::before,
+  :root[data-lk-mark="bar"][data-lk-heading="center"] .lk-sh[data-layout="stack"] .lk-sh__title::before {
+    margin-inline: auto;
+  }
+  :root[data-lk-mark="underline"] .lk-sh__title {
+    text-decoration: underline;
+    text-decoration-color: var(--tone-accent);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+  }
+  :root[data-lk-mark="accent"] .lk-sh__title {
+    color: var(--tone-accent-text);
+  }
+
+  /* ---------------------------------------------------------------- section dividers
+     Each section paints its own shape into the one above it, in its own colour, so the edge only
+     shows where the tone changes. */
+  :root:is([data-lk-divider="wave"], [data-lk-divider="slant"], [data-lk-divider="curve"], [data-lk-divider="zigzag"]) .lk-section:not(.lk-hero)::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: calc(100% - 1px);
+    z-index: 1;
+    block-size: clamp(1.5rem, 4vw, 3.5rem);
+    background: var(--tone-bg);
+    pointer-events: none;
+  }
+  :root[data-lk-divider="wave"] .lk-section:not(.lk-hero)::before {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 60V30C150 0 300 0 450 30S750 60 900 30 1100 10 1200 25V60Z'/%3E%3C/svg%3E")
+      center / 100% 100% no-repeat;
+  }
+  :root[data-lk-divider="slant"] .lk-section:not(.lk-hero)::before {
+    clip-path: polygon(0 100%, 100% 0, 100% 100%);
+  }
+  :root[data-lk-divider="slant"]:dir(rtl) .lk-section:not(.lk-hero)::before {
+    clip-path: polygon(0 0, 100% 100%, 0 100%);
+  }
+  :root[data-lk-divider="curve"] .lk-section:not(.lk-hero)::before {
+    clip-path: ellipse(70% 100% at 50% 100%);
+  }
+  :root[data-lk-divider="zigzag"] .lk-section:not(.lk-hero)::before {
+    block-size: 1rem;
+    mask: conic-gradient(from -45deg at bottom, #000 90deg, #0000 0) 50% / 2rem 100%;
+  }
+  :root[data-lk-divider="line"] .lk-section:not(.lk-hero) {
+    border-block-start: var(--border-width) solid var(--tone-line);
+  }
+
+  /* ---------------------------------------------------------------- background patterns */
+  :root[data-lk-pattern] {
+    --lk-pattern: none;
+    --lk-pattern-size: auto;
+  }
+  :root[data-lk-pattern="dots"] {
+    --lk-pattern: radial-gradient(color-mix(in srgb, var(--tone-fg) 16%, transparent) 1.2px, transparent 1.4px);
+    --lk-pattern-size: 22px 22px;
+  }
+  :root[data-lk-pattern="grid"] {
+    --lk-pattern:
+      linear-gradient(color-mix(in srgb, var(--tone-fg) 8%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--tone-fg) 8%, transparent) 1px, transparent 1px);
+    --lk-pattern-size: 40px 40px;
+  }
+  :root[data-lk-pattern="lines"] {
+    --lk-pattern: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--tone-fg) 7%, transparent) 0 1px, transparent 1px 14px);
+  }
+  :root[data-lk-pattern="grain"] {
+    --lk-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  :root[data-lk-pattern="glow"] {
+    --lk-pattern:
+      radial-gradient(55% 45% at 100% 0%, color-mix(in srgb, var(--tone-accent) 16%, transparent), transparent 70%),
+      radial-gradient(45% 40% at 0% 100%, color-mix(in srgb, var(--tone-accent) 10%, transparent), transparent 70%);
+  }
+  :root[data-lk-pattern="rings"] {
+    --lk-pattern: repeating-radial-gradient(circle at 100% 0%, transparent 0 34px, color-mix(in srgb, var(--tone-fg) 7%, transparent) 34px 35px);
+  }
+  :root[data-lk-pattern]:not([data-lk-pattern="none"]) .lk-hero,
+  :root[data-lk-pattern]:not([data-lk-pattern="none"])[data-lk-pattern-scope="page"] :is(body, [data-tone]:not(dialog, .lk-header, .lk-dialog)) {
+    background-image: var(--lk-pattern);
+    background-size: var(--lk-pattern-size);
+  }
+
+  /* ---------------------------------------------------------------- images */
+  :root[data-lk-image="rounded"] .lk-media {
+    border-radius: max(var(--radius-media), 1.5rem);
+    overflow: hidden;
+  }
+  :root[data-lk-image="framed"] .lk-media {
+    padding: clamp(0.4rem, 1vw, 0.75rem);
+    border: var(--border-width) solid var(--tone-line);
+    border-radius: var(--radius-media);
+    background: var(--tone-surface);
+  }
+  :root[data-lk-image="offset"] .lk-media {
+    box-shadow: clamp(0.5rem, 1.2vw, 1rem) clamp(0.5rem, 1.2vw, 1rem) 0 var(--tone-accent);
+  }
+  :root[data-lk-image="grayscale"] .lk-media :is(img, svg) {
+    filter: grayscale(1);
+  }
+  :root[data-lk-image="duotone"] .lk-media {
+    position: relative;
+    isolation: isolate;
+  }
+  :root[data-lk-image="duotone"] .lk-media :is(img, svg) {
+    filter: grayscale(1) contrast(1.1);
+  }
+  :root[data-lk-image="duotone"] .lk-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    background: var(--tone-accent);
+    mix-blend-mode: color;
+    pointer-events: none;
+  }
+
+  /* ---------------------------------------------------------------- feature icons */
+  :root[data-lk-icon="soft"] .lk-features__icon:not([data-plain]) {
+    background: color-mix(in srgb, var(--tone-accent) 14%, var(--tone-surface));
+    color: var(--tone-surface-fg);
+  }
+  :root[data-lk-icon="circle"] .lk-features__icon:not([data-plain]) {
+    border-radius: 50%;
+  }
+  :root[data-lk-icon="ring"] .lk-features__icon:not([data-plain]) {
+    border: 2px solid var(--tone-accent-text);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--tone-accent-text);
+  }
+  :root[data-lk-icon="plain"] .lk-features__icon:not([data-plain]) {
+    inline-size: auto;
+    block-size: auto;
+    justify-content: start;
+    background: none;
+    color: var(--tone-accent-text);
+  }
+
+  /* ---------------------------------------------------------------- inputs */
+  :root[data-lk-input="filled"] .lk-field__control {
+    border-color: transparent;
+    border-block-end-color: var(--tone-fg-muted);
+    background: color-mix(in srgb, var(--tone-fg) 6%, var(--tone-surface));
+  }
+  :root[data-lk-input="underline"] .lk-field__control {
+    padding-inline: 0;
+    border-width: 0 0 2px;
+    border-radius: 0;
+    background: transparent;
+    color: var(--tone-fg);
+  }
+}

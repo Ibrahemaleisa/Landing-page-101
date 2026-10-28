@@ -13,11 +13,11 @@ import LocaleSwitch from "@landing/kit/components/LocaleSwitch.astro";
 import { localeHref, localePaths } from "@landing/kit/i18n";
 import { site, type Locale } from "../site";
 import Tabs from "@landing/kit/components/Tabs.astro";
-import { BLOCKS, DEFAULT_SELECTION, ELEMENTS, ELEMENT_INFO, HEROES, PRESETS, TONES, TWEAKS, buildBrand, type ElementKey } from "../studio/options";
+import { BLOCKS, DEFAULT_SELECTION, ELEMENTS, ELEMENT_INFO, HEROES, PRESETS, TONES, buildBrand, type ElementKey } from "../studio/options";
 import { INFO_GROUPS } from "../studio/project";
 import { PALETTES } from "../studio/palettes";
 import { FONT_FAMILIES, cssVar } from "../studio/fonts";
-import ChoiceArt from "../components/ChoiceArt.astro";
+import ElementGroup from "../components/ElementGroup.astro";
 import "../styles/shell.css";
 
 export const getStaticPaths = () => localePaths(site);
@@ -38,6 +38,28 @@ const t = ar
       tabs: "أقسام الاستوديو",
       tabStyle: "الشكل",
       tabSections: "الأقسام",
+      tabComponents: "المكوّنات",
+      tabSite: "الموقع",
+      componentsTitle: "شكل المكوّنات",
+      componentsHint: "تفاصيل تتكرر في كل الصفحة: الأزرار، العناوين، الفواصل، النقوش، الصور، الأيقونات والحقول.",
+      siteTitle: "أجزاء الموقع",
+      siteHint: "الهيدر والفوتر وشريط الإعلان والشاشة الافتتاحية والأزرار العائمة.",
+      replay: "شاهد الشاشة الافتتاحية مرة ثانية",
+      extras: "إضافات",
+      announceLink: "رابط شريط الإعلان",
+      announceLinkHint: "أين يذهب رابط الشريط: قسم في الصفحة (#contact) أو رابط خارجي. فارغ = قسم الدعوة الختامية",
+      optDismiss: "زر إغلاق لشريط الإعلان",
+      optDismissHint: "يقدر الزائر يخفي الشريط، ولا يرجع له في نفس الزيارة",
+      optTop: "زر «العودة للأعلى»",
+      optTopHint: "يظهر بعد النزول في الصفحة",
+      optBar: "شريط تواصل أسفل شاشة الجوال",
+      optBarHint: "زرّا اتصال وواتساب ثابتان على الجوال فقط",
+      optProgress: "شريط تقدّم القراءة",
+      optProgressHint: "خط رفيع أعلى الشاشة يمتلئ مع النزول",
+      optSocial: "أيقونات الحسابات في الفوتر",
+      optSocialHint: "تظهر الحسابات المكتوبة في تبويب المحتوى",
+      optContact: "معلومات التواصل في الفوتر",
+      optContactHint: "الهاتف والبريد والعنوان",
       tabContent: "المحتوى",
       presets: "ابدأ بنمط جاهز",
       presetsHint: "كل نمط يختار لك كل العناصر دفعة واحدة. بعدها عدّل ما تريد تحت.",
@@ -143,6 +165,28 @@ const t = ar
       tabs: "Studio sections",
       tabStyle: "Style",
       tabSections: "Sections",
+      tabComponents: "Components",
+      tabSite: "Site",
+      componentsTitle: "Component styles",
+      componentsHint: "Details repeated across the page: buttons, headings, dividers, patterns, images, icons and fields.",
+      siteTitle: "Site parts",
+      siteHint: "The header, footer, announcement bar, opening screen and floating buttons.",
+      replay: "Play the opening screen again",
+      extras: "Extras",
+      announceLink: "Announcement link",
+      announceLinkHint: "Where the bar's link goes: a section (#contact) or an outside address. Empty = the closing call to action",
+      optDismiss: "Close button on the announcement",
+      optDismissHint: "Visitors can hide the bar for the rest of their visit",
+      optTop: "“Back to top” button",
+      optTopHint: "Appears after scrolling down",
+      optBar: "Contact bar at the bottom of phones",
+      optBarHint: "Call and WhatsApp buttons fixed on phones only",
+      optProgress: "Reading progress line",
+      optProgressHint: "A thin line at the top that fills as you scroll",
+      optSocial: "Social icons in the footer",
+      optSocialHint: "Shows the profiles entered in the Content tab",
+      optContact: "Contact details in the footer",
+      optContactHint: "Phone, email and address",
       tabContent: "Content",
       presets: "Start from a ready-made style",
       presetsHint: "Each style sets every element at once. Then change anything below.",
@@ -237,9 +281,13 @@ const t = ar
       skip: "Skip to the studio",
     };
 const keys = Object.keys(ELEMENTS) as ElementKey[];
+const keysOf = (tab: string) => keys.filter((k) => (ELEMENT_INFO[k].tab ?? "style") === tab);
+const styleKeys = keysOf("style");
+const componentKeys = keysOf("components");
+const siteKeys = keysOf("site");
+const groupT = { now: t.now, tune: t.tune, tuneReset: t.tuneReset, off: t.off, adjusted: t.adjusted };
 const lbl = (l: { ar: string; en: string }) => l[locale];
 const previewPath = (l: Locale) => localeHref(site, l, "/preview/");
-const current = (k: ElementKey) => ELEMENTS[k].find((o) => o.id === DEFAULT_SELECTION[k])!;
 const swatches = (pid: string) => {
   const tn = PALETTES.find((p) => p.id === pid)!.tones;
   return [tn.base.bg, tn.base.accent, tn.inverse.bg, tn.brand.bg];
@@ -300,6 +348,8 @@ const ui = {
       <Tabs
         tabs={[
           { id: "style", label: t.tabStyle },
+          { id: "components", label: t.tabComponents },
+          { id: "site", label: t.tabSite },
           { id: "sections", label: t.tabSections },
           { id: "content", label: t.tabContent },
         ]}
@@ -340,65 +390,9 @@ const ui = {
               {t.elements}
             </h2>
             <p class="studio__desc">{t.elementsHint}</p>
-            {keys.map((k, i) => {
-              const tweaks = TWEAKS.filter((tw) => tw.group === k);
-              return (
-                <details class="opt" data-group={k} open={i === 0}>
-                  <summary>
-                    <span class="opt__title">{lbl(ELEMENT_INFO[k].label)}</span>
-                    <span class="opt__current" data-current>
-                      {lbl(current(k).label)}
-                    </span>
-                    <Icon name="chevron-down" class="opt__chev" />
-                  </summary>
-                  <div class="opt__body">
-                    <p class="opt__hint" id={`h-${k}`}>
-                      {lbl(ELEMENT_INFO[k].hint)}
-                    </p>
-                    <fieldset class="choices" data-el={k} data-cols={k === "palette" || k === "type" || k === "page" ? "2" : "3"} aria-describedby={`h-${k}`}>
-                      <legend class="lk-visually-hidden">{lbl(ELEMENT_INFO[k].label)}</legend>
-                      {ELEMENTS[k].map((o) => (
-                        <label class="choice">
-                          <input type="radio" name={`el-${k}`} value={o.id} checked={DEFAULT_SELECTION[k] === o.id} />
-                          <ChoiceArt element={k} id={o.id} locale={locale} />
-                          <span class="choice__name">{lbl(o.label)}</span>
-                        </label>
-                      ))}
-                    </fieldset>
-                    <p class="opt__now" data-now>
-                      <strong>{t.now}</strong> <span data-now-text>{lbl(current(k).hint)}</span>
-                    </p>
-                    {tweaks.length > 0 && (
-                      <div class="tune" role="group" aria-labelledby={`tune-${k}`}>
-                        <div class="tune__head">
-                          <h3 id={`tune-${k}`}>{t.tune}</h3>
-                          <button type="button" class="tune__reset" data-tune-reset={k} hidden>
-                            {t.tuneReset}
-                          </button>
-                        </div>
-                        {tweaks.map((tw) => (
-                          <div class="tune__row" data-tweak={tw.id}>
-                            <div class="tune__label">
-                              <label for={`tw-${tw.id}`}>{lbl(tw.label)}</label>
-                              <output for={`tw-${tw.id}`} data-out />
-                            </div>
-                            {tw.kind === "color" ? (
-                              <input type="color" id={`tw-${tw.id}`} aria-describedby={`twh-${tw.id}`} data-adjusted={t.adjusted} />
-                            ) : (
-                              <input type="range" id={`tw-${tw.id}`} min={tw.min} max={tw.max} step={tw.step} aria-describedby={`twh-${tw.id}`} />
-                            )}
-                            <p class="tune__hint" id={`twh-${tw.id}`}>
-                              <span data-hint>{lbl(tw.hint)}</span>
-                              <span data-note data-off={t.off} />
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </details>
-              );
-            })}
+            {styleKeys.map((k, i) => (
+              <ElementGroup k={k} locale={locale} open={i === 0} t={groupT} />
+            ))}
           </section>
 
           <div class="studio__actions">
@@ -413,6 +407,67 @@ const ui = {
           <section class="studio__contrast" aria-labelledby="contrast-title">
             <h2 id="contrast-title">{t.contrast}</h2>
             <p data-contrast aria-live="polite" data-ok-template={t.contrastOk} data-bad-template={t.contrastBad}></p>
+          </section>
+        </div>
+
+        <div slot="panel-components" class="studio__controls">
+          <h2 class="studio__step">{t.componentsTitle}</h2>
+          <p class="studio__desc">{t.componentsHint}</p>
+          {componentKeys.map((k, i) => (
+            <ElementGroup k={k} locale={locale} open={i === 0} t={groupT} />
+          ))}
+        </div>
+
+        <div slot="panel-site" class="studio__controls">
+          <h2 class="studio__step">{t.siteTitle}</h2>
+          <p class="studio__desc">{t.siteHint}</p>
+          {siteKeys.map((k, i) => (
+            <ElementGroup k={k} locale={locale} open={i === 0} t={groupT} />
+          ))}
+          <button type="button" class="mini" data-replay>
+            {t.replay}
+          </button>
+          <section class="group" aria-labelledby="extras-title">
+            <h2 class="group__title" id="extras-title">
+              {t.extras}
+            </h2>
+            <div class="field">
+              <label for="site-announceLink">{t.announceLink}</label>
+              <input
+                id="site-announceLink"
+                type="text"
+                dir="ltr"
+                placeholder="#contact, https://…"
+                data-site="announceLink"
+                aria-describedby="site-announceLink-h"
+                autocomplete="off"
+              />
+              <p class="field__hint" id="site-announceLink-h">
+                {t.announceLinkHint}
+              </p>
+            </div>
+            {(
+              [
+                ["announceDismiss", t.optDismiss, t.optDismissHint],
+                ["backToTop", t.optTop, t.optTopHint],
+                ["mobileBar", t.optBar, t.optBarHint],
+                ["progress", t.optProgress, t.optProgressHint],
+                ["footerSocial", t.optSocial, t.optSocialHint],
+                ["footerContact", t.optContact, t.optContactHint],
+              ] as const
+            ).map(([id, label, hint]) => (
+              <div class="switch">
+                <input type="checkbox" role="switch" id={`site-${id}`} data-site={id} aria-describedby={`site-${id}-h`} />
+                <span class="switch__text">
+                  <label for={`site-${id}`} class="switch__label">
+                    {label}
+                  </label>
+                  <span class="field__hint" id={`site-${id}-h`}>
+                    {hint}
+                  </span>
+                </span>
+              </div>
+            ))}
           </section>
         </div>
 

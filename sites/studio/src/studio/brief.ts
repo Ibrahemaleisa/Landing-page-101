@@ -4,7 +4,7 @@
  * the preview as the client left it, so it describes exactly what was seen and approved.
  */
 import { BLOCKS, HEROES, ELEMENTS, TONES, exportBrand, fontsFor, type ElementKey } from "./options";
-import { PLACEHOLDER_NAME, langsOf, nameFor, sectionsOf, slugOf, type Lang, type Project } from "./project";
+import { PLACEHOLDER_NAME, langsOf, nameFor, sectionsOf, slugOf, socialLinks, waLink, type Lang, type Project } from "./project";
 
 /** One text on the page, as rendered. `role` is a tag name or `btn` / `eyebrow`. */
 export interface SnapItem {
@@ -23,6 +23,8 @@ export interface SnapSection {
 }
 export interface Snapshot {
   lang: Lang;
+  /** The announcement bar's text, when it is on. */
+  announce?: SnapItem[];
   header: SnapItem[];
   sections: SnapSection[];
   footer: SnapItem[];
@@ -128,6 +130,7 @@ export function buildBrief(p: Project, snaps: Snapshot[], opts: BriefOptions = {
     .map((s) => {
       const parts = [
         `### ${LANG_NAME[s.lang]} (${s.lang})`,
+        s.announce?.length ? `#### شريط الإعلان\n${items(s.announce)}` : "",
         s.header.length ? `#### الترويسة والقائمة\n${items(s.header)}` : "",
         ...s.sections.map((sec, i) => `#### ${i + 1}. ${blockName(sec.block)} — ${variantName(sec.block, sec.variant)}\n${items(sec.items)}`),
         s.footer.length ? `#### التذييل\n${items(s.footer)}` : "",
@@ -168,6 +171,8 @@ export function buildBrief(p: Project, snaps: Snapshot[], opts: BriefOptions = {
     needs: `العميل يحتاج دومين${info.domain ? ` (مقترح: ${info.domain})` : ""}`,
     later: "الدومين لاحقاً: انشر على رابط Vercel",
   }[info.domainStatus];
+
+  const parts = siteParts(p);
 
   return `# طلب تنفيذ صفحة هبوط: ${title}
 
@@ -220,6 +225,12 @@ ${style}${
 
 ${order}
 
+## أجزاء الموقع
+
+${parts}
+
+أشكال المكوّنات (الأزرار، العناوين، الفواصل، النقوش، الصور، الأيقونات، الحقول) موجودة في \`components\` داخل brand.ts، والكِت يطبّقها تلقائياً عبر BaseLayout.
+
 ## الصور
 
 ${images || "(لم تُرفع صور)"}
@@ -245,4 +256,42 @@ ${info.notes.trim() || "(لا توجد)"}
 ${exportBrand(p.selection, title, p.tweaks).trim()}
 \`\`\`
 `;
+}
+
+/** The site parts as kit components with their props. */
+function siteParts(p: Project): string {
+  const s = p.selection;
+  const site = p.site;
+  const wa = p.info.whatsapp.trim() ? waLink(p.info.whatsapp) : "";
+  const lines: string[] = [];
+  const headerLook = s.headerLook === "dark" ? "solid" : s.headerLook;
+  lines.push(
+    `- الهيدر: \`<SiteHeader layout="${s.headerLayout}" look="${headerLook}" mode="${s.headerBehavior}" nav="${s.navStyle}"${s.headerLook === "dark" ? ' tone="inverse"' : ""}>\``,
+  );
+  if (s.announce !== "none") {
+    const look = s.announce === "marquee" ? "brand" : s.announce;
+    const link = site.announceLink || "#close";
+    lines.push(
+      `- شريط الإعلان فوق الهيدر: \`<AnnouncementBar look="${look}" motion="${s.announce === "marquee" ? "marquee" : "static"}"${site.announceDismiss ? " dismissible" : ""} link={{ href: "${link}" }}>\` (النص في «المحتوى»)`,
+    );
+  } else lines.push("- شريط الإعلان: بدون");
+  lines.push(s.splash !== "none" ? `- الشاشة الافتتاحية: \`<Splash look="${s.splash}">\` وبداخلها الشعار` : "- الشاشة الافتتاحية: بدون");
+  const social = site.footerSocial ? socialLinks(p.info) : [];
+  lines.push(
+    `- الفوتر: \`<Footer layout="${s.footerLayout}" tone="${s.footerTone}"${s.footerLayout === "brand" ? " wordmark={اسم النشاط}" : ""}>\`` +
+      (site.footerSocial
+        ? `، أيقونات الحسابات: ${social.length ? social.map((x) => `${x.label} (${x.href})`).join("، ") : "(لم تُكتب حسابات، أخفِ القائمة)"}`
+        : "") +
+      (site.footerContact ? "، معلومات التواصل (الهاتف، البريد، العنوان)" : ""),
+  );
+  const float: string[] = [];
+  if (s.whatsapp !== "none") {
+    const [style, side] = s.whatsapp.split("-");
+    float.push(`whatsapp={{ href: "${wa || "(رقم واتساب غير موجود: اسأل عنه أو أخفِ الزر)"}", style: "${style}" }} side="${side}"`);
+  }
+  if (site.backToTop) float.push("top={{ label }}");
+  if (site.mobileBar) float.push(`bar={{ items: [اتصال${p.info.phone ? ` (${p.info.phone})` : ""}، واتساب] }}`);
+  lines.push(float.length ? `- أزرار عائمة: \`<FloatingActions ${float.join(" ")}>\`` : "- أزرار عائمة: بدون");
+  lines.push(site.progress ? "- شريط تقدّم القراءة: `<ScrollProgress />`" : "- شريط تقدّم القراءة: بدون");
+  return lines.join("\n");
 }
