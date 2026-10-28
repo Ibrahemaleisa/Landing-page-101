@@ -218,7 +218,7 @@ export const en: Content = {
     lead: "Set up takes about ten minutes. Your first five seats are free forever.",
     actions: [
       { label: "Start free", href: "#start", icon: "arrow-right" },
-      { label: "Book a demo", href: "#start", variant: "secondary" },
+      { label: "Book a demo", href: "#faq", variant: "secondary" },
     ],
   },
   footer: {

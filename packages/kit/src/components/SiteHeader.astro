@@ -82,32 +82,34 @@ const logo = await Astro.slots.render("logo");
         <span class="lk-visually-hidden">{labels.close}</span>
       </button>
     </div>
-    <nav class="lk-container lk-mnav__nav" aria-label={labels.nav}>
-      <ul role="list">
-        {links.map((l, i) => (
-          <li class="lk-enter" style={`--lk-delay:${i * 30}ms`}>
-            <a href={l.href} data-lk-menu-link>
-              {l.label}
-            </a>
-          </li>
-        ))}
-      </ul>
+    <div class="lk-container lk-mnav__nav">
+      <nav aria-label={labels.nav}>
+        <ul role="list">
+          {links.map((l, i) => (
+            <li class="lk-enter" style={`--lk-delay:${i * 30}ms`}>
+              <a href={l.href} data-lk-menu-link>
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
       <div class="lk-mnav__foot">
         <LocaleSwitch site={site} locale={locale} path={path} label={labels.language} />
         <div class="lk-mnav__actions">
           {secondary && (
-            <Button href={secondary.href} variant="secondary" block>
+            <Button href={secondary.href} variant="secondary" block data-lk-menu-link>
               {secondary.label}
             </Button>
           )}
           {cta && (
-            <Button href={cta.href} variant="primary" icon={cta.icon} block>
+            <Button href={cta.href} variant="primary" icon={cta.icon} block data-lk-menu-link>
               {cta.label}
             </Button>
           )}
         </div>
       </div>
-    </nav>
+    </div>
   </dialog>
 </header>
 
@@ -120,19 +122,31 @@ const logo = await Astro.slots.render("logo");
       opener.setAttribute("aria-expanded", "true");
     });
     dialog.querySelector("[data-lk-menu-close]")?.addEventListener("click", () => dialog.close());
-    // in-page links: close first so the page can scroll to the target
-    // ...and don't pull focus (and the scroll position) back to the menu button afterwards
-    let viaLink = false;
-    dialog.querySelectorAll("[data-lk-menu-link]").forEach((a) =>
-      a.addEventListener("click", () => {
-        viaLink = true;
+    // In-page links: close the menu, then move focus to the target itself, so the next Tab
+    // continues from the chosen section instead of from the menu button (WCAG 2.4.3).
+    let target: HTMLElement | null = null;
+    dialog.querySelectorAll<HTMLAnchorElement>("[data-lk-menu-link]").forEach((a) =>
+      a.addEventListener("click", (e) => {
+        const href = a.getAttribute("href") ?? "";
+        const el = href.startsWith("#") && href.length > 1 ? document.getElementById(decodeURIComponent(href.slice(1))) : null;
+        if (!el) return dialog.close(); // other pages: let the browser navigate
+        e.preventDefault();
+        target = el;
         dialog.close();
       }),
     );
     dialog.addEventListener("close", () => {
       opener.setAttribute("aria-expanded", "false");
-      if (!viaLink) opener.focus({ preventScroll: true });
-      viaLink = false;
+      if (target) {
+        const el = target;
+        target = null;
+        if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+        el.focus({ preventScroll: true });
+        el.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+        history.pushState(null, "", `#${el.id}`);
+      } else {
+        opener.focus({ preventScroll: true });
+      }
     });
     // the menu is for small screens only; never leave it open past the breakpoint
     matchMedia("(min-width: 64rem)").addEventListener("change", (e) => e.matches && dialog.open && dialog.close());
@@ -274,6 +288,10 @@ const logo = await Astro.slots.render("logo");
     }
     .lk-mnav__nav ul {
       display: grid;
+    }
+    /* sections focused programmatically from the menu don't need a ring around the whole block */
+    :global([tabindex="-1"]:focus:not(:focus-visible)) {
+      outline: none;
     }
     .lk-mnav__nav li a {
       display: block;

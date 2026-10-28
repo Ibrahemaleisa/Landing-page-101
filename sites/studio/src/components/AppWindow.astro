@@ -1,0 +1,162 @@
+---
+/** Centred-hero figure: an illustrative app window with metrics and a chart, in HTML. */
+import type { PreviewContent } from "../content/preview";
+
+export interface Props {
+  c: PreviewContent["app"];
+}
+const { c } = Astro.props;
+const bars = [38, 52, 46, 70, 64, 82, 76, 90];
+---
+
+<figure class="app" aria-label={c.title}>
+  <div class="app__chrome" aria-hidden="true">
+    <i></i>
+    <i></i>
+    <i></i>
+  </div>
+  <div class="app__body">
+    <div class="app__top">
+      <span class="app__title">{c.title}</span>
+      <span class="app__tabs" aria-hidden="true">
+        {c.tabs.map((t, i) => (
+          <span data-on={i === 0 ? "" : undefined}>{t}</span>
+        ))}
+      </span>
+    </div>
+    <dl class="app__metrics">
+      {c.metrics.map((m) => (
+        <div>
+          <dt>{m.label}</dt>
+          <dd>
+            <span class="lk-tabular">{m.value}</span> <small>{m.delta}</small>
+          </dd>
+        </div>
+      ))}
+    </dl>
+    <div class="app__chart">
+      <span class="app__chart-label">{c.chart}</span>
+      <div class="app__bars" aria-hidden="true">
+        {bars.map((h) => (
+          <span style={`block-size:${h}%`} />
+        ))}
+      </div>
+    </div>
+  </div>
+</figure>
+
+<style>
+  @layer site {
+    .app {
+      max-inline-size: 60rem;
+      margin-inline: auto;
+      border-radius: var(--radius-card);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      border: var(--card-border-width) solid var(--tone-surface-line);
+      box-shadow: var(--shadow-raised);
+      overflow: hidden;
+      text-align: start;
+    }
+    .app__chrome {
+      display: flex;
+      gap: 6px;
+      padding: 0.75rem 1rem;
+      border-block-end: 1px solid var(--tone-surface-line);
+    }
+    .app__chrome i {
+      inline-size: 10px;
+      block-size: 10px;
+      border-radius: 50%;
+      background: var(--tone-surface-line);
+    }
+    .app__chrome i:first-child {
+      background: var(--tone-accent);
+    }
+    .app__body {
+      display: grid;
+      gap: var(--space-m);
+      padding: var(--space-m);
+    }
+    .app__top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--space-s);
+      align-items: center;
+    }
+    .app__title {
+      font-family: var(--font-display);
+      font-size: var(--step-1);
+      font-weight: var(--weight-heading);
+      color: var(--tone-heading);
+    }
+    .app__tabs {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0.25rem;
+      border-radius: var(--radius-control);
+      background: var(--tone-bg);
+      font-size: var(--step--1);
+    }
+    .app__tabs span {
+      padding: 0.3rem 0.8rem;
+      border-radius: calc(var(--radius-control) - 0.25rem);
+      color: var(--tone-fg-muted);
+    }
+    .app__tabs span[data-on] {
+      background: var(--tone-accent);
+      color: var(--tone-on-accent);
+    }
+    .app__metrics {
+      display: grid;
+      gap: var(--space-xs);
+      grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    }
+    .app__metrics > div {
+      padding: var(--space-s);
+      border-radius: calc(var(--radius-card) * 0.7);
+      border: 1px solid var(--tone-surface-line);
+    }
+    .app__metrics dt {
+      font-size: var(--step--1);
+      color: var(--tone-surface-fg-muted);
+    }
+    .app__metrics dd {
+      font-family: var(--font-display);
+      font-size: var(--step-3);
+      font-weight: var(--weight-display);
+      color: var(--tone-heading);
+    }
+    .app__metrics small {
+      font-size: var(--step--1);
+      color: var(--tone-surface-fg-muted);
+      font-weight: var(--weight-body);
+    }
+    .app__chart {
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .app__chart-label {
+      font-size: var(--step--1);
+      color: var(--tone-surface-fg-muted);
+    }
+    .app__bars {
+      display: flex;
+      align-items: end;
+      gap: 0.5rem;
+      block-size: 8rem;
+    }
+    .app__bars span {
+      flex: 1;
+      border-radius: calc(var(--radius-control) * 0.4) calc(var(--radius-control) * 0.4) 0 0;
+      background: var(--tone-surface-line);
+    }
+    .app__bars span:last-child {
+      background: var(--tone-accent);
+    }
+    .app__bars span:nth-last-child(2) {
+      background: var(--tone-highlight);
+    }
+  }
+</style>

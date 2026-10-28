@@ -1,0 +1,311 @@
+---
+/**
+ * The style studio: pick a ready-made style or mix every element yourself, and watch the preview
+ * update live. Private tool — not indexed.
+ */
+import BaseLayout from "@landing/kit/layouts/BaseLayout.astro";
+import Dialog from "@landing/kit/components/Dialog.astro";
+import Button from "@landing/kit/components/Button.astro";
+import Icon from "@landing/kit/primitives/Icon.astro";
+import LocaleSwitch from "@landing/kit/components/LocaleSwitch.astro";
+import { localeHref, localePaths } from "@landing/kit/i18n";
+import { site, type Locale } from "../site";
+import { DEFAULT_SELECTION, ELEMENTS, ELEMENT_LABELS, PRESETS, buildBrand, type ElementKey } from "../studio/options";
+import { FONT_FAMILIES, cssVar } from "../studio/fonts";
+import "../styles/shell.css";
+
+export const getStaticPaths = () => localePaths(site);
+
+const { locale } = Astro.props as { locale: Locale };
+const ar = locale === "ar";
+const t = ar
+  ? {
+      title: "استوديو الأنماط",
+      tagline: "اختر نمطاً جاهزاً أو اخلط كل عنصر بنفسك، وشاهد النتيجة مباشرة.",
+      preset: "النمط الجاهز",
+      custom: "مخصص (من اختيارك)",
+      elements: "العناصر",
+      random: "اقتراح عشوائي",
+      reset: "إعادة الضبط",
+      device: "حجم المعاينة",
+      mobile: "جوال",
+      tablet: "تابلت",
+      desktop: "كمبيوتر",
+      previewLang: "لغة المعاينة",
+      open: "افتح المعاينة كاملة",
+      exportTitle: "تصدير النمط كملف brand.ts",
+      exportOpen: "تصدير النمط",
+      copy: "نسخ",
+      copied: "تم النسخ",
+      close: "إغلاق",
+      contrast: "فحص التباين (WCAG AA)",
+      contrastOk: "كل الأزواج المطلوبة ناجحة ({m})",
+      contrastBad: "{n} من {m} أزواج لا تحقق الحد الأدنى",
+      frame: "معاينة النمط",
+      language: "اللغة",
+      skip: "تخطَّ إلى الاستوديو",
+      exportHelp: "انسخ الملف إلى src/brand.ts في موقع جديد (pnpm new-site)، وثبّت الخطوط المذكورة في أعلاه.",
+    }
+  : {
+      title: "Style Studio",
+      tagline: "Pick a ready-made style or mix every element yourself, and see the result live.",
+      preset: "Ready-made style",
+      custom: "Custom (your mix)",
+      elements: "Elements",
+      random: "Surprise me",
+      reset: "Reset",
+      device: "Preview size",
+      mobile: "Phone",
+      tablet: "Tablet",
+      desktop: "Desktop",
+      previewLang: "Preview language",
+      open: "Open full preview",
+      exportTitle: "Export the style as brand.ts",
+      exportOpen: "Export style",
+      copy: "Copy",
+      copied: "Copied",
+      close: "Close",
+      contrast: "Contrast check (WCAG AA)",
+      contrastOk: "All required pairs pass ({m})",
+      contrastBad: "{n} of {m} pairs below the minimum",
+      frame: "Style preview",
+      language: "Language",
+      skip: "Skip to the studio",
+      exportHelp: "Paste this into src/brand.ts of a new site (pnpm new-site) and install the fonts listed at the top.",
+    };
+const keys = Object.keys(ELEMENTS) as ElementKey[];
+const lbl = (l: { ar: string; en: string }) => l[locale];
+const previewPath = (l: Locale) => localeHref(site, l, "/preview/");
+---
+
+<BaseLayout
+  site={site}
+  brand={buildBrand(DEFAULT_SELECTION)}
+  locale={locale}
+  title={t.title}
+  description={t.tagline}
+  siteName={t.title}
+  skipLabel={t.skip}
+  noindex
+  fonts={FONT_FAMILIES.filter((ff) => ["inter", "plex-ar"].includes(ff.id)).map((ff) => ({ cssVariable: cssVar(ff.id), preload: true }))}
+>
+  <main id="main" class="studio" data-studio data-preview-ar={previewPath("ar")} data-preview-en={previewPath("en")}>
+    <section class="studio__panel" aria-labelledby="studio-title">
+      <header class="studio__head">
+        <h1 id="studio-title" class="studio__title">
+          {t.title}
+        </h1>
+        <LocaleSwitch site={site} locale={locale} label={t.language} />
+      </header>
+      <p class="studio__tagline">{t.tagline}</p>
+
+      <div class="studio__controls">
+        <div class="studio__field studio__field--preset">
+          <label for="s-preset">{t.preset}</label>
+          <select id="s-preset" data-preset>
+            {PRESETS.map((p) => (
+              <option value={p.id}>{lbl(p.label)}</option>
+            ))}
+            <option value="custom" data-custom hidden>
+              {t.custom}
+            </option>
+          </select>
+          <p class="studio__desc" data-preset-desc aria-live="polite">
+            {lbl(PRESETS[0]!.description)}
+          </p>
+        </div>
+
+        <fieldset class="studio__group">
+          <legend>{t.elements}</legend>
+          {keys.map((k) => (
+            <div class="studio__field">
+              <label for={`s-${k}`}>{lbl(ELEMENT_LABELS[k])}</label>
+              <select id={`s-${k}`} data-el={k}>
+                {ELEMENTS[k].map((o) => (
+                  <option value={o.id} selected={DEFAULT_SELECTION[k] === o.id}>
+                    {lbl(o.label)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))}
+        </fieldset>
+
+        <div class="studio__actions">
+          <Button variant="secondary" size="sm" icon="zap" iconStart data-random>
+            {t.random}
+          </Button>
+          <Button variant="ghost" size="sm" data-reset>
+            {t.reset}
+          </Button>
+        </div>
+
+        <section class="studio__contrast" aria-labelledby="contrast-title">
+          <h2 id="contrast-title">{t.contrast}</h2>
+          <p data-contrast aria-live="polite" data-ok-template={t.contrastOk} data-bad-template={t.contrastBad}></p>
+        </section>
+
+        <Dialog id="export" title={t.exportTitle} triggerLabel={t.exportOpen} closeLabel={t.close} triggerVariant="primary">
+          <p class="studio__desc">{t.exportHelp}</p>
+          <pre class="studio__code" tabindex="0" dir="ltr"><code data-export></code></pre>
+          <Button variant="primary" size="sm" icon="check" iconStart data-copy data-copied={t.copied}>
+            {t.copy}
+          </Button>
+        </Dialog>
+      </div>
+    </section>
+
+    <section class="studio__stage" aria-label={t.frame}>
+      <div class="studio__toolbar">
+        <fieldset class="studio__seg">
+          <legend class="lk-visually-hidden">{t.device}</legend>
+          <input type="radio" name="device" id="d-mobile" value="390" />
+          <label for="d-mobile">{t.mobile}</label>
+          <input type="radio" name="device" id="d-tablet" value="820" />
+          <label for="d-tablet">{t.tablet}</label>
+          <input type="radio" name="device" id="d-desktop" value="100%" checked />
+          <label for="d-desktop">{t.desktop}</label>
+        </fieldset>
+        <div class="studio__field studio__field--inline">
+          <label for="s-plang">{t.previewLang}</label>
+          <select id="s-plang" data-plang>
+            <option value="ar" selected={ar}>
+              العربية
+            </option>
+            <option value="en" selected={!ar}>
+              English
+            </option>
+          </select>
+        </div>
+        <a class="studio__open" href={previewPath(locale)} target="_blank" rel="noopener" data-open>
+          {t.open}
+          <Icon name="external-link" />
+        </a>
+      </div>
+      <div class="studio__frame" data-frame-wrap>
+        <iframe title={t.frame} src={previewPath(locale)} data-frame></iframe>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<script>
+  import { checkBrandContrast } from "@landing/kit/brand";
+  import { DEFAULT_SELECTION, ELEMENTS, PRESETS, buildBrand, exportBrand, matchPreset, type ElementKey, type Selection } from "../studio/options";
+  import { decodeSelection, encodeSelection, hasSelection } from "../studio/state";
+
+  const root = document.querySelector<HTMLElement>("[data-studio]")!;
+  const frame = root.querySelector<HTMLIFrameElement>("[data-frame]")!;
+  const wrap = root.querySelector<HTMLElement>("[data-frame-wrap]")!;
+  const presetSel = root.querySelector<HTMLSelectElement>("[data-preset]")!;
+  const customOpt = presetSel.querySelector<HTMLOptionElement>("[data-custom]")!;
+  const desc = root.querySelector<HTMLElement>("[data-preset-desc]")!;
+  const selects = Array.from(root.querySelectorAll<HTMLSelectElement>("[data-el]"));
+  const contrastEl = root.querySelector<HTMLElement>("[data-contrast]")!;
+  const openLink = root.querySelector<HTMLAnchorElement>("[data-open]")!;
+  const plang = root.querySelector<HTMLSelectElement>("[data-plang]")!;
+  const lang = document.documentElement.lang.startsWith("ar") ? "ar" : "en";
+  const STORE = "lk-studio";
+
+  let sel: Selection = hasSelection(location.search) ? decodeSelection(location.search) : load();
+
+  function load(): Selection {
+    try {
+      const raw = localStorage.getItem(STORE);
+      if (raw) return decodeSelection(raw);
+    } catch {
+      /* storage unavailable: use the default */
+    }
+    return { ...DEFAULT_SELECTION };
+  }
+
+  const previewUrl = () => (plang.value === "ar" ? root.dataset.previewAr : root.dataset.previewEn)!;
+
+  function sync() {
+    selects.forEach((s) => (s.value = sel[s.dataset.el as ElementKey]));
+    const preset = matchPreset(sel);
+    customOpt.hidden = !!preset;
+    presetSel.value = preset?.id ?? "custom";
+    desc.textContent = preset ? preset.description[lang] : "";
+
+    const checks = checkBrandContrast(buildBrand(sel)).filter((c) => c.level === "required");
+    const failed = checks.filter((c) => !c.pass).length;
+    contrastEl.textContent = (failed ? contrastEl.dataset.badTemplate! : contrastEl.dataset.okTemplate!)
+      .replace("{n}", String(failed))
+      .replace("{m}", String(checks.length));
+    contrastEl.dataset.state = failed ? "bad" : "ok";
+
+    const q = encodeSelection(sel);
+    openLink.href = previewUrl() + q;
+    history.replaceState(null, "", q);
+    try {
+      localStorage.setItem(STORE, q);
+    } catch {
+      /* not persisted */
+    }
+    frame.contentWindow?.postMessage({ type: "studio:apply", selection: sel }, location.origin);
+  }
+
+  selects.forEach((s) =>
+    s.addEventListener("change", () => {
+      sel = { ...sel, [s.dataset.el as ElementKey]: s.value };
+      sync();
+    }),
+  );
+  presetSel.addEventListener("change", () => {
+    const p = PRESETS.find((x) => x.id === presetSel.value);
+    if (p) {
+      sel = { ...p.selection };
+      sync();
+    }
+  });
+  root.querySelector("[data-random]")!.addEventListener("click", () => {
+    const next = { ...sel };
+    for (const k of Object.keys(ELEMENTS) as ElementKey[]) {
+      const list = ELEMENTS[k];
+      next[k] = list[Math.floor(Math.random() * list.length)]!.id;
+    }
+    sel = next;
+    sync();
+  });
+  root.querySelector("[data-reset]")!.addEventListener("click", () => {
+    sel = { ...DEFAULT_SELECTION };
+    sync();
+  });
+
+  // the preview announces itself when loaded; send it the current selection
+  window.addEventListener("message", (e) => {
+    if (e.origin === location.origin && e.data?.type === "studio:ready") sync();
+  });
+
+  root.querySelectorAll<HTMLInputElement>('input[name="device"]').forEach((r) =>
+    r.addEventListener("change", () => {
+      wrap.style.setProperty("--frame-w", r.value === "100%" ? "100%" : `${r.value}px`);
+      wrap.dataset.device = r.id;
+    }),
+  );
+  plang.addEventListener("change", () => {
+    frame.src = previewUrl() + encodeSelection(sel);
+  });
+
+  // export
+  const code = root.querySelector<HTMLElement>("[data-export]")!;
+  document.querySelector("[data-lk-dialog-open='export']")?.addEventListener("click", () => {
+    code.textContent = exportBrand(sel);
+  });
+  const copyBtn = root.querySelector<HTMLButtonElement>("[data-copy]")!;
+  copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(code.textContent ?? "");
+      const label = copyBtn.querySelector(".lk-btn__label")!;
+      const before = label.textContent;
+      label.textContent = copyBtn.dataset.copied!;
+      setTimeout(() => (label.textContent = before), 1500);
+    } catch {
+      getSelection()?.selectAllChildren(code);
+    }
+  });
+
+  frame.src = previewUrl() + encodeSelection(sel);
+  sync();
+</script>

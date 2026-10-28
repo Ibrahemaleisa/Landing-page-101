@@ -17,13 +17,15 @@ export interface Props {
   items: Testimonial[];
   variant?: "grid" | "featured";
   note?: string;
+  /** Joins role and company; use "، " on Arabic pages. */
+  separator?: string;
   class?: string;
 }
 
-const { id, tone, eyebrow, title, lead, items, variant = "grid", note, class: cls } = Astro.props;
+const { id, tone, eyebrow, title, lead, items, variant = "grid", note, separator = ", ", class: cls } = Astro.props;
 const headingId = `${id}-title`;
 const [first, ...rest] = items;
-const cite = (t: Testimonial) => [t.role, t.company].filter(Boolean).join(", ");
+const cite = (t: Testimonial) => [t.role, t.company].filter(Boolean).join(separator);
 ---
 
 <Section id={id} tone={tone} labelledby={headingId} class:list={["lk-quotes", cls]} data-variant={variant}>

@@ -321,7 +321,8 @@
   }
   .lk-eyebrow {
     font-family: var(--font-label);
-    font-size: var(--step-label);
+    /* never below 12px, however small the brand sets labels */
+    font-size: max(var(--step-label), 0.75rem);
     font-weight: var(--weight-label);
     line-height: var(--leading-label);
     letter-spacing: var(--tracking-label);

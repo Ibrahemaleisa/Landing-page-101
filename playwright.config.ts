@@ -12,7 +12,7 @@ export default defineConfig({
     ...devices["Desktop Chrome"],
     trace: "retain-on-failure",
   },
-  webServer: SITES.map((s) => ({
+  webServer: [...SITES, { name: "studio", port: 4324 }].map((s) => ({
     command: `pnpm --dir sites/${s.name} preview`,
     port: s.port,
     reuseExistingServer: true,

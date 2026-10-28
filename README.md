@@ -14,6 +14,13 @@ The system makes the quality repeatable without making the sites look alike:
 | Hero              | Full-height display + field photo + orbit | Split with a working part finder  | Centred over a product console |
 | Signature section | Five-principle ring                       | Offer comparison and fitment      | Live-looking flag console      |
 
+## Style Studio (private)
+
+`sites/studio` is a private playground: **10 ready-made styles**, and a dropdown for every element (colours,
+typography, type scale, buttons, corners and borders, shadows, spacing, motion, hero template, page template). The
+preview updates live in Arabic or English at phone, tablet or desktop size, and any mix exports as a `brand.ts`.
+Run it with `pnpm --dir sites/studio dev` → http://localhost:4324/. Guide: [docs/guides/studio.md](docs/guides/studio.md).
+
 ## Quick start
 
 ```sh
@@ -22,6 +29,7 @@ pnpm install
 pnpm --dir sites/opera dev        # http://localhost:4321/
 pnpm --dir sites/qitah dev        # http://localhost:4322/
 pnpm --dir sites/kitebase dev     # http://localhost:4323/
+pnpm --dir sites/studio dev       # http://localhost:4324/  (style studio)
 
 pnpm new-site acme --title "Acme" --locales en,ar --default en   # your own site
 ```
@@ -52,6 +60,7 @@ pnpm perf      # Lighthouse (lab)
 | [Opera audit](docs/research/opera-audit.md)                                                                                                                                        | Phase 1 research: what was kept, generalised, left behind, and fixed        |
 | [Design principles and tokens](docs/design/principles-and-tokens.md)                                                                                                               | The token reference                                                         |
 | [Components and sections](docs/components.md)                                                                                                                                      | Every component and section, with props and behaviour                       |
+| [Style Studio](docs/guides/studio.md)                                                                                                                                              | Mix 10 styles element by element, preview live, export                      |
 | [Brand customization](docs/guides/brand-customization.md)                                                                                                                          | Making a brand feel like itself                                             |
 | [New project](docs/guides/new-project.md)                                                                                                                                          | Scaffold, customise, verify, deploy                                         |
 | [Testing and quality](docs/quality.md)                                                                                                                                             | Gates and definition of done                                                |
@@ -65,6 +74,7 @@ packages/kit             @landing/kit — brand compiler, i18n, components, sect
 packages/create-landing  `pnpm new-site` scaffolder
 templates/starter        what new sites start from
 sites/{opera,qitah,kitebase}   reference implementations
+sites/studio             private style studio (10 styles, live preview)
 tests/{unit,e2e}         contrast gates, Playwright + axe
 scripts/                 Lighthouse and screenshot tooling
 docs/                    ADRs, guides, reports

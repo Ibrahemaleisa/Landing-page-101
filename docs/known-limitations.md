@@ -28,6 +28,19 @@ Stated plainly so nobody discovers them in production.
 - **Single page per site.** Multi-page sites work (`localeHref(site, locale, "/pricing/")` and `path` on `BaseLayout`),
   but no reference site exercises them, and there is no generated sitemap yet (`@astrojs/sitemap` can be added per site).
 
+## Open accessibility items
+
+- **Opera reference site** has three open findings from the independent audit (home-link name in Arabic, a misplaced
+  `<figcaption>`, Formula button verbosity). They are left unchanged on purpose: Opera is kept as a reference only. Fixes
+  are described in the [accessibility report](reports/accessibility.md).
+- **Fluid display headings** grow about 1.3× at 200% browser zoom (body text grows 2×). Advisory under WCAG 1.4.4.
+
+## Studio
+
+- The studio is a private tool (`noindex`), not a product. Its preview renders every section variant once and hides the
+  ones a template doesn't use, so its HTML is larger than a lean site's (124 KB, 16 KB gzipped — about twice Kitebase, similar to Qitah).
+- Exported `brand.ts` files list the fonts to install, but registering them in `astro.config.mjs` is a manual step.
+
 ## Technical debt
 
 - **The kit is consumed as source inside the monorepo**; it isn't published (roadmap 1).

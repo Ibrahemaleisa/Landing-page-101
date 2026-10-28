@@ -78,7 +78,7 @@ const common = {
 <div class:list={["lk-field", cls]}>
   <label for={id} class="lk-field__label">
     {label}
-    {required && requiredLabel && <span class="lk-field__req">{requiredLabel}</span>}
+    {required && requiredLabel && <span class="lk-field__req"> {requiredLabel}</span>}
   </label>
   {hint && (
     <p id={hintId} class="lk-field__hint">
@@ -122,7 +122,6 @@ const common = {
       font-size: var(--step--1);
     }
     .lk-field__req {
-      margin-inline-start: 0.35em;
       font-weight: var(--weight-body);
       color: var(--tone-fg-muted);
     }
@@ -176,6 +175,7 @@ const common = {
     /* the error is marked by an icon and text, never colour alone */
     .lk-field__error::before {
       content: "!";
+      content: "!" / "";
       display: inline-grid;
       place-items: center;
       flex: none;

@@ -1,0 +1,124 @@
+---
+/** Split-hero figure: an illustrative project card, built in HTML so it follows every style. */
+import Badge from "@landing/kit/components/Badge.astro";
+import Icon from "@landing/kit/primitives/Icon.astro";
+import type { PreviewContent } from "../content/preview";
+
+export interface Props {
+  c: PreviewContent["card"];
+}
+const { c } = Astro.props;
+const progress = [100, 60, 68];
+---
+
+<figure class="pcard" aria-label={c.title}>
+  <div class="pcard__head">
+    <span class="pcard__icon">
+      <Icon name="layers" />
+    </span>
+    <span>
+      <span class="pcard__title">{c.title}</span>
+      <span class="pcard__meta">{c.meta}</span>
+    </span>
+    <Badge variant="highlight">{c.status}</Badge>
+  </div>
+  <ul role="list" class="pcard__rows">
+    {c.rows.map((r, i) => (
+      <li>
+        <span class="pcard__row">
+          <span>{r.label}</span>
+          <span class="pcard__value">{r.value}</span>
+        </span>
+        <span class="pcard__bar" aria-hidden="true">
+          <span style={`inline-size:${progress[i]}%`} />
+        </span>
+      </li>
+    ))}
+  </ul>
+  <span class="pcard__button" aria-hidden="true">
+    {c.button}
+  </span>
+</figure>
+
+<style>
+  @layer site {
+    .pcard {
+      display: grid;
+      gap: var(--space-s);
+      max-inline-size: 30rem;
+      margin-inline: auto;
+      padding: var(--space-m);
+      border-radius: var(--radius-card);
+      background: var(--tone-surface);
+      color: var(--tone-surface-fg);
+      border: var(--card-border-width) solid var(--tone-surface-line);
+      box-shadow: var(--shadow-raised);
+    }
+    .pcard__head {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--space-xs);
+      align-items: center;
+    }
+    .pcard__icon {
+      display: grid;
+      place-items: center;
+      inline-size: 2.5rem;
+      block-size: 2.5rem;
+      border-radius: var(--radius-control);
+      background: var(--tone-accent);
+      color: var(--tone-on-accent);
+    }
+    .pcard__title {
+      display: block;
+      font-family: var(--font-display);
+      font-weight: var(--weight-heading);
+      font-size: var(--step-1);
+      color: var(--tone-heading);
+    }
+    .pcard__meta {
+      display: block;
+      font-size: var(--step--1);
+      color: var(--tone-surface-fg-muted);
+    }
+    .pcard__rows {
+      display: grid;
+      gap: var(--space-xs);
+      padding-block: var(--space-xs);
+      border-block: 1px solid var(--tone-surface-line);
+    }
+    .pcard__row {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--step--1);
+    }
+    .pcard__value {
+      font-weight: var(--control-weight);
+    }
+    .pcard__bar {
+      display: block;
+      block-size: 0.4rem;
+      margin-block-start: 0.35rem;
+      border-radius: 999px;
+      background: var(--tone-surface-line);
+      overflow: hidden;
+    }
+    .pcard__bar span {
+      display: block;
+      block-size: 100%;
+      background: var(--tone-accent);
+    }
+    .pcard__button {
+      display: grid;
+      place-items: center;
+      min-block-size: var(--control-height);
+      border-radius: var(--radius-control);
+      background: var(--tone-accent);
+      color: var(--tone-on-accent);
+      font-family: var(--font-control);
+      font-weight: var(--control-weight);
+      text-transform: var(--control-transform);
+      letter-spacing: var(--control-tracking);
+    }
+  }
+</style>

@@ -47,6 +47,8 @@ for (const { site, locale, id } of PAGES) {
     await link.click();
     await expect(page.locator("#lk-mnav")).toBeHidden();
     await expect(page).toHaveURL(new RegExp(`${href}$`));
+    // focus moves to the chosen section, so the next Tab continues from there (WCAG 2.4.3)
+    await expect(page.locator(href!)).toBeFocused();
   });
 
   test(`${id}: accordions open and close from the keyboard`, async ({ page }) => {

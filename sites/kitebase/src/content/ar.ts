@@ -198,7 +198,7 @@ export const ar: Content = {
     lead: "يستغرق الإعداد نحو عشر دقائق. ومقاعدك الخمسة الأولى مجانية دائماً.",
     actions: [
       { label: "ابدأ مجاناً", href: "#start", icon: "arrow-right" },
-      { label: "احجز عرضاً توضيحياً", href: "#start", variant: "secondary" },
+      { label: "احجز عرضاً توضيحياً", href: "#faq", variant: "secondary" },
     ],
   },
   footer: {

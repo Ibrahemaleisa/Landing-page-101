@@ -1,0 +1,141 @@
+---
+/**
+ * Decorative compositions drawn with the current tone's colours, so they recolour with every
+ * palette. Purely decorative: hidden from assistive technology.
+ */
+export interface Props {
+  variant: "orbits" | "blocks" | "waves" | "stack";
+  class?: string;
+}
+const { variant, class: cls } = Astro.props;
+---
+
+<div class:list={["art", cls]} data-variant={variant} aria-hidden="true">
+  {variant === "orbits" && (
+    <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice">
+      <circle cx="420" cy="230" r="250" class="art-stroke" />
+      <circle cx="420" cy="230" r="170" class="art-stroke" />
+      <circle cx="420" cy="230" r="90" class="art-fill-surface" />
+      <circle cx="250" cy="120" r="22" class="art-fill-accent" />
+      <circle cx="560" cy="430" r="12" class="art-fill-highlight" />
+      <path d="M120 520 Q 320 380 600 470" class="art-stroke" />
+    </svg>
+  )}
+  {variant === "blocks" && (
+    <div class="art-blocks">
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+    </div>
+  )}
+  {variant === "waves" && (
+    <svg viewBox="0 0 400 300" preserveAspectRatio="none">
+      <rect width="400" height="300" class="art-fill-surface" />
+      <path d="M0 210 C 80 170, 140 250, 220 205 S 340 160, 400 190 L400 300 L0 300 Z" class="art-fill-accent" />
+      <path d="M0 240 C 90 210, 160 280, 240 240 S 350 215, 400 235 L400 300 L0 300 Z" class="art-fill-highlight" />
+      <circle cx="310" cy="85" r="34" class="art-stroke" />
+    </svg>
+  )}
+  {variant === "stack" && (
+    <div class="art-stack">
+      <span />
+      <span />
+      <span />
+    </div>
+  )}
+</div>
+
+<style>
+  @layer site {
+    .art {
+      position: relative;
+      inline-size: 100%;
+      block-size: 100%;
+      min-block-size: 16rem;
+      overflow: hidden;
+      border-radius: var(--radius-media);
+    }
+    .art svg {
+      position: absolute;
+      inset: 0;
+      inline-size: 100%;
+      block-size: 100%;
+    }
+    .art-stroke {
+      fill: none;
+      stroke: var(--tone-line);
+      stroke-width: 2;
+    }
+    .art-fill-surface {
+      fill: var(--tone-surface);
+    }
+    .art-fill-accent {
+      fill: var(--tone-accent);
+    }
+    .art-fill-highlight {
+      fill: var(--tone-highlight);
+    }
+    .art[data-variant="orbits"] {
+      border-radius: 0;
+    }
+    /* on phones the composition sits behind the headline: keep the decorative fills quiet */
+    @media (max-width: 63.99rem) {
+      .art[data-variant="orbits"] :is(.art-fill-accent, .art-fill-highlight, .art-fill-surface) {
+        opacity: 0.3;
+      }
+    }
+    .art-blocks {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-xs);
+      padding: var(--space-m);
+      background: var(--tone-surface);
+    }
+    .art-blocks span {
+      border-radius: var(--radius-card);
+      background: var(--tone-line);
+    }
+    .art-blocks span:nth-child(1) {
+      grid-column: span 2;
+      background: var(--tone-accent);
+    }
+    .art-blocks span:nth-child(5) {
+      background: var(--tone-highlight);
+    }
+    .art-blocks span:nth-child(6) {
+      grid-column: span 2;
+    }
+    .art-stack {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: var(--tone-surface);
+    }
+    .art-stack span {
+      grid-area: 1 / 1;
+      inline-size: 55%;
+      aspect-ratio: 4 / 3;
+      border-radius: var(--radius-card);
+      border: var(--card-border-width) solid var(--tone-line);
+      background: var(--tone-bg);
+      box-shadow: var(--shadow-raised);
+    }
+    .art-stack span:nth-child(1) {
+      transform: translate(-14%, -12%) rotate(-6deg);
+    }
+    .art-stack span:nth-child(2) {
+      transform: translate(10%, 4%) rotate(4deg);
+      background: var(--tone-highlight);
+    }
+    .art-stack span:nth-child(3) {
+      transform: translate(-2%, 14%);
+      background: var(--tone-accent);
+    }
+  }
+</style>

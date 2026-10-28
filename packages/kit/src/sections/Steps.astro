@@ -100,7 +100,7 @@ const state = (i: number) => (current === undefined ? "todo" : i < current ? "do
       border-radius: var(--radius-badge);
       background: var(--tone-accent);
       color: var(--tone-on-accent);
-      font-size: var(--step--2);
+      font-size: max(var(--step--2), 0.75rem);
       font-weight: var(--control-weight);
     }
 

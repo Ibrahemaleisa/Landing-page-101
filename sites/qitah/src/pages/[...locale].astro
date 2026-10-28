@@ -88,7 +88,7 @@ const jsonLd = {
           </li>
         ))}
       </ul>
-      <PartFinder slot="figure" c={t.finder} vehicleLegend={t.finder.title} />
+      <PartFinder slot="figure" c={t.finder} vehicleLegend={locale === "ar" ? "سيارتك" : "Your car"} />
     </Hero>
 
     <CategoryGrid id="categories" tone="muted" c={t.categories} />

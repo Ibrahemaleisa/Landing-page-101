@@ -1,0 +1,336 @@
+---
+/**
+ * The live preview. Every section variant is rendered once; a small script applies the selection:
+ * it swaps the brand CSS, then shows, orders and re-tones the blocks the chosen templates use. It
+ * reads the selection from the query string (open it on its own) or from the studio via postMessage.
+ */
+import BaseLayout from "@landing/kit/layouts/BaseLayout.astro";
+import SiteHeader from "@landing/kit/components/SiteHeader.astro";
+import Hero from "@landing/kit/sections/Hero.astro";
+import Statement from "@landing/kit/sections/Statement.astro";
+import LogoCloud from "@landing/kit/sections/LogoCloud.astro";
+import Showcase from "@landing/kit/sections/Showcase.astro";
+import Features from "@landing/kit/sections/Features.astro";
+import FeatureNarrative from "@landing/kit/sections/FeatureNarrative.astro";
+import Steps from "@landing/kit/sections/Steps.astro";
+import Stats from "@landing/kit/sections/Stats.astro";
+import Testimonials from "@landing/kit/sections/Testimonials.astro";
+import Comparison from "@landing/kit/sections/Comparison.astro";
+import Pricing from "@landing/kit/sections/Pricing.astro";
+import FAQ from "@landing/kit/sections/FAQ.astro";
+import CTA from "@landing/kit/sections/CTA.astro";
+import Contact from "@landing/kit/sections/Contact.astro";
+import Footer from "@landing/kit/sections/Footer.astro";
+import Form from "@landing/kit/components/Form.astro";
+import Field from "@landing/kit/components/Field.astro";
+import Button from "@landing/kit/components/Button.astro";
+import { localeHref, localePaths } from "@landing/kit/i18n";
+import { site, type Locale } from "../../site";
+import { previewContent } from "../../content/preview";
+import { DEFAULT_SELECTION, PAGES, buildBrand } from "../../studio/options";
+import { FONT_FAMILIES, cssVar } from "../../studio/fonts";
+import Art from "../../components/Art.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import AppWindow from "../../components/AppWindow.astro";
+import Logo from "../../components/Logo.astro";
+
+export const getStaticPaths = () => localePaths(site);
+
+const { locale } = Astro.props as { locale: Locale };
+const t = previewContent[locale];
+const name = locale === "ar" ? "رواق" : "Rawaq";
+const home = localeHref(site, locale, "/preview/");
+
+// server-render the default selection's order so the page is right before the script runs
+const initial = new Set(["top:" + DEFAULT_SELECTION.hero, ...PAGES.find((p) => p.id === DEFAULT_SELECTION.page)!.value.map(([b, v]) => `${b}:${v}`)]);
+const show = (block: string, variant: string) => !initial.has(`${block}:${variant}`);
+const f = t.contact.form;
+---
+
+<BaseLayout
+  site={site}
+  brand={buildBrand(DEFAULT_SELECTION)}
+  locale={locale}
+  path="/preview/"
+  title={t.meta.title}
+  description={t.meta.description}
+  siteName={name}
+  skipLabel={t.ui.skip}
+  noindex
+  fonts={FONT_FAMILIES.map((ff) => ({ cssVariable: cssVar(ff.id) }))}
+>
+  <SiteHeader
+    site={site}
+    locale={locale}
+    path="/preview/"
+    homeHref={home}
+    homeLabel={t.ui.home}
+    links={t.nav}
+    cta={t.cta}
+    labels={{ nav: t.ui.nav, menu: t.ui.menu, close: t.ui.close, language: t.ui.language }}
+  >
+    <Logo slot="logo" name={name} />
+  </SiteHeader>
+
+  <main id="main" data-studio-main>
+    <!-- hero: one per composition -->
+    <div data-block="top" data-variant="display" hidden={show("top", "display")}>
+      <Hero variant="display" id="top-display" eyebrow={t.hero.eyebrow} title={t.hero.title} accentLine={1} lead={t.hero.lead} actions={t.hero.actions}>
+        <Art slot="media" variant="orbits" />
+        <Fragment slot="meta">
+          <span>{t.hero.country}</span>
+          <span>{t.hero.note}</span>
+        </Fragment>
+      </Hero>
+    </div>
+    <div data-block="top" data-variant="split" hidden={show("top", "split")}>
+      <Hero
+        variant="split"
+        id="top-split"
+        eyebrow={t.hero.eyebrow}
+        title={t.hero.title}
+        accentLine={1}
+        lead={t.hero.lead}
+        actions={t.hero.actions}
+        balance="copy"
+      >
+        <p slot="after" class="studio-note">
+          {t.hero.note}
+        </p>
+        <ProductCard slot="figure" c={t.card} />
+      </Hero>
+    </div>
+    <div data-block="top" data-variant="centered" hidden={show("top", "centered")}>
+      <Hero variant="centered" id="top-centered" eyebrow={t.hero.eyebrow} title={t.hero.title} accentLine={1} lead={t.hero.lead} actions={t.hero.actions}>
+        <p slot="after" class="studio-note">
+          {t.hero.note}
+        </p>
+        <AppWindow slot="figure" c={t.app} />
+      </Hero>
+    </div>
+    <div data-block="top" data-variant="statement" hidden={show("top", "statement")}>
+      <Hero variant="statement" id="top-statement" eyebrow={t.hero.eyebrow} title={t.hero.title} accentLine={1} lead={t.hero.lead} actions={t.hero.actions} />
+    </div>
+
+    <div data-block="statement" data-variant="start" hidden={show("statement", "start")}>
+      <Statement id="statement-start" eyebrow={t.statement.eyebrow} index="01" statement={t.statement.text} lead={t.statement.lead} />
+    </div>
+
+    <div data-block="logos" data-variant="grid" hidden={show("logos", "grid")}>
+      <LogoCloud id="logos-grid" title={t.logos.title} logos={t.logos.names.map((n) => ({ name: n }))} variant="grid" note={t.logos.note} />
+    </div>
+    <div data-block="logos" data-variant="row" hidden={show("logos", "row")}>
+      <LogoCloud id="logos-row" title={t.logos.title} logos={t.logos.names.map((n) => ({ name: n }))} variant="row" note={t.logos.note} />
+    </div>
+
+    <div data-block="showcase" data-variant="tabs" hidden={show("showcase", "tabs")}>
+      <Showcase
+        id="showcase-tabs"
+        eyebrow={t.showcase.eyebrow}
+        title={t.showcase.title}
+        lead={t.showcase.lead}
+        tabsLabel={t.showcase.tabsLabel}
+        items={t.showcase.items}
+        headerLayout="split"
+      >
+        <Art slot="media-plan" variant="blocks" />
+        <Art slot="media-track" variant="waves" />
+        <Art slot="media-share" variant="stack" />
+      </Showcase>
+    </div>
+
+    {(["grid", "list", "index", "bento"] as const).map((v) => (
+      <div data-block="features" data-variant={v} hidden={show("features", v)}>
+        <Features
+          id={`features-${v}`}
+          variant={v}
+          eyebrow={t.features.eyebrow}
+          index={v === "index" ? "02" : undefined}
+          title={t.features.title}
+          lead={t.features.lead}
+          items={v === "bento" ? t.features.items.slice(0, 5) : t.features.items}
+          headerLayout={v === "index" ? "split" : "stack"}
+        />
+      </div>
+    ))}
+
+    <div data-block="narrative" data-variant="rows" hidden={show("narrative", "rows")}>
+      <FeatureNarrative id="narrative-rows" eyebrow={t.narrative.eyebrow} title={t.narrative.title} items={t.narrative.items}>
+        <Art slot="media-0" variant="blocks" />
+        <Art slot="media-1" variant="waves" />
+        <Art slot="media-2" variant="stack" />
+      </FeatureNarrative>
+    </div>
+
+    <div data-block="steps" data-variant="cards" hidden={show("steps", "cards")}>
+      <Steps id="steps-cards" variant="cards" eyebrow={t.steps.eyebrow} title={t.steps.title} items={t.steps.items.slice(0, 3)} />
+    </div>
+    <div data-block="steps" data-variant="timeline" hidden={show("steps", "timeline")}>
+      <Steps
+        id="steps-timeline"
+        variant="timeline"
+        eyebrow={t.steps.eyebrow}
+        title={t.steps.title}
+        items={t.steps.items}
+        current={2}
+        currentLabel={t.steps.now}
+      />
+    </div>
+
+    {(["row", "cards"] as const).map((v) => (
+      <div data-block="stats" data-variant={v} hidden={show("stats", v)}>
+        <Stats id={`stats-${v}`} variant={v} eyebrow={t.stats.eyebrow} title={t.stats.title} items={t.stats.items} note={t.stats.note} />
+      </div>
+    ))}
+
+    {(["grid", "featured"] as const).map((v) => (
+      <div data-block="quotes" data-variant={v} hidden={show("quotes", v)}>
+        <Testimonials
+          id={`quotes-${v}`}
+          variant={v}
+          eyebrow={t.quotes.eyebrow}
+          title={t.quotes.title}
+          items={t.quotes.items}
+          note={t.quotes.note}
+          separator={locale === "ar" ? "، " : ", "}
+        />
+      </div>
+    ))}
+
+    <div data-block="compare" data-variant="table" hidden={show("compare", "table")}>
+      <Comparison
+        id="compare-table"
+        eyebrow={t.compare.eyebrow}
+        title={t.compare.title}
+        caption={t.compare.caption}
+        rowHeader={t.compare.rowHeader}
+        columns={t.compare.columns}
+        rows={t.compare.rows}
+        highlight={0}
+        labels={{ yes: t.ui.yes, no: t.ui.no }}
+      />
+    </div>
+
+    <div data-block="pricing" data-variant="plans" hidden={show("pricing", "plans")}>
+      <Pricing
+        id="pricing-plans"
+        eyebrow={t.pricing.eyebrow}
+        title={t.pricing.title}
+        lead={t.pricing.lead}
+        plans={t.pricing.plans}
+        billing={t.pricing.billing}
+        footnote={t.pricing.footnote}
+      />
+    </div>
+
+    {(["split", "stacked"] as const).map((v) => (
+      <div data-block="faq" data-variant={v} hidden={show("faq", v)}>
+        <FAQ id={`faq-${v}`} variant={v} eyebrow={t.faq.eyebrow} title={t.faq.title} lead={t.faq.lead} items={t.faq.items} />
+      </div>
+    ))}
+
+    <div data-block="contact" data-variant="form" hidden={show("contact", "form")}>
+      <Contact id="contact-form" eyebrow={t.contact.eyebrow} title={t.contact.title} lead={t.contact.lead}>
+        <Form action="#contact" label={f.label} successMessage={f.success} errorSummary={f.errors} demo>
+          <p class="studio-note">{f.note}</p>
+          <Field idPrefix="pf" name="name" label={f.name} required requiredLabel={f.required} autocomplete="name" requiredMessage={f.requiredMsg} />
+          <Field
+            idPrefix="pf"
+            name="email"
+            type="email"
+            label={f.email}
+            required
+            requiredLabel={f.required}
+            autocomplete="email"
+            dir="ltr"
+            requiredMessage={f.requiredMsg}
+            invalidMessage={f.emailMsg}
+          />
+          <Field idPrefix="pf" name="message" type="textarea" label={f.message} required requiredLabel={f.required} requiredMessage={f.requiredMsg} />
+          <Button type="submit" icon="arrow-right">
+            {f.submit}
+          </Button>
+        </Form>
+      </Contact>
+    </div>
+
+    {(["band", "split", "panel"] as const).map((v) => (
+      <div data-block="close" data-variant={v} data-tone-target={v === "panel" ? ".lk-cta__box" : undefined} hidden={show("close", v)}>
+        <CTA id={`close-${v}`} variant={v} title={t.close.title} lead={t.close.lead} actions={t.close.actions} size={v === "band" ? "display" : "h2"} />
+      </div>
+    ))}
+  </main>
+
+  <Footer
+    site={site}
+    locale={locale}
+    path="/preview/"
+    tagline={t.footer.tagline}
+    groups={t.footer.groups}
+    legal={t.footer.legal}
+    labels={{ nav: t.ui.footerNav, language: t.ui.language }}
+  >
+    <Logo slot="logo" name={name} />
+  </Footer>
+</BaseLayout>
+
+<script>
+  import { compileBrand } from "@landing/kit/brand";
+  import { PAGES, buildBrand, type Selection } from "../../studio/options";
+  import { decodeSelection, encodeSelection } from "../../studio/state";
+
+  const main = document.querySelector<HTMLElement>("[data-studio-main]")!;
+  const tokens = Array.from(document.querySelectorAll("style")).find((s) => s.textContent?.startsWith("@layer tokens"))!;
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+  links.forEach((a) => (a.dataset.href = a.getAttribute("href")!));
+
+  function apply(sel: Selection) {
+    tokens.textContent = compileBrand(buildBrand(sel), { locales: ["ar", "en"] });
+
+    const blocks = Array.from(main.querySelectorAll<HTMLElement>("[data-block]"));
+    blocks.forEach((b) => {
+      b.hidden = true;
+      b.removeAttribute("id");
+    });
+    const order = [["top", sel.hero, "base"], ...(PAGES.find((p) => p.id === sel.page) ?? PAGES[0]!).value];
+    for (const [block, variant, tone] of order) {
+      const w = main.querySelector<HTMLElement>(`[data-block="${block}"][data-variant="${variant}"]`);
+      if (!w) continue;
+      w.hidden = false;
+      w.id = block!;
+      w.querySelector(w.dataset.toneTarget ?? "section")?.setAttribute("data-tone", tone!);
+      main.appendChild(w);
+    }
+
+    // in-page links whose target this template doesn't have: hide nav items, retarget buttons
+    for (const a of links) {
+      const id = a.dataset.href!.slice(1);
+      const ok = !!document.getElementById(id);
+      const li = a.closest("li");
+      if (li && (a.closest("nav") || a.closest("footer"))) li.hidden = !ok;
+      else a.setAttribute("href", ok ? `#${id}` : `#${["close", "contact", "top"].find((x) => document.getElementById(x))}`);
+    }
+    document.documentElement.dataset.studio = sel.page;
+  }
+
+  apply(decodeSelection(location.search));
+
+  window.addEventListener("message", (e) => {
+    if (e.origin !== location.origin || e.data?.type !== "studio:apply") return;
+    apply(e.data.selection as Selection);
+    history.replaceState(null, "", encodeSelection(e.data.selection) + location.hash);
+  });
+  if (window.parent !== window) window.parent.postMessage({ type: "studio:ready" }, location.origin);
+</script>
+
+<style is:global>
+  @layer site {
+    .studio-note {
+      font-size: var(--step--1);
+      color: var(--tone-fg-muted);
+    }
+    [data-block="top"] .lk-hero__bg::after {
+      background: linear-gradient(to top, var(--tone-bg) 0%, color-mix(in srgb, var(--tone-bg) 70%, transparent) 45%, transparent 100%);
+    }
+  }
+</style>

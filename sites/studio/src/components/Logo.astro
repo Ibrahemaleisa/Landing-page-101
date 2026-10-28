@@ -1,0 +1,32 @@
+---
+/** Rawaq wordmark (fictional). A mark in the accent colour plus the name in the display face. */
+export interface Props {
+  name: string;
+}
+const { name } = Astro.props;
+---
+
+<span class="rlogo">
+  <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+    <rect width="32" height="32" rx="8" fill="var(--tone-accent)"></rect>
+    <path d="M9 23V12a7 7 0 0 1 14 0v11" fill="none" stroke="var(--tone-on-accent)" stroke-width="3"></path>
+  </svg>
+  <span class="rlogo__name">{name}</span>
+</span>
+
+<style>
+  @layer site {
+    .rlogo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .rlogo__name {
+      font-family: var(--font-display);
+      font-weight: var(--weight-display);
+      font-size: 1.3rem;
+      letter-spacing: var(--tracking-heading);
+      color: var(--tone-fg);
+    }
+  }
+</style>
